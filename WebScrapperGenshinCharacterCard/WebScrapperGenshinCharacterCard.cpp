@@ -16,6 +16,7 @@ using namespace std;
 using namespace cpr;
 
 ofstream writeCsv("FileName.csv");
+string character_card_link = "https://static.wikia.nocookie.net/gensin-impact/images/f/f8/";
 
 string extract_html_page() {
     Url url = Url{"https://genshin-impact.fandom.com/wiki/Category:Character_Cards"};
@@ -38,15 +39,17 @@ void search_for_a_name(GumboNode* node) {
 
     if (node->v.element.tag == GUMBO_TAG_A) {
         GumboAttribute* title = gumbo_get_attribute(&node->v.element.attributes, "title");
-        if (title) {
-            cout << title->value << endl;
+        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
+        if (title && href) {
+            cout << title->value << " " << href->value << "\n";
             string FileName = title->value;
+            string LinkStr = href->value;
             if (FileName.rfind("File:") == 0) {
-                writeCsv << "File," << FileName << "\n";
+                writeCsv << "File," << FileName << "," << LinkStr << "\n";
             }
             else
             {
-                writeCsv << "Misc," << FileName << "\n";
+                writeCsv << "Misc," << FileName << "," << LinkStr << "\n";
             }
         }
     }
@@ -60,7 +63,7 @@ int main() {
     check_csv_exist();
     string page_content = extract_html_page();
     GumboOutput* parsed_res = gumbo_parse(page_content.c_str());
-    writeCsv << "Type,FileName" << "\n";
+    writeCsv << "Type,FileName,InnerLink" << "\n";
     search_for_a_name(parsed_res->root);
     writeCsv.close();
     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
