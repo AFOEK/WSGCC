@@ -5,9 +5,9 @@
 #include <fstream>
 #include <iostream>
 
-//This is static links assets of character card image:
+//This is example static links assets of character card image:
 //https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png
-//This is static links assets of character wish image:
+//This is example static links assets of character wish image:
 //https://static.wikia.nocookie.net/gensin-impact/images/5/51/Character_Albedo_Full_Wish.png
 //Tutorial link:
 //https://www.webscrapingapi.com/c-web-scraping/
@@ -16,7 +16,6 @@ using namespace std;
 using namespace cpr;
 
 ofstream writeCsv("FileName.csv");
-string character_card_link = "https://static.wikia.nocookie.net/gensin-impact/images/f/f8/";
 
 string extract_html_page() {
     Url url = Url{"https://genshin-impact.fandom.com/wiki/Category:Character_Cards"};
@@ -24,11 +23,13 @@ string extract_html_page() {
     return res.text;
 }
 
-void check_csv_exist() {
-    FILE* f;
-    if (f = fopen("FileName.csv", "r")) {
-        fclose(f);
-        remove("FilenName.csv");
+void check_csv_exist(const string &filename) {
+    ifstream fin(filename);
+    if (fin.fail()) {
+        return;
+    }
+    else {
+        remove("FileName.csv");
     }
 }
 
@@ -59,8 +60,9 @@ void search_for_a_name(GumboNode* node) {
     }
 }
 
+
 int main() {
-    check_csv_exist();
+    check_csv_exist("FileName.csv");
     string page_content = extract_html_page();
     GumboOutput* parsed_res = gumbo_parse(page_content.c_str());
     writeCsv << "Type,FileName,InnerLink" << "\n";
