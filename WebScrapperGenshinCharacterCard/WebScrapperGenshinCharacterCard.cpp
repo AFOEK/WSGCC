@@ -45,12 +45,20 @@ void search_for_a_name(GumboNode* node) {
             cout << title->value << " " << href->value << "\n";
             string FileName = title->value;
             string LinkStr = href->value;
+            string Chara_name;
             if (FileName.rfind("File:") == 0) {
-                writeCsv << "File," << FileName << "," << LinkStr << "\n";
+                if (FileName.rfind("Traveler") == 0)
+                {
+                    Chara_name = FileName.substr(0);
+                }
+                else {
+                    Chara_name = FileName.substr(15);
+                }
+                writeCsv << "File," << FileName << "," << LinkStr << "," << Chara_name << "\n";
             }
             else
             {
-                writeCsv << "Misc," << FileName << "," << LinkStr << "\n";
+                writeCsv << "Misc," << FileName << "," << LinkStr << "," << NULL << "\n";
             }
         }
     }
