@@ -5,10 +5,12 @@
 #include <fstream>
 #include <iostream>
 
-//This is example static links assets of character card image:
+//This is an example static links assets of character card image:
 //https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png
-//This is example static links assets of character wish image:
+//This is an example static links assets of character wish image:
 //https://static.wikia.nocookie.net/gensin-impact/images/5/51/Character_Albedo_Full_Wish.png
+// This is an example character wiki page link:
+// https://genshin-impact.fandom.com/wiki/Albedo
 //Tutorial link:
 //https://www.webscrapingapi.com/c-web-scraping/
 
@@ -45,20 +47,12 @@ void search_for_a_name(GumboNode* node) {
             cout << title->value << " " << href->value << "\n";
             string FileName = title->value;
             string LinkStr = href->value;
-            string Chara_name;
             if (FileName.rfind("File:") == 0) {
-                if (FileName.rfind("Traveler") == 0)
-                {
-                    Chara_name = FileName.substr(0);
-                }
-                else {
-                    Chara_name = FileName.substr(15);
-                }
-                writeCsv << "File," << FileName << "," << LinkStr << "," << Chara_name << "\n";
+                writeCsv << "File," << FileName << "," << LinkStr << "\n";
             }
             else
             {
-                writeCsv << "Misc," << FileName << "," << LinkStr << "," << NULL << "\n";
+                writeCsv << "Misc," << FileName << "," << LinkStr << "\n";
             }
         }
     }
