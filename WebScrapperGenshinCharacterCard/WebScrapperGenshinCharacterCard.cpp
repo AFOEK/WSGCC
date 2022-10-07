@@ -1,10 +1,11 @@
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include "cpr/cpr.h"
 #include "gumbo.h"
 #include <fstream>
 #include <iostream>
 #include <vector>
+#include <sstream>
 
 //This is an example static links assets of character card image:
 //https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png
@@ -20,10 +21,6 @@ std::ofstream writeCsv("FileName.csv");
 std::ofstream writeImgLink("FileImg.txt");
 std::ifstream readCsv("FileName.csv");
 
-struct data {
-    std::string type, file_name, link;
-};
-
 std::string extract_html_page_category() {
     cpr::Url url_category = cpr::Url{root_url+"wiki/Category:Character_Cards"};
     cpr::Response res = Get(url_category);
@@ -36,18 +33,27 @@ std::string extract_html_page_character(std::string character_wiki_link) {
     return res.text;
 }
 
-std::vector<data> extract_character_link() {
-    std::vector<data> Data;
+std::string extract_character_link() {
     std::string line;
-    while (std::getline(readCsv, line, ',')) {
-        std::stringstream lineStream(line);
-        data ele;
-        lineStream >> ele.type >> ele.file_name >> ele.link;
-        Data.push_back(ele);
-        std::getline(readCsv, line);
+    int rowCount = 0;
+    int rowIdx = 0;
+    while (std::getline(readCsv, line)) {
+        rowCount++;
     }
-    readCsv.close();
-    return Data;
+    
+    std::vector<std::string> data(rowCount);
+    readCsv.clear();
+    readCsv.seekg(readCsv.beg);
+
+    while (getline(readCsv, line)) {
+        std::stringstream SS(line);
+        std::string value;
+        while (getline(SS, value, ',')) {
+            data[rowIdx].push_back(value);
+        }
+        rowIdx++;
+    }
+    return line;
 }
 
 void search_for_a_name(GumboNode* node) {
@@ -59,7 +65,7 @@ void search_for_a_name(GumboNode* node) {
         GumboAttribute* title = gumbo_get_attribute(&node->v.element.attributes, "title");
         GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
         if (title && href) {
-            std::cout << title->value << " " << href->value << "\n";
+            //std::cout << title->value << " " << href->value << "\n";
             std::string FileName = title->value;
             std::string LinkStr = href->value;
             if (FileName.rfind("File:") == 0) {
@@ -85,5 +91,6 @@ int main() {
     search_for_a_name(parsed_res->root);
     writeCsv.close();
     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
+    extract_character_link();
     return 0;
 }
