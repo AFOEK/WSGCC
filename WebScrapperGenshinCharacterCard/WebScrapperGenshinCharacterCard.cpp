@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 //This is an example static links assets of character card image:
 //https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png
@@ -42,16 +43,22 @@ std::string extract_character_link() {
     }
     
     std::vector<std::string> data(rowCount);
+
     readCsv.clear();
     readCsv.seekg(readCsv.beg);
 
     while (getline(readCsv, line)) {
         std::stringstream SS(line);
         std::string value;
-        while (getline(SS, value, ',')) {
+        while(getline(SS, value, ',')) {
             data[rowIdx].push_back(value);
         }
         rowIdx++;
+    }
+    readCsv.close();
+    int colNum = 3;
+    for (int row = 0; row < rowCount; row++) {
+        std::cout << data[row][colNum] << "\n";
     }
     return line;
 }
