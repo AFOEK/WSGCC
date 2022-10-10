@@ -35,33 +35,44 @@ std::string extract_html_page_character(std::string character_wiki_link) {
 }
 
 void extract_character_link() {
-    std::string line;
-    int rowCount = 0;
-    int rowIdx = 0;
-    while (std::getline(readCsv, line)) {
-        rowCount++;
-    }
+    //std::string line;
+    //int rowCount = 0;
+    //int rowIdx = 0;
+    //while (std::getline(readCsv, line)) {
+    //    rowCount++;
+    //}
 
-    std::vector<std::vector<std::string>> data(rowCount);
+    //std::vector<std::vector<std::string>> data(rowCount);
  
-    readCsv.clear();
-    readCsv.seekg(readCsv.beg);
-    while (getline(readCsv, line)) {
-        std::stringstream SS(line);
-        std::string value;
-        while(getline(SS, value, ',')) {
-            data[rowIdx].push_back(SS.str());
-        }
-        rowIdx++;
+    //readCsv.clear();
+    //readCsv.seekg(readCsv.beg);
+    //while(getline(readCsv, line)) {
+    //    std::stringstream SS(line);
+    //    std::string value;
+    //    while(getline(SS, value, ',')) {
+    //        data[rowIdx].push_back(SS.str());
+    //    }
+    //    rowIdx++;
+    //}
+    //
+    ////Its not printing spesific column
+    //int colNum = 1;
+    //for (int row = 0; row < rowCount; row++) {
+    //    std::cout << data[row][colNum] << "\n";
+    //    writeImgLink << data[row][colNum] << "\n";
+    //}
+    //readCsv.close();
+
+    std::string type, name, link;
+
+    while (readCsv.good()) {
+        std::getline(readCsv, type, ',');
+        std::getline(readCsv, name, ',');
+        std::getline(readCsv, link, ',');
+        /*std::cout << type << "\n";
+        std::cout << name << "\n";*/
+        std::cout << link << "\n";
     }
-    
-    //Its not printing spesific column
-    int colNum = 0;
-    for (int row = 0; row < rowCount; row++) {
-        std::cout << data[row][colNum] << "\n";
-        writeImgLink << data[row][colNum] << "\n";
-    }
-    readCsv.close();
 }
 
 void search_for_a_name(GumboNode* node) {
@@ -77,11 +88,11 @@ void search_for_a_name(GumboNode* node) {
             std::string FileName = title->value;
             std::string LinkStr = href->value;
             if (FileName.rfind("File:") == 0) {
-                writeCsv << "File," << FileName << "," << LinkStr << "\n";
+                writeCsv << "\"File\"," << "\"" << FileName << "\"" << "," << "\"" << LinkStr << "\"" << "\n";
             }
             else
             {
-                writeCsv << "Misc," << FileName << "," << LinkStr << "\n";
+                writeCsv << "\"Misc\"," << "\"" << FileName << "\"" << "," << "\"" << LinkStr << "\"" << "\n";
             }
         }
     }
