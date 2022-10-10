@@ -34,33 +34,34 @@ std::string extract_html_page_character(std::string character_wiki_link) {
     return res.text;
 }
 
-std::string extract_character_link() {
+void extract_character_link() {
     std::string line;
     int rowCount = 0;
     int rowIdx = 0;
     while (std::getline(readCsv, line)) {
         rowCount++;
     }
-    
-    std::vector<std::string> data(rowCount);
 
+    std::vector<std::vector<std::string>> data(rowCount);
+ 
     readCsv.clear();
     readCsv.seekg(readCsv.beg);
-
     while (getline(readCsv, line)) {
         std::stringstream SS(line);
         std::string value;
         while(getline(SS, value, ',')) {
-            data[rowIdx].push_back(value);
+            data[rowIdx].push_back(SS.str());
         }
         rowIdx++;
     }
-    readCsv.close();
-    int colNum = 3;
+    
+    //Its not printing spesific column
+    int colNum = 0;
     for (int row = 0; row < rowCount; row++) {
         std::cout << data[row][colNum] << "\n";
+        writeImgLink << data[row][colNum] << "\n";
     }
-    return line;
+    readCsv.close();
 }
 
 void search_for_a_name(GumboNode* node) {
