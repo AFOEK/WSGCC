@@ -35,7 +35,7 @@ std::string extract_html_page_character(std::string character_wiki_link) {
 }
 
 void extract_character_link() {
-    /*std::string line;
+    std::string line;
     int rowCount = 0;
     int rowIdx = 0;
     while (std::getline(readCsv, line)) {
@@ -51,7 +51,7 @@ void extract_character_link() {
         std::stringstream SS(line);
         std::string value;
         while(getline(SS, value, ',')) {
-            data[rowIdx].push_back(SS.str());
+            data[rowIdx].push_back(value);
         }
         rowIdx++;
     }
@@ -61,18 +61,18 @@ void extract_character_link() {
         std::cout << data[row][colNum] << "\n";
         writeImgLink << data[row][colNum] << "\n";
     }
-    readCsv.close();*/
+    readCsv.close();
 
-    std::string type, name, link;
+    //std::string type, name, link;
 
-    while (readCsv.good()) {
-        std::getline(readCsv, type, ',');
-        std::getline(readCsv, name, ',');
-        std::getline(readCsv, link, ',');
-        /*std::cout << type << "\n";
-        std::cout << name << "\n";*/
-        std::cout << link << "\n";
-    }
+    //while (readCsv.good()) {
+    //    std::getline(readCsv, type, ',');
+    //    std::getline(readCsv, name, ',');
+    //    std::getline(readCsv, link, ',');
+    //    /*std::cout << type << "\n";
+    //    std::cout << name << "\n";*/
+    //    std::cout << link << "\n";
+    //}
 }
 
 void search_for_a_name(GumboNode* node) {
