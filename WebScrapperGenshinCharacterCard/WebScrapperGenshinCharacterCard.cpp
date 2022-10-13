@@ -35,7 +35,7 @@ std::string extract_html_page_character(std::string character_wiki_link) {
     return res.text;
 }
 
-void extract_character_link() {
+std::vector<std::string> extract_character_link() {
     std::string line;
     int rowCount = 0;
     int rowIdx = 0;
@@ -44,7 +44,7 @@ void extract_character_link() {
     }
 
     std::vector<std::vector<std::string>> data(rowCount);
- 
+    std::vector<std::string> data_img(rowCount);
     readCsv.clear();
     readCsv.seekg(readCsv.beg);
 
@@ -60,8 +60,18 @@ void extract_character_link() {
     int colNum = 2;
     for (int row = 0; row < rowCount; row++) {
         writeImgLink << data[row][colNum] << "\n";
+        data_img.push_back(data[row][colNum]);
     }
     readCsv.close();
+    return data_img;
+}
+
+std::vector<std::string> sanitize_vecs(std::vector<std::string> vecs) {
+    auto isEmptyOrBlank = [](const std::string& s) {
+        return s.find_first_not_of("\t") == std::string::npos;
+    };
+    vecs.erase(std::remove_if(vecs.begin(), vecs.end(), isEmptyOrBlank), vecs.end());
+    return vecs;
 }
 
 void search_for_a_name(GumboNode* node) {
@@ -93,11 +103,16 @@ void search_for_a_name(GumboNode* node) {
 
 
 int main() {
+    std::vector<std::string> img_vecs, temp;
     std::string page_content = extract_html_page_category();
     GumboOutput* parsed_res = gumbo_parse(page_content.c_str());
     search_for_a_name(parsed_res->root);
     writeCsv.close();
     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
-    extract_character_link();
+    temp = extract_character_link();
+    img_vecs = sanitize_vecs(temp);
+    for (int i=0; i < img_vecs.size(); i++) {
+        std::cout<<img_vecs[i]<<std::endl;
+    }
     return 0;
 }
