@@ -17,7 +17,7 @@
 //Tutorial link:
 //https://www.webscrapingapi.com/c-web-scraping/
 
-std::string root_url = "https://genshin-impact.fandom.com/";
+std::string root_url = "https://genshin-impact.fandom.com";
 std::ofstream writeCsv("FileName.csv");
 std::ofstream writeImgLink("FileImg.txt");
 std::ofstream writeLink("ImgLink.txt");
@@ -25,7 +25,7 @@ std::ifstream readCsv("FileName.csv");
 std::ifstream readImgLink("FileImg.txt");
 
 std::string extract_html_page_category() {
-    cpr::Url url_category = cpr::Url{root_url+"wiki/Category:Character_Cards"};
+    cpr::Url url_category = cpr::Url{root_url+"/wiki/Category:Character_Cards"};
     cpr::Response res = Get(url_category);
     return res.text;
 }
@@ -75,26 +75,24 @@ std::vector<std::string> sanitize_vecs(std::vector<std::string> vecs) {
     return vecs;
 }
 
-void search_for_img_a(GumboNode* node) {
+void search_for_img(GumboNode* node) {
     if (node->type != GUMBO_NODE_ELEMENT) {
         return;
     }
-    if (node->v.element.tag == GUMBO_TAG_IMAGE) {
-        GumboAttribute* img_href = gumbo_get_attribute(&node->v.element.attributes, "src");
-        if (img_href) {
-            std::string img_link = img_href->value;
-            if (img_link.rfind("https://static") == 0) {
-                std::cout << img_href->value << "\n";
-                writeLink << img_link;
-            }
-            else {
-                throw std::invalid_argument("Empty Image Link !");
+
+    if (node->v.element.tag == GUMBO_TAG_A) {
+        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
+        if (href) {
+            std::string LinkImg = href->value;
+            std::cout << LinkImg << "\n";
+            if (LinkImg.rfind("_Card") == 0) {
+                writeLink << LinkImg << "\n";
             }
         }
     }
     GumboVector* child = &node->v.element.children;
     for (unsigned int i = 0; i < child->length; i++) {
-        search_for_img_a(static_cast<GumboNode*>(child->data[i]));
+        search_for_img(static_cast<GumboNode*>(child->data[i]));
     }
 }
 
@@ -134,12 +132,14 @@ int main() {
     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
     temp = extract_character_link();
     img_vecs = sanitize_vecs(temp);
-    std::cout << img_vecs[0];
     /*for (int i = 0; i < img_vecs.size(); i++) {
         std::string page_chara_content = extract_html_page_character(img_vecs[i]);
         GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
-        search_for_img_a(parsed_res_chara->root);
+        search_for_img(parsed_res_chara->root);
     }*/
+    std::string page_chara_content = extract_html_page_character(img_vecs[8]);
+    GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+    search_for_img(parsed_res_chara->root);
     writeLink.close();
     return 0;
 }
