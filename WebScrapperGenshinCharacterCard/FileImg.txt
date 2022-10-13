@@ -1,4 +1,3 @@
-InnerLink
 /wiki/Special:Search
 /f
 #

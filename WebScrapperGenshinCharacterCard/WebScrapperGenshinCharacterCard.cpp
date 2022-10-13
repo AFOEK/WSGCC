@@ -21,6 +21,7 @@ std::string root_url = "https://genshin-impact.fandom.com/";
 std::ofstream writeCsv("FileName.csv");
 std::ofstream writeImgLink("FileImg.txt");
 std::ifstream readCsv("FileName.csv");
+std::ifstream readImgLink("FileImg.txt");
 
 std::string extract_html_page_category() {
     cpr::Url url_category = cpr::Url{root_url+"wiki/Category:Character_Cards"};
@@ -58,21 +59,9 @@ void extract_character_link() {
     
     int colNum = 2;
     for (int row = 0; row < rowCount; row++) {
-        std::cout << data[row][colNum] << "\n";
         writeImgLink << data[row][colNum] << "\n";
     }
     readCsv.close();
-
-    //std::string type, name, link;
-
-    //while (readCsv.good()) {
-    //    std::getline(readCsv, type, ',');
-    //    std::getline(readCsv, name, ',');
-    //    std::getline(readCsv, link, ',');
-    //    /*std::cout << type << "\n";
-    //    std::cout << name << "\n";*/
-    //    std::cout << link << "\n";
-    //}
 }
 
 void search_for_a_name(GumboNode* node) {
@@ -106,7 +95,6 @@ void search_for_a_name(GumboNode* node) {
 int main() {
     std::string page_content = extract_html_page_category();
     GumboOutput* parsed_res = gumbo_parse(page_content.c_str());
-    writeCsv << "Type,FileName,InnerLink" << "\n";
     search_for_a_name(parsed_res->root);
     writeCsv.close();
     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
