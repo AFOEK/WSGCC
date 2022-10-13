@@ -20,6 +20,7 @@
 std::string root_url = "https://genshin-impact.fandom.com/";
 std::ofstream writeCsv("FileName.csv");
 std::ofstream writeImgLink("FileImg.txt");
+std::ofstream writeLink("ImgLink.txt");
 std::ifstream readCsv("FileName.csv");
 std::ifstream readImgLink("FileImg.txt");
 
@@ -74,6 +75,29 @@ std::vector<std::string> sanitize_vecs(std::vector<std::string> vecs) {
     return vecs;
 }
 
+void search_for_img_a(GumboNode* node) {
+    if (node->type != GUMBO_NODE_ELEMENT) {
+        return;
+    }
+    if (node->v.element.tag == GUMBO_TAG_IMAGE) {
+        GumboAttribute* img_href = gumbo_get_attribute(&node->v.element.attributes, "src");
+        if (img_href) {
+            std::string img_link = img_href->value;
+            if (img_link.rfind("https://static") == 0) {
+                std::cout << img_href->value << "\n";
+                writeLink << img_link;
+            }
+            else {
+                throw std::invalid_argument("Empty Image Link !");
+            }
+        }
+    }
+    GumboVector* child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++) {
+        search_for_img_a(static_cast<GumboNode*>(child->data[i]));
+    }
+}
+
 void search_for_a_name(GumboNode* node) {
     if (node->type != GUMBO_NODE_ELEMENT) {
         return;
@@ -83,7 +107,6 @@ void search_for_a_name(GumboNode* node) {
         GumboAttribute* title = gumbo_get_attribute(&node->v.element.attributes, "title");
         GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
         if (title && href) {
-            //std::cout << title->value << " " << href->value << "\n";
             std::string FileName = title->value;
             std::string LinkStr = href->value;
             if (FileName.rfind("File:") == 0) {
@@ -111,8 +134,12 @@ int main() {
     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
     temp = extract_character_link();
     img_vecs = sanitize_vecs(temp);
-    for (int i=0; i < img_vecs.size(); i++) {
-        std::cout<<img_vecs[i]<<std::endl;
-    }
+    std::cout << img_vecs[0];
+    /*for (int i = 0; i < img_vecs.size(); i++) {
+        std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+        GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+        search_for_img_a(parsed_res_chara->root);
+    }*/
+    writeLink.close();
     return 0;
 }
