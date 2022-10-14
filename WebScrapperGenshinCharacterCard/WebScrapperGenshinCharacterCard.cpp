@@ -80,13 +80,13 @@ void search_for_img(GumboNode* node) {
         return;
     }
 
-    if (node->v.element.tag == GUMBO_TAG_A) {
-        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
-        if (href) {
-            std::string LinkImg = href->value;
-            std::cout << LinkImg << "\n";
-            if (LinkImg.rfind("_Card") == 0) {
+    if (node->v.element.tag == GUMBO_TAG_IMG) {
+        GumboAttribute* imgLink = gumbo_get_attribute(&node->v.element.attributes, "src");
+        if (imgLink) {
+            std::string LinkImg = imgLink->value;
+            if (LinkImg.rfind("_Card") != 18446744073709551615) {
                 writeLink << LinkImg << "\n";
+                std::cout << LinkImg << "\n";
             }
         }
     }
@@ -132,14 +132,16 @@ int main() {
     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
     temp = extract_character_link();
     img_vecs = sanitize_vecs(temp);
-    /*for (int i = 0; i < img_vecs.size(); i++) {
+    for (int i = 8; i < img_vecs.size()-3; i++) {
         std::string page_chara_content = extract_html_page_character(img_vecs[i]);
         GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
         search_for_img(parsed_res_chara->root);
-    }*/
-    std::string page_chara_content = extract_html_page_character(img_vecs[8]);
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+    }
+    /*std::string page_chara_content = extract_html_page_character(img_vecs[69]);
     GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
     search_for_img(parsed_res_chara->root);
+    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);*/
     writeLink.close();
     return 0;
 }
