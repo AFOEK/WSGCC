@@ -1,12 +1,15 @@
 #include <cstdio>
 #include <string>
-#include "cpr/cpr.h"
-#include "gumbo.h"
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <curl/curl.h>
+#include <curl/easy.h>
+#include "cpr/cpr.h"
+#include "gumbo.h"
+
 
 //This is an example static links assets of character card image:
 //https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png
@@ -23,6 +26,7 @@ std::ofstream writeImgLink("FileImg.txt");
 std::ofstream writeLink("ImgLink.txt");
 std::ifstream readCsv("FileName.csv");
 std::ifstream readImgLink("FileImg.txt");
+std::ifstream readLink("FileImg.txt");
 
 std::string extract_html_page_category() {
     cpr::Url url_category = cpr::Url{root_url+"/wiki/Category:Character_Cards"};
@@ -49,7 +53,7 @@ std::vector<std::string> extract_character_link() {
     readCsv.clear();
     readCsv.seekg(readCsv.beg);
 
-    while(getline(readCsv, line)) {
+    while(std::getline(readCsv, line)) {
         std::stringstream SS(line);
         std::string value;
         while(getline(SS, value, ',')) {
@@ -86,7 +90,7 @@ void search_for_img(GumboNode* node) {
             std::string LinkImg = imgLink->value;
             if (LinkImg.rfind("_Card") != 18446744073709551615) {
                 writeLink << LinkImg << "\n";
-                std::cout << LinkImg << "\n";
+                //std::cout << LinkImg << "\n";
             }
         }
     }
@@ -122,6 +126,29 @@ void search_for_a_name(GumboNode* node) {
     }
 }
 
+void download_img() {
+    CURL* img;
+    CURLcode imgres;
+    FILE* f;
+    std::vector<std::string> vec;
+    std::string line;
+
+    while (std::getline(readLink, line)) {
+        std::stringstream SS(line);
+        std::string value;
+        while (getline(SS, value, ',')) {
+            vec.push_back(value);
+        }
+    }
+
+    img = curl_easy_init();
+    if (img) {
+        for (int i = 0; i < vec.size(); i++) {
+
+        }
+    }
+    fclose(f);
+}
 
 int main() {
     std::vector<std::string> img_vecs, temp;
@@ -138,6 +165,7 @@ int main() {
         search_for_img(parsed_res_chara->root);
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
     }
+    //Don't delete it's for debugging !!
     /*std::string page_chara_content = extract_html_page_character(img_vecs[69]);
     GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
     search_for_img(parsed_res_chara->root);
