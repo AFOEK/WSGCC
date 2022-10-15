@@ -90,7 +90,7 @@ void search_for_img(GumboNode* node) {
             std::string LinkImg = imgLink->value;
             if (LinkImg.rfind("_Card") != 18446744073709551615) {
                 writeLink << LinkImg << "\n";
-                //std::cout << LinkImg << "\n";
+                std::cout << LinkImg << "\n";
             }
         }
     }
@@ -129,25 +129,27 @@ void search_for_a_name(GumboNode* node) {
 void download_img() {
     CURL* img;
     CURLcode imgres;
-    FILE* f;
-    std::vector<std::string> vec;
+    //FILE* f;
+    std::vector<std::string> vec, tmp;
     std::string line;
 
     while (std::getline(readLink, line)) {
         std::stringstream SS(line);
         std::string value;
         while (getline(SS, value, ',')) {
-            vec.push_back(value);
+            tmp.push_back(value);
         }
     }
+    
+    vec=sanitize_vecs(tmp);
 
     img = curl_easy_init();
     if (img) {
         for (int i = 0; i < vec.size(); i++) {
-
+            std::cout << vec[i];
         }
     }
-    fclose(f);
+    //fclose(f);
 }
 
 int main() {
