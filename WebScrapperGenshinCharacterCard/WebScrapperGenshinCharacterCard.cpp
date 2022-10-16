@@ -87,10 +87,12 @@ void search_for_img(GumboNode* node) {
     if (node->v.element.tag == GUMBO_TAG_IMG) {
         GumboAttribute* imgLink = gumbo_get_attribute(&node->v.element.attributes, "src");
         if (imgLink) {
-            std::string LinkImg = imgLink->value;
-            if (LinkImg.rfind("_Card") != 18446744073709551615) {
-                writeLink << LinkImg << "\n";
-                std::cout << LinkImg << "\n";
+            std::string LinkImg;
+            std::string LinkImgTmp = imgLink->value;
+            if (LinkImgTmp.rfind("_Card") != 18446744073709551615) {
+                //writeLink << LinkImg << "\n";
+                LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                std::cout << LinkImgTmp << "\n";
             }
         }
     }
@@ -124,32 +126,6 @@ void search_for_a_name(GumboNode* node) {
     for (unsigned int i = 0; i < child->length; i++) {
         search_for_a_name(static_cast<GumboNode*>(child->data[i]));
     }
-}
-
-void download_img() {
-    CURL* img;
-    CURLcode imgres;
-    //FILE* f;
-    std::vector<std::string> vec, tmp;
-    std::string line;
-
-    while (std::getline(readLink, line)) {
-        std::stringstream SS(line);
-        std::string value;
-        while (getline(SS, value, ',')) {
-            tmp.push_back(value);
-        }
-    }
-    
-    vec=sanitize_vecs(tmp);
-
-    img = curl_easy_init();
-    if (img) {
-        for (int i = 0; i < vec.size(); i++) {
-            std::cout << vec[i];
-        }
-    }
-    //fclose(f);
 }
 
 int main() {
