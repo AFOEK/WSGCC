@@ -10,8 +10,8 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
     └── Wiki Fandom Category Page (https://genshin-impact.fandom.com/wiki/Category:Character_Cards)
         └── Character Page (https://genshin-impact.fandom.com/wiki/*Character_Name*)
             ├── ...
-            ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/8/8d/Character_Ganyu_Card.png/revision/latest/])
-            ├── Character Wish Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/8/8d/Character_Ganyu_Wish.png/revision/latest/])
+            ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/8/8d/*Character_Name*/revision/latest/])
+            ├── Character Wish Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/8/8d/*Character_Name*/revision/latest/])
             └── ...
 </pre>
 
@@ -22,7 +22,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Get character images card HD and uncropped.
 - [ ] Download all character card images.
 - [ ] Get character images wish HD and uncropped.
-- [ ] Download all character card images.
+- [ ] Download all character wish images.
 - [ ] Compile for Linux (x86 and x64), macOS (x64 and armhf), and ARM(arm64 and armv7l).
 
 ## Citation
