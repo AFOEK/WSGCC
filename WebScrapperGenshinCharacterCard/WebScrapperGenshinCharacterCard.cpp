@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <cstdio>
 #include <string>
 #include <fstream>
@@ -5,9 +6,10 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <filesystem>
+#include <cstdlib>
 #include <curl/curl.h>
 #include <curl/easy.h>
-#include <filesystem>
 #include "cpr/cpr.h"
 #include "gumbo.h"
 
@@ -27,6 +29,12 @@ std::ofstream writeImgLink("FileImg.txt");
 std::ofstream writeLink("ImgLink.txt");
 std::ifstream readCsv("FileName.csv");
 std::ifstream readLink("ImgLink.txt");
+
+size_t write_data(void *ptr, size_t size, size_t buff, FILE *stream) {
+    size_t written;
+    written = fwrite(ptr, size, buff, stream);
+    return written;
+}
 
 std::string extract_html_page_category() {
     cpr::Url url_category = cpr::Url{root_url+"/wiki/Category:Character_Cards"};
@@ -129,8 +137,7 @@ void search_for_a_name(GumboNode* node) {
     }
 }
 
-void downloads_images() {
-    std::filesystem::create_directory("Character Genshin Card Image");
+std::vector<std::string> get_img_links() {
     std::string line;
     std::vector<std::string> img_links;
     while (std::getline(readLink, line)) {
@@ -138,8 +145,36 @@ void downloads_images() {
         img_links.push_back(line);
     }
 
-    for (int i = 0; i < img_links.size();i++) {
+    for (int i = 0; i < img_links.size(); i++) {
         std::cout << img_links[i] << "\n";
+    }
+    return img_links;
+}
+
+void downloads_images(std::string url, std::string file_name) {
+    std::filesystem::create_directory("Character Genshin Card Image");
+    file_name = "Character Genshin Card Image\\" + file_name;
+    CURL* curl;
+    FILE* f;
+    CURLcode res;
+    curl = curl_easy_init();
+    if (curl) {
+        f= fopen(file_name.c_str(), "wb");
+        if (f) {
+            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+            curl_easy_setopt(curl,CURLOPT_WRITEDATA, f);
+            res = curl_easy_perform(curl);
+            curl_easy_cleanup(curl);
+            fclose(f);
+        }
+        else {
+            std::cout << (stderr, "Can't create file !");
+            exit(0);
+        }
+    }
+    else {
+        std::cout << (stderr, "Can't initialize cUrl !");
     }
 }
 
@@ -167,7 +202,13 @@ int main() {
     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);*/
     writeLink.close();
     //Download Img
-    downloads_images();
+    system("PAUSE");
+    std::vector<std::string> link_vecs;
+    link_vecs = get_img_links();
+    for (int i = 0; i < link_vecs.size(); i++) {
+        std::cout << link_vecs[i] << "\n";
+    }
+    //downloads_images();
     readLink.close();
     //Exit gracefully and return memory to OS
     return 0;
