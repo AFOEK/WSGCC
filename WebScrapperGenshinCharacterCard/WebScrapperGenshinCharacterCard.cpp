@@ -64,6 +64,10 @@ bool checkInet() {
     }
     pclose(output);
 }
+#elif defined(__APPLE__) && defined(__MACH__)
+bool checkInet() {
+    return true;
+}
 #endif
 
 size_t write_data(void *ptr, size_t size, size_t buff, FILE *stream) {
