@@ -1,3 +1,5 @@
+//Suppress warning for fopen (depecration warning: Security SEVERE)
+#define _CRT_SECURE_NO_WARNINGS
 //Included library STL
 #include <cstdio>
 #include <string>
@@ -22,11 +24,8 @@
 #include <Wininet.h>
 #pragma comment(lib,"wininet.lib")
 #elif defined(__APPLE__) && defined(__MACH__)
-#include <TargetConditionals.h>
-#elif defined(__unix__)
-#include <>
+#include <sys/sysctl.h>
 #endif
-#define _CRT_SECURE_NO_WARNINGS
 
 //This is an example static links assets of character card image:
 //https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png
@@ -49,7 +48,7 @@ bool checkInet() {
     bool con = InternetCheckConnectionA("https://www.google.com", FLAG_ICC_FORCE_CONNECTION, 0);
     return con;
 }
-#elif defined(_linux_)
+#elif defined(_linux_) && defined(__unix__)
 bool checkInet() {
     FILE* output;
     if (!(output = popen("/sbin/route -n | grep -c '^0\\.0\\.0\\.0'", "r"))) {
@@ -222,7 +221,6 @@ int main() {
         exit(-1);
     }
     else {
-        std::cout << "OK";
         //Get character list from /wiki/Category:Character_Cards
         std::vector<std::string> img_vecs, temp;
         std::string page_content = extract_html_page_category();
