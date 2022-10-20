@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+//Included library STL
 #include <cstdio>
 #include <string>
 #include <fstream>
@@ -10,9 +10,23 @@
 #include <cstdlib>
 #include <curl/curl.h>
 #include <curl/easy.h>
+//Included library external
 #include "cpr/cpr.h"
 #include "gumbo.h"
 
+//Preprocessor
+#if defined(__linux__)
+#include <unistd.h>
+#elif defined(_WIN32)
+#include <windows.h>
+#include <Wininet.h>
+#pragma comment(lib,"wininet.lib")
+#elif defined(__APPLE__) && defined(__MACH__)
+#include <TargetConditionals.h>
+#elif defined(__unix__)
+#include <>
+#endif
+#define _CRT_SECURE_NO_WARNINGS
 
 //This is an example static links assets of character card image:
 //https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png
@@ -29,6 +43,29 @@ std::ofstream writeImgLink("FileImg.txt");
 std::ofstream writeLink("ImgLink.txt");
 std::ifstream readCsv("FileName.csv");
 std::ifstream readLink("ImgLink.txt");
+
+#if defined(_WIN32)
+bool checkInet() {
+    bool con = InternetCheckConnectionA("https://www.google.com", FLAG_ICC_FORCE_CONNECTION, 0);
+    return con;
+}
+#elif defined(_linux_)
+bool checkInet() {
+    FILE* output;
+    if (!(output = popen("/sbin/route -n | grep -c '^0\\.0\\.0\\.0'", "r"))) {
+        return false;
+    }
+    unsigned int i;
+    fscanf(output, "%u", &i);
+    if (i == 0) {
+        return false;
+    }
+    else {
+        return true;
+    }
+    pclose(output);
+}
+#endif
 
 size_t write_data(void *ptr, size_t size, size_t buff, FILE *stream) {
     size_t written;
@@ -145,9 +182,9 @@ std::vector<std::string> get_img_links() {
         img_links.push_back(line);
     }
 
-    for (int i = 0; i < img_links.size(); i++) {
+    /*for (int i = 0; i < img_links.size(); i++) {
         std::cout << img_links[i] << "\n";
-    }
+    }*/
     return img_links;
 }
 
@@ -179,37 +216,46 @@ void downloads_images(std::string url, std::string file_name) {
 }
 
 int main() {
-    //Get character list from /wiki/Category:Character_Cards
-    std::vector<std::string> img_vecs, temp;
-    std::string page_content = extract_html_page_category();
-    GumboOutput* parsed_res = gumbo_parse(page_content.c_str());
-    search_for_a_name(parsed_res->root);
-    writeCsv.close();
-    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
-    //Get character link based character category
-    temp = extract_character_link();
-    img_vecs = sanitize_vecs(temp);
-    for (int i = 8; i < img_vecs.size()-3; i++) {
-        std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+    if (!checkInet()) {
+        std::cout << "Failed to connect to internet, this program need internet to working properly !";
+        system("PAUSE");
+        exit(-1);
+    }
+    else {
+        std::cout << "OK";
+        //Get character list from /wiki/Category:Character_Cards
+        std::vector<std::string> img_vecs, temp;
+        std::string page_content = extract_html_page_category();
+        GumboOutput* parsed_res = gumbo_parse(page_content.c_str());
+        search_for_a_name(parsed_res->root);
+        writeCsv.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res);
+        //Get character link based character category
+        temp = extract_character_link();
+        img_vecs = sanitize_vecs(temp);
+        for (int i = 8; i < img_vecs.size() - 3; i++) {
+            std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+            GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+            search_for_img(parsed_res_chara->root);
+            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+        }
+        //Don't delete it's for debugging !!
+        /*std::string page_chara_content = extract_html_page_character(img_vecs[69]);
         GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
         search_for_img(parsed_res_chara->root);
-        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);*/
+        writeLink.close();
+        //Download Img
+        std::vector<std::string> link_vecs;
+        std::string file_name;
+        link_vecs = get_img_links();
+        for (int i = 0; i < link_vecs.size(); i++) {
+            file_name = link_vecs[i];
+            //std::cout << file_name.rfind("Character_") << file_name.rfind("Traveler_") << "\n";
+            //downloads_images(link_vecs[i],file_name);
+        }
+        readLink.close();
+        //Exit gracefully and return memory to OS
+        return 0;
     }
-    //Don't delete it's for debugging !!
-    /*std::string page_chara_content = extract_html_page_character(img_vecs[69]);
-    GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
-    search_for_img(parsed_res_chara->root);
-    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);*/
-    writeLink.close();
-    //Download Img
-    system("PAUSE");
-    std::vector<std::string> link_vecs;
-    link_vecs = get_img_links();
-    for (int i = 0; i < link_vecs.size(); i++) {
-        std::cout << link_vecs[i] << "\n";
-    }
-    //downloads_images();
-    readLink.close();
-    //Exit gracefully and return memory to OS
-    return 0;
 }
