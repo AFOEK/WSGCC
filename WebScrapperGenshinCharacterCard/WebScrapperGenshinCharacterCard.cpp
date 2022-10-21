@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <cstdlib>
+#include <cmath>
 #include <curl/curl.h>
 #include <curl/easy.h>
 //Included library external
@@ -19,6 +20,7 @@
 //Preprocessor
 #if defined(__linux__)
 #include <unistd.h>
+#include <bits/stdc++.h>
 #elif defined(_WIN32)
 #include <windows.h>
 #include <Wininet.h>
@@ -37,6 +39,8 @@
 //https://www.webscrapingapi.com/c-web-scraping/
 
 std::string root_url = "https://genshin-impact.fandom.com";
+int nb_bar;
+double last_progress, progress_bar_adv;
 std::ofstream writeCsv("FileName.csv");
 std::ofstream writeImgLink("FileImg.txt");
 std::ofstream writeLink("ImgLink.txt");
@@ -66,7 +70,8 @@ bool checkInet() {
 }
 #elif defined(__APPLE__) && defined(__MACH__)
 bool checkInet() {
-    return true;
+    std::cout << "No implementation for this function";
+    return true;    //There are no implementation for this function
 }
 #endif
 
@@ -141,7 +146,6 @@ void search_for_img(GumboNode* node) {
             if (LinkImgTmp.rfind("_Card") != 18446744073709551615) {
                 LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                 writeLink << LinkImgTmp << "\n";
-                std::cout << LinkImgTmp << "\n";
             }
         }
     }
@@ -184,15 +188,43 @@ std::vector<std::string> get_img_links() {
         std::istringstream ISS;
         img_links.push_back(line);
     }
-
-    /*for (int i = 0; i < img_links.size(); i++) {
-        std::cout << img_links[i] << "\n";
-    }*/
     return img_links;
 }
 
+int progress_bar(void* bar, double t, double d) {
+    if (last_progress != round(d / t * 100))
+    {
+        nb_bar = 55;
+        progress_bar_adv = round(d / t * nb_bar);
+
+        std::cout << "\r ";
+        std::cout << " Progress : [ ";
+
+        if (round(d / t * 100) < 10)
+        {
+            std::cout << "0" << round(d / t * 100) << " %]";
+        }
+        else
+        {
+            std::cout << round(d / t * 100) << " %] ";
+        }
+        std::cout << " [";
+        for (int i = 0; i <= progress_bar_adv; i++)
+        {
+            std::cout << "#";
+        }
+        for (int i = 0; i < nb_bar - progress_bar_adv; i++)
+        {
+            std::cout << ".";
+        }
+
+        std::cout << "]";
+        last_progress = round(d / t * 100);
+    }
+    return 0;
+}
+
 void downloads_images(std::string url, std::string file_name) {
-    std::filesystem::create_directory("Character Genshin Card Image");
     file_name = "Character Genshin Card Image\\" + file_name;
     CURL* curl;
     FILE* f;
@@ -203,28 +235,48 @@ void downloads_images(std::string url, std::string file_name) {
         if (f) {
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-            curl_easy_setopt(curl,CURLOPT_WRITEDATA, f);
+            curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
+            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+            curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, progress_bar);
             res = curl_easy_perform(curl);
             curl_easy_cleanup(curl);
             fclose(f);
         }
         else {
             std::cout << (stderr, "Can't create file !");
-            exit(0);
+            exit(-1);
         }
     }
     else {
         std::cout << (stderr, "Can't initialize cUrl !");
+        exit(-1);
     }
 }
 
 int main() {
     if (!checkInet()) {
-        std::cout << "Failed to connect to internet, this program need internet to working properly !";
+        std::cout << "Failed to connect to internet, this program need internet to working properly !" << "\n";
         system("PAUSE");
+        writeCsv.close();
+        writeImgLink.close();
+        writeLink.close();
+        readCsv.close();
+        readLink.close();
         exit(-1);
     }
     else {
+        //Init folder for contain all image file
+        if (!std::filesystem::is_empty("Character Genshin Card Image")) {
+            for (const auto& files : std::filesystem::directory_iterator("Character Genshin Card Image")) {
+                std::filesystem::remove_all(files.path());
+            }
+        }
+        else {
+            std::filesystem::create_directory("Character Genshin Card Image");
+            #if defined(_linux_) && defined(__unix__)
+            std::filesystem::permission("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+        }
         //Get character list from /wiki/Category:Character_Cards
         std::vector<std::string> img_vecs, temp;
         std::string page_content = extract_html_page_category();
@@ -253,8 +305,9 @@ int main() {
         link_vecs = get_img_links();
         for (int i = 0; i < link_vecs.size(); i++) {
             file_name = link_vecs[i];
-            //std::cout << file_name.rfind("Character_") << file_name.rfind("Traveler_") << "\n";
-            //downloads_images(link_vecs[i],file_name);
+            file_name.erase(0, 60);
+            file_name.erase(file_name.size() - 17);
+            downloads_images(link_vecs[i], file_name);
         }
         readLink.close();
         //Exit gracefully and return memory to OS
