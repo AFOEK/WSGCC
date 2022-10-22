@@ -133,7 +133,7 @@ std::vector<std::string> sanitize_vecs(std::vector<std::string> vecs) {
     return vecs;
 }
 
-void search_for_img(GumboNode* node) {
+void search_for_img(GumboNode* node, int imgType) {
     if (node->type != GUMBO_NODE_ELEMENT) {
         return;
     }
@@ -143,15 +143,23 @@ void search_for_img(GumboNode* node) {
         if (imgLink) {
             std::string LinkImg;
             std::string LinkImgTmp = imgLink->value;
-            if (LinkImgTmp.rfind("_Card") != 18446744073709551615) {
-                LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
-                writeLink << LinkImgTmp << "\n";
+            if (imgType == 1) {
+                if (LinkImgTmp.rfind("_Card") != 18446744073709551615) {
+                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    writeLink << LinkImgTmp << "\n";
+                }
+            }
+            else if (imgType == 2) {
+                if (LinkImgTmp.rfind("_Wish") != 18446744073709551615) {
+                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    writeLink << LinkImgTmp << "\n";
+                }
             }
         }
     }
     GumboVector* child = &node->v.element.children;
     for (unsigned int i = 0; i < child->length; i++) {
-        search_for_img(static_cast<GumboNode*>(child->data[i]));
+        search_for_img(static_cast<GumboNode*>(child->data[i]), imgType);
     }
 }
 
@@ -237,6 +245,7 @@ void downloads_images(std::string url, std::string file_name) {
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
             curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+            std::cout << file_name << "\n";
             curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, progress_bar);
             res = curl_easy_perform(curl);
             curl_easy_cleanup(curl);
@@ -268,16 +277,19 @@ int main() {
         //Init folder for contain all image file
         if (!std::filesystem::is_empty("Character Genshin Card Image")) {
             for (const auto& files : std::filesystem::directory_iterator("Character Genshin Card Image")) {
+                std::cout << "Clearing existing file\n";
                 std::filesystem::remove_all(files.path());
             }
         }
         else {
             std::filesystem::create_directory("Character Genshin Card Image");
+            std::cout << "Creating folder\n";
             #if defined(_linux_) && defined(__unix__)
             std::filesystem::permission("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
             #endif
         }
         //Get character list from /wiki/Category:Character_Cards
+        std::cout << "Getting character list from wiki\n";
         std::vector<std::string> img_vecs, temp;
         std::string page_content = extract_html_page_category();
         GumboOutput* parsed_res = gumbo_parse(page_content.c_str());
@@ -287,12 +299,44 @@ int main() {
         //Get character link based character category
         temp = extract_character_link();
         img_vecs = sanitize_vecs(temp);
-        for (int i = 8; i < img_vecs.size() - 3; i++) {
-            std::string page_chara_content = extract_html_page_character(img_vecs[i]);
-            GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
-            search_for_img(parsed_res_chara->root);
-            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
-        }
+        int opt=0;
+        std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n0. Cancel\n";
+        std::cin >> opt;
+        switch (opt) {
+        case 1:
+            for (int i = 8; i < img_vecs.size() - 3; i++) {
+                std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+                GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+                search_for_img(parsed_res_chara->root,opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+            }
+            break;
+        case 2:
+            for (int i = 8; i < img_vecs.size() - 3; i++) {
+                std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+                GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+                search_for_img(parsed_res_chara->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+            }
+            break;
+        case 0:
+            std::cout << "Bye !\n";
+            system("PAUSE");
+            writeCsv.close();
+            writeImgLink.close();
+            writeLink.close();
+            readCsv.close();
+            readLink.close();
+            exit(-1);
+        default:
+            for (int i = 8; i < img_vecs.size() - 3; i++) {
+                std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+                GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+                search_for_img(parsed_res_chara->root, 1);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+            }
+            break;
+        }        
         //Don't delete it's for debugging !!
         /*std::string page_chara_content = extract_html_page_character(img_vecs[69]);
         GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
@@ -300,6 +344,7 @@ int main() {
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);*/
         writeLink.close();
         //Download Img
+        std::cout << "Downloading Images";
         std::vector<std::string> link_vecs;
         std::string file_name;
         link_vecs = get_img_links();

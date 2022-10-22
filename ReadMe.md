@@ -23,7 +23,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Download all character card images.[^img_download]
 - [ ] Get character images wish HD and uncropped.
 - [ ] Download all character wish images.
-- [ ] Compile for Linux (x86 and x64), macOS (x64 and armhf), and ARM(arm64 and armv7l).
+- [ ] Compile for Linux (x86 and x64), macOS (x64 and arm64), and ARM(arm64 and armv7l).
 - [x] Adding internet check. [^macOS_Imp]
 
 ## Citation
