@@ -33,5 +33,5 @@ This project powered by: [gumbo](https://github.com/google/gumbo-parser), [cpr](
 Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki).   
 
 ## Footnote
-[^macOS_Imp] macOS implementation for internet check are limited, since this project are pure C++ and I don't want to call `system()` (it's already memory heavy). the function always return `true`.   
-[^img_download] For image are downloaded into a folder named `Character Genshin Card Image`.
+[^macOS_Imp]: macOS implementation for internet check are limited, since this project are pure C++ and I don't want to call `system()` (it's already memory heavy). the function always return `true`.   
+[^img_download]: For image are downloaded into a folder named `Character Genshin Card Image`.
