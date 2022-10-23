@@ -147,12 +147,14 @@ void search_for_img(GumboNode* node, int imgType) {
                 if (LinkImgTmp.rfind("_Card") != 18446744073709551615) {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
+                    std::cout << LinkImgTmp << "\n";
                 }
             }
             else if (imgType == 2) {
                 if (LinkImgTmp.rfind("_Wish") != 18446744073709551615) {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
+                    std::cout << LinkImgTmp << "\n";
                 }
             }
         }
@@ -245,7 +247,6 @@ void downloads_images(std::string url, std::string file_name) {
             curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
             curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
-            std::cout << file_name << "\n";
             curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, progress_bar);
             res = curl_easy_perform(curl);
             curl_easy_cleanup(curl);
