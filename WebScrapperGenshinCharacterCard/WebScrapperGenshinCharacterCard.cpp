@@ -14,8 +14,8 @@
 #include <curl/curl.h>
 #include <curl/easy.h>
 //Included library external
-#include "cpr/cpr.h"
-#include "gumbo.h"
+#include <cpr/cpr.h>
+#include <gumbo.h>
 
 //Preprocessor
 #if defined(__linux__)
@@ -25,6 +25,9 @@
 #include <windows.h>
 #include <Wininet.h>
 #pragma comment(lib,"wininet.lib")
+#pragma comment(lib, "Ws2_32.Lib")
+#pragma comment(lib, "Wldap32.Lib")
+#pragma comment(lib, "Crypt32.Lib")
 #elif defined(__APPLE__) && defined(__MACH__)
 #include <sys/sysctl.h>
 #endif
