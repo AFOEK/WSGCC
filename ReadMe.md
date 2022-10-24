@@ -20,10 +20,11 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Scrap all character link from `/wiki/Category:Character_Card`.
 - [x] Scrap all character card images link from each character links from file.
 - [x] Get character images card HD and uncropped.
-- [x] Download all character card images.[^img_download]
+- [x] Download all character card images.[^img_download_cards]
 - [x] Get character images wish HD and uncropped.
-- [x] Download all character wish images.
+- [x] Download all character wish images.[^img_download_wishes]
 - [x] Adding internet check. [^macOS_Imp]
+- [x] Create seperated folder for character Wish and Card images.
 - [ ] Compile for Linux (x86 and x64), macOS (x64 and arm64), and ARM(arm64 and armv7l).
 
 ## Citation
@@ -33,5 +34,6 @@ This project powered by: [gumbo](https://github.com/google/gumbo-parser), [cpr](
 Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki).   
 
 ### Footnote
-[^macOS_Imp]: macOS implementation for internet check are limited, since this project are pure C++ and I don't want to call `system()` (it's already memory heavy). the function always return `true`.   
-[^img_download]: For image are downloaded into a folder named `Character Genshin Card Image`.
+[^macOS_Imp]: macOS implementation for internet check are limited, since this project are pure C++ and I don't want to call `system()` (it's already memory heavy). The function always return `true`.   
+[^img_download_cards]: For character card images are downloaded into a folder named `Character Genshin Card Image`.
+[^img_download_wishes]: For character wish images are downloaded into a folder named `Character Genshin Wish Image`.
