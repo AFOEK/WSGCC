@@ -25,7 +25,9 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Download all character wish images.[^img_download_wishes]
 - [x] Adding internet check. [^macOS_Imp]
 - [x] Create seperated folder for character Wish and Card images.
-- [ ] Compile for Linux (x86 and x64), macOS (x64 and arm64), and ARM(arm64 and armv7l).
+- [ ] Compile for Linux (x86 and x64).
+- [ ] Compile for macOS (x64 and arm64).
+- [ ] Compile for ARM(arm64 and armv7l).
 
 ## Citation
 

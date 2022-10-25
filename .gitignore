@@ -367,3 +367,9 @@ FodyWeavers.xsd
 *.png
 *.jpg
 *.jpeg
+# Visual Studio Code
+.vscode/
+# Build file
+build/CMakeFiles
+build/cmake_install.cmake
+build/CMakeCache.txt

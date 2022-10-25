@@ -55,7 +55,7 @@ bool checkInet() {
     bool con = InternetCheckConnectionA("https://www.google.com", FLAG_ICC_FORCE_CONNECTION, 0);
     return con;
 }
-#elif defined(_linux_) && defined(__unix__)
+#elif defined(__linux__) && defined(__unix__)
 bool checkInet() {
     FILE* output;
     if (!(output = popen("/sbin/route -n | grep -c '^0\\.0\\.0\\.0'", "r"))) {
@@ -309,8 +309,8 @@ int main() {
             else {
                 std::filesystem::create_directory("Character Genshin Card Image");
                 std::cout << "Creating folder\n";
-                #if defined(_linux_) && defined(__unix__)
-                std::filesystem::permission("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
             
@@ -335,8 +335,8 @@ int main() {
             else {
                 std::filesystem::create_directory("Character Genshin Wish Image");
                 std::cout << "Creating folder\n";
-                #if defined(_linux_) && defined(__unix__)
-                std::filesystem::permission("Character Genshin Wish Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Wish Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
             for (int i = 8; i < img_vecs.size() - 3; i++) {
@@ -370,8 +370,8 @@ int main() {
             else {
                 std::filesystem::create_directory("Character Genshin Card Image");
                 std::cout << "Creating folder\n";
-                #if defined(_linux_) && defined(__unix__)
-                std::filesystem::permission("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
             for (int i = 8; i < img_vecs.size() - 3; i++) {
