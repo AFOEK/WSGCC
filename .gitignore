@@ -369,6 +369,4 @@ Character Genshin Wish Image/
 # Visual Studio Code
 .vscode/
 # Build file
-build/CMakeFiles
-build/cmake_install.cmake
-build/CMakeCache.txt
+build/
