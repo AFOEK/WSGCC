@@ -10,8 +10,8 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
     └── Wiki Fandom Category Page (https://genshin-impact.fandom.com/wiki/Category:Character_Cards)
         └── Character Page (https://genshin-impact.fandom.com/wiki/*Character_Name*)
             ├── ...
-            ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/8/8d/*Character_Name*/revision/latest/])
-            ├── Character Wish Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/8/8d/*Character_Name*/revision/latest/])
+            ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/8/8d/*Character_Name*_Card/revision/latest/])
+            ├── Character Wish Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/8/8d/*Character_Name*_Wish/revision/latest/])
             └── ...
 </pre>
 
@@ -23,7 +23,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Download all character card images.[^img_download_cards]
 - [x] Get character images wish HD and uncropped.
 - [x] Download all character wish images.[^img_download_wishes]
-- [x] Adding internet check. [^macOS_Imp]
+- [x] Adding internet check. [^macOS_imp_and_android_imp]
 - [x] Create seperated folder for character Wish and Card images.
 - [ ] Compile for Linux (x86 and x64).
 - [ ] Compile for macOS (x64 and arm64).
@@ -36,6 +36,6 @@ This project powered by: [gumbo](https://github.com/google/gumbo-parser), [cpr](
 Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki).   
 
 ### Footnote
-[^macOS_Imp]: macOS implementation for internet check are limited, since this project are pure C++ and I don't want to call `system()` (it's already memory heavy). The function always return `true`.   
+[^macOS_imp_and_android_imp]: For macOS and Android implementation for internet check are limited, since this project are pure C++ and I don't want to call `system()` (it's already memory heavy). ~~The function always return `true`.~~ The function are using `cUrl` to get response from `www.google.com`.  
 [^img_download_cards]: For character card images are downloaded into a folder named `Character Genshin Card Image`.
 [^img_download_wishes]: For character wish images are downloaded into a folder named `Character Genshin Wish Image`.

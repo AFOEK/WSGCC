@@ -25,9 +25,9 @@
 #include <windows.h>
 #include <Wininet.h>
 #pragma comment(lib,"wininet.lib")
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Wldap32.lib")
-#pragma comment(lib, "Crypt32.lib")
+#pragma comment(lib,"Ws2_32.lib")
+#pragma comment(lib,"Wldap32.lib")
+#pragma comment(lib,"Crypt32.lib")
 #elif defined(__APPLE__) && defined(__MACH__)
 #include <sys/sysctl.h>
 #endif
@@ -71,10 +71,26 @@ bool checkInet() {
     }
     pclose(output);
 }
-#elif defined(__APPLE__) && defined(__MACH__)
+#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
 bool checkInet() {
-    std::cout << "No implementation for this function";
-    return true;    //There are no implementation for this function
+    /*Fall back using cUrl, this is more cost effective method then forcing to use OS command
+    to check availablity internet on devices.*/
+    CURL *curl;
+    CURLcode res;
+    curl = curl_easy_init();
+    if (curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, "http://www.google.com");
+        res = curl_easy_perform(curl);
+        curl_easy_cleanup(curl);
+        if (res == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    else{
+        return false;
+    }
 }
 #endif
 
