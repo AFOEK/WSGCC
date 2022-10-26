@@ -15,6 +15,11 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
             └── ...
 </pre>
 
+## Sample Output
+
+![sample_output_card](samples/Card.png)
+![sample_output_wish](samples/Wish.png)
+
 ## To-Do
 
 - [x] Scrap all character link from `/wiki/Category:Character_Card`.
