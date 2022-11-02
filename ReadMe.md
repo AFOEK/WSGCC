@@ -33,6 +33,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Compile for Linux (~~x86 and~~ x64 Only).
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Compile for ARM (arm64 and armv7l).
+- [ ] Adding feature for download certain character.
 
 ## Build from scratch
 
@@ -46,9 +47,9 @@ After installing all dependency, make a folder on root of this project `mkdir bu
    ```
    cmake -B ../build -S . _DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
    ```
-    after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cd ../build && cmake --build`. After all completed the executable are in your working directory, for use the program just simply run `./WebScrapperGenshinCharacterCard`.   
+    after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cd ../build && cmake --build`. After all completed the executable are in your working directory, for use the program just simply run `./WebScrapperGenshinCharacterCard`.
 2. Windows Build   
-After installing all dependency you need to run this command `vcpkg integrate install` to order Visual Studio can compile it. It's more recommended to compile using Visual Studio 2022. You can build using `x64` architecture, unless you download `x86` using `vcpkg`.
+After installing all dependency you need to run this command `vcpkg integrate install` to order Visual Studio can compile it. It's more recommended to compile using Visual Studio 2022. You can build using `x64` architecture, unless you download `x86` using `vcpkg`. The executable is located on `..\x64\{Release or Debug}\WebScrapperGenshinCharacterCard.exe`.  
 
 ## Citation
 
