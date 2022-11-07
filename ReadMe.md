@@ -43,11 +43,28 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [ ] Scrap all constellation images link from each character constellation link to file.
 - [ ] Get character constellation images HD and uncropped.[^img_download_const]
 - [ ] Display file name when downloading file.
+- [ ] Adding feature for download certain character.
+
+## Build from scratch
+
+For who like to build this apps, you need to download `vcpkg` to get neccesary dependency, which can be done with visiting [vcpkg](https://vcpkg.io/en/getting-started.html) website. After `vcpkg` get setup you need install all dependency with command below (assume your working directory is inside on `../../vcpkg`):
+```
+vcpkg install gumbo cpr curl --triplet x64-{YOUR_OS}-static
+```
+After all dependency is installed there are separate method for building this project.
+1. Linux build   
+After installing all dependency, make a folder on root of this project `mkdir build && cd WebScrapperGenshinCharacterCard`. After that run below command:
+   ```
+   cmake -B ../build -S . _DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
+   ```
+    after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cd ../build && cmake --build`. After all completed the executable are in your working directory, for use the program just simply run `./WebScrapperGenshinCharacterCard`.
+2. Windows Build   
+After installing all dependency you need to run this command `vcpkg integrate install` to order Visual Studio can compile it. It's more recommended to compile using Visual Studio 2022. You can build using `x64` architecture, unless you download `x86` using `vcpkg`. The executable is located on `..\x64\{Release or Debug}\WebScrapperGenshinCharacterCard.exe`.  
 
 ## Citation
 
 ASCII Tree Directory powered by: [ASCII Tree Generator](https://codepen.io/weizhenye/details/eoYvye).   
-This project powered by: [gumbo](https://github.com/google/gumbo-parser), [cpr](https://github.com/libcpr/cpr), [cUrl](https://curl.se/libcurl/) and [C++20](https://isocpp.org/std/the-standard).   
+This project powered by: [vcpkg](https://vcpkg.io/en/getting-started.html), [gumbo](https://github.com/google/gumbo-parser), [cpr](https://github.com/libcpr/cpr), [cUrl](https://curl.se/libcurl/) and [C++20](https://isocpp.org/std/the-standard).   
 Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki).   
 
 ### Footnote
