@@ -49,7 +49,7 @@ double last_progress, progress_bar_adv;
 std::ofstream writeCsv("FileName.csv");
 std::ofstream writeImgLink("FileImg.txt");
 std::ofstream writeLink("ImgLink.txt");
-std::ofstream writeCsv2("FileConst.csv");
+std::ofstream writeCsv2("FileConst.txt");
 std::ifstream readCsv("FileName.csv");
 std::ifstream readLink("ImgLink.txt");
 
@@ -180,6 +180,13 @@ void search_for_img(GumboNode* node, int imgType) {
             }
             else if (imgType == 2) {
                 if (LinkImgTmp.rfind("_Wish") != 18446744073709551615) {
+                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    writeLink << LinkImgTmp << "\n";
+                    std::cout << LinkImgTmp << "\n";
+                }
+            }
+            else if (imgType == 3) {
+                if (LinkImgTmp.rfind("_Shape") != 18446744073709551615) {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
@@ -340,9 +347,10 @@ int main() {
         search_for_a_const(parsed_res_const->root);
         writeCsv2.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
-        //Get character link based character category
+        //Get character link based by character category
         temp = extract_character_link();
         img_vecs = sanitize_vecs(temp);
+        //Get constellation link based by constellation category
         std::string dir;
         int opt=0;
         std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n0. Cancel\n";
