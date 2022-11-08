@@ -49,9 +49,10 @@ double last_progress, progress_bar_adv;
 std::ofstream writeCsv("FileName.csv");
 std::ofstream writeImgLink("FileImg.txt");
 std::ofstream writeLink("ImgLink.txt");
-std::ofstream writeCsv2("FileConst.txt");
+std::ofstream writeConst("FileConst.txt");
 std::ifstream readCsv("FileName.csv");
 std::ifstream readLink("ImgLink.txt");
+std::ifstream readConst("FileConst.txt");
 
 #if defined(_WIN32)
 bool checkInet() {
@@ -76,7 +77,7 @@ bool checkInet() {
 }
 #elif (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
 bool checkInet() {
-    /*Fall back using cUrl, this is more cost effective method then forcing to use OS command
+    /*Fall back using cUrl, this is more cost effective method other then forcing to use OS command
     to check availablity internet on devices.*/
     CURL *curl;
     CURLcode res;
@@ -110,7 +111,7 @@ std::string extract_html_page_category() {
 }
 
 std::string extract_html_page_category_const() {
-    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Category:Constellation_Overviews" };
+    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Category:Constellation_Overviews"};
     cpr::Response res = Get(url_category);
     return res.text;
 }
@@ -238,7 +239,7 @@ void search_for_a_const(GumboNode* node) {
             std::string ClassName = classes->value;
             std::string LinkStr = href->value;
             if (ClassName.rfind("category-page__member-link") == 0) {
-                writeCsv2 << LinkStr << "\n";
+                writeConst << LinkStr << "\n";
             }
         }
     }
@@ -255,6 +256,18 @@ std::vector<std::string> get_img_links() {
         std::istringstream ISS;
         img_links.push_back(line);
     }
+    readLink.close();
+    return img_links;
+}
+
+std::vector<std::string> extract_character_const_link() {
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readConst, line)) {
+        std::istringstream ISS;
+        img_links.push_back(line);
+    }
+    readConst.close();
     return img_links;
 }
 
@@ -267,24 +280,19 @@ int progress_bar(void* bar, double t, double d) {
         std::cout << "\r ";
         std::cout << " Progress : [ ";
 
-        if (round(d / t * 100) < 10)
-        {
+        if (round(d / t * 100) < 10){
             std::cout << "0" << round(d / t * 100) << " %]";
         }
-        else
-        {
+        else{
             std::cout << round(d / t * 100) << " %] ";
         }
         std::cout << " [";
-        for (int i = 0; i <= progress_bar_adv; i++)
-        {
+        for (int i = 0; i <= progress_bar_adv; i++){
             std::cout << "#";
         }
-        for (int i = 0; i < nb_bar - progress_bar_adv; i++)
-        {
+        for (int i = 0; i < nb_bar - progress_bar_adv; i++){
             std::cout << ".";
         }
-
         std::cout << "]";
         last_progress = round(d / t * 100);
     }
@@ -326,16 +334,18 @@ int main() {
         std::cout << "Failed to connect to internet, this program need internet to working properly !" << "\n";
         system("PAUSE");
         writeCsv.close();
+        writeConst.close();
         writeImgLink.close();
         writeLink.close();
         readCsv.close();
         readLink.close();
+        readConst.close();
         exit(-1);
     }
     else {
         //Get character list from /wiki/Category:Character_Cards
         std::cout << "Getting character list from wiki\n";
-        std::vector<std::string> img_vecs, temp;
+        std::vector<std::string> const_vecs, img_vecs, temp_chara, temp_const;
         std::string page_content_chara = extract_html_page_category();
         GumboOutput* parsed_res_chara = gumbo_parse(page_content_chara.c_str());
         search_for_a_name(parsed_res_chara->root);
@@ -345,12 +355,15 @@ int main() {
         std::string page_content_const = extract_html_page_category_const();
         GumboOutput* parsed_res_const = gumbo_parse(page_content_const.c_str());
         search_for_a_const(parsed_res_const->root);
-        writeCsv2.close();
+        writeConst.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
         //Get character link based by character category
-        temp = extract_character_link();
-        img_vecs = sanitize_vecs(temp);
+        temp_chara = extract_character_link();
+        img_vecs = sanitize_vecs(temp_chara);
         //Get constellation link based by constellation category
+        temp_const = extract_character_const_link();
+        const_vecs = sanitize_vecs(temp_const);
+        //Initialize directory for storing images
         std::string dir;
         int opt=0;
         std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n0. Cancel\n";
@@ -408,35 +421,42 @@ int main() {
             }
             break;
         case 3:
-            dir = "Character Genshin Constellation Image";
+            dir = "Character Genshin Constellation Image\\";
             if (std::filesystem::is_directory(dir)) {
-                if (!std::filesystem::is_empty("Character Genshin Card Image")) {
-                    for (const auto& files : std::filesystem::directory_iterator("Character Genshin Card Image")) {
+                if (!std::filesystem::is_empty("Character Genshin Constellation Image")) {
+                    for (const auto& files : std::filesystem::directory_iterator("Character Genshin Constellation Image")) {
                         std::cout << "Clearing existing file\n";
                         std::filesystem::remove_all(files.path());
                     }
                 }
             }
             else {
-                std::filesystem::create_directory("Character Genshin Card Image");
+                std::filesystem::create_directory("Character Genshin Constellation Image");
                 std::cout << "Creating folder\n";
                 #if defined(__linux__) && defined(__unix__)
-                std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                std::filesystem::permissions("Character Genshin Constellation Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
+            }
+            for (int i = 0; i < const_vecs.size(); i++) {
+                std::string page_const_content = extract_html_page_character(const_vecs[i]);
+                GumboOutput* parsed_res_const = gumbo_parse(page_const_content.c_str());
+                search_for_img(parsed_res_const->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
             }
             break;
         case 0:
             std::cout << "Bye !\n";
             system("PAUSE");
             writeCsv.close();
+            writeConst.close();
             writeImgLink.close();
             writeLink.close();
             readCsv.close();
             readLink.close();
+            readConst.close();
             exit(-1);
         default:
             //Init folder for contain all image file
-            dir = "Character Genshin Card Image";
             dir = "Character Genshin Card Image\\";
             if (std::filesystem::is_directory(dir)) {
                 if (!std::filesystem::is_empty("Character Genshin Card Image")) {

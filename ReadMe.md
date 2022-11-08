@@ -24,7 +24,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 
 ![sample_output_card](samples/Card.png)
 ![sample_output_wish](samples/Wish.png)
-![sample_output_cons](#)
+![sample_output_cons](samples/Constellation.png)
 
 ## To-Do
 
@@ -34,14 +34,14 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Download all character card images.[^img_download_cards]
 - [x] Get character images wish HD and uncropped.
 - [x] Download all character wish images.[^img_download_wishes]
+- [x] Scrap all character link from `/wiki/Category:Constellation_Overviews`.
+- [x] Scrap all constellation images link from each character constellation link to file.
+- [x] Get character constellation images HD and uncropped.[^img_download_const]
 - [x] Adding internet check. [^macOS_imp_and_android_imp]
 - [x] Create seperated folder for character Wish and Card images.
 - [x] Compile for Linux (~~x86 and~~ x64 Only).
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Compile for ARM (arm64 and armv7l).
-- [ ] Scrap all character link from `/wiki/Category:Constellation_Overviews`.
-- [ ] Scrap all constellation images link from each character constellation link to file.
-- [ ] Get character constellation images HD and uncropped.[^img_download_const]
 - [ ] Display file name when downloading file.
 - [ ] Adding feature for download certain character.
 
