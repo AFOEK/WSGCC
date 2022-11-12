@@ -43,6 +43,9 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Compile for ARM (arm64 and armv7l).
 - [ ] Display file name when downloading file.
+- [ ] Scrap all character introduction images link from `/wiki/Category:Character_Introduction_Cards`.
+- [ ] Scrap all character introduction images link for each character.
+- [ ] Download all character introduction images HD and uncropped.
 - [ ] Adding feature for download certain character.
 
 ## Build from scratch
