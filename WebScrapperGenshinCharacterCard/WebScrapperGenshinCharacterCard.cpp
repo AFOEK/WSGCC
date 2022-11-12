@@ -25,9 +25,9 @@
 #include <windows.h>
 #include <Wininet.h>
 #pragma comment(lib,"wininet.lib")
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Wldap32.lib")
-#pragma comment(lib, "Crypt32.lib")
+#pragma comment(lib,"Ws2_32.lib")
+#pragma comment(lib,"Wldap32.lib")
+#pragma comment(lib,"Crypt32.lib")
 #elif defined(__APPLE__) && defined(__MACH__)
 #include <sys/sysctl.h>
 #endif
