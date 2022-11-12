@@ -366,6 +366,7 @@ FodyWeavers.xsd
 # Jpeg, Png - downloaded assets
 Character Genshin Card Image/
 Character Genshin Wish Image/
+Character Genshin Constellation Image/
 # Visual Studio Code
 .vscode/
 # Build file
