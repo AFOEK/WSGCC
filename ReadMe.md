@@ -58,7 +58,7 @@ After all dependency is installed there are separate method for building this pr
 1. Linux build   
 After installing all dependency, make a folder on root of this project `mkdir build && cd WebScrapperGenshinCharacterCard`. After that run below command:
    ```
-   cmake -B ../build -S . _DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
+   cmake -B ../build -S . -DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
    ```
     after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cd ../build && cmake --build`. After all completed the executable are in your working directory, for use the program just simply run `./WebScrapperGenshinCharacterCard`.
 2. Windows Build   
