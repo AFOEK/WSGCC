@@ -112,6 +112,12 @@ std::string extract_html_page_category() {
     return res.text;
 }
 
+std::string extract_html_page_category_chara_intro(){
+    cpr::Url url_category = cpr::Url{root_url+"/wiki/Category:Character_Introduction_Cards"};
+    cpr::Response res = Get(url_category);
+    return res.text;
+}
+
 std::string extract_html_page_category_const() {
     cpr::Url url_category = cpr::Url{ root_url + "/wiki/Category:Constellation_Overviews"};
     cpr::Response res = Get(url_category);
@@ -347,7 +353,7 @@ int main() {
     else {
         //Get character list from /wiki/Category:Character_Cards
         std::cout << "Getting character list from wiki\n";
-        std::vector<std::string> const_vecs, img_vecs, temp_chara, temp_const;
+        std::vector<std::string> const_vecs, img_vecs, temp_chara, temp_const, intro_vecs, temp_vecs;
         std::string page_content_chara = extract_html_page_category();
         GumboOutput* parsed_res_chara = gumbo_parse(page_content_chara.c_str());
         search_for_a_name(parsed_res_chara->root);
@@ -359,6 +365,8 @@ int main() {
         search_for_a_const(parsed_res_const->root);
         writeConst.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
+        //Get character intorduction banner list from /wiki/Category:Character_Introduction_Cards
+        std::string page_content_intro = extract_html_page_category_chara_intro();
         //Get character link based by character category
         temp_chara = extract_character_link();
         img_vecs = sanitize_vecs(temp_chara);
