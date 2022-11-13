@@ -371,3 +371,6 @@ Character Genshin Constellation Image/
 .vscode/
 # Build file
 build/
+# Ghidra disassembler
+WSGCC.*/
+WSGCC.*
