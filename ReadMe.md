@@ -47,6 +47,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [ ] Scrap all character introduction images link for each character.
 - [ ] Download all character introduction images HD and uncropped.
 - [ ] Adding feature for download certain character.
+- [ ] Deploy into docker
 
 ## Build from scratch
 
