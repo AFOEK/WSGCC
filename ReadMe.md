@@ -7,16 +7,22 @@ This is a console programme which using `Gumbo`, `cpr`, and `cUrl` for scrape al
 <pre>
 Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 └── ...
-    ├── Wiki Fandom Category Page (https://genshin-impact.fandom.com/wiki/Category:Character_Cards)
+    ├── Wiki Fandom Character Category Page (https://genshin-impact.fandom.com/wiki/Category:Character_Cards)
     │   └── Character Page (https://genshin-impact.fandom.com/wiki/*Character_Name*)
     │       ├── ...
-    │       ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_number*/*unique_number_character*/*Character_Name*_Card/revision/latest/])
-    │       ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_number*/*unique_number_character*/*Character_Name*_Card/revision/latest/])
+    │       ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_character*/*unique_number_character*/*Character_Name*_Card.png/revision/latest/])
+    │       ├── Character Wish Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_character*/*unique_number_character*/*Character_Name*_Wish.png/revision/latest/])
     │       └── ...
-    └── Wiki Fandom Category Page (https://genshin-impact.fandom.com/wiki/Category:Constellation_Overviews)
-        └── Constellation Page (https://genshin-impact.fandom.com/wiki/*Constellation_Name*)
+    ├── Wiki Fandom Constellations Category Page (https://genshin-impact.fandom.com/wiki/Category:Constellation_Overviews)
+    │   └── Constellation Page (https://genshin-impact.fandom.com/wiki/*Constellation_Name*)
+    │       ├── ...
+    │       ├── Constellation Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_character*/*unique_number_character*/*Constellation_Name*.png/revision/latest])
+    │       └── ...
+    └── Wiki Fandom Character Introduction Page (https://genshin-impact.fandom.com/wiki/Category:Character_Introduction_Cards)
+        └── Character Media Page (https://genshin-impact.fandom.com/wiki/Albedo/Media)
             ├── ...
-            ├── Constellation Image (https://static.wikia.nocookie.net/gensin-impact/images/9/92/*Constellation_Name*.png/revision/latest)
+            ├── Character Introduction Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_character*/*unique_number_character*/*Character_Name*_Introduction.png/revision/latest/])
+            ├── Character Namecard Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_character*/*unique_number_character*/*Name_Card_Name*.png/revision/latest/])
             └── ...
 </pre>
 
@@ -25,6 +31,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_card](samples/Card.png)
 ![sample_output_wish](samples/Wish.png)
 ![sample_output_cons](samples/Constellation.png)
+![sample_output_intro](samples/Introduction.png)
 
 ## To-Do
 
@@ -37,6 +44,12 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Scrap all character link from `/wiki/Category:Constellation_Overviews`.
 - [x] Scrap all constellation images link from each character constellation link to file.
 - [x] Get character constellation images HD and uncropped.[^img_download_const]
+- [x] Scrap all character introduction images link from `/wiki/Category:Character_Introduction_Cards`.
+- [x] Scrap all character introduction images link for each character.
+- [x] Download all character introduction images HD and uncropped.[^img_download_intro]
+- [ ] Scrap all character namecard images link from `/wiki/Category:Character_Namecards`.
+- [ ] Scrap all character namecard images link for each character.
+- [ ] Download all character namecard images HD and uncropped.[^img_download_namecard]
 - [x] Adding internet check. [^macOS_imp_and_android_imp]
 - [x] Create seperated folder for character Wish and Card images.
 - [x] Deploy into docker.
@@ -44,9 +57,6 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Compile for ARM (arm64 and armv7l).
 - [ ] Display file name when downloading file.
-- [ ] Scrap all character introduction images link from `/wiki/Category:Character_Introduction_Cards`.
-- [ ] Scrap all character introduction images link for each character.
-- [ ] Download all character introduction images HD and uncropped.
 - [ ] Adding feature for download certain character.
 
 ## Build from scratch
@@ -94,4 +104,6 @@ Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Gensh
 [^img_download_cards]: For character card images are downloaded into a folder named `Character Genshin Card Image`.
 [^img_download_wishes]: For character wish images are downloaded into a folder named `Character Genshin Wish Image`.
 [^img_download_const]: For character constellation images are download into a folder named `Character Genshin Constellation Image`.
+[^img_download_intro]: For character constellation images are download into a folder named `Character Genshin Introduction Card Image`.
+[^img_download_namecard]: For character constellation images are download into a folder named `Character Genshin Namecard Image`.
 [^docker_footnote]: Assumed docker already installed into the device.

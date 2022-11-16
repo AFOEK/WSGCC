@@ -40,6 +40,8 @@
 // https://static.wikia.nocookie.net/gensin-impact/images/8/84/Trifolium_Shape.png/revision/latest
 // This is an example static links assets of character introduction images:
 // https://static.wikia.nocookie.net/gensin-impact/images/b/b1/Character_Albedo_Introduction.png/revision/latest
+// This is an example static links assets of character namecard images:
+// https://static.wikia.nocookie.net/gensin-impact/images/5/55/Item_Albedo_Sun_Blossom.png/revision/latest
 // This is an example character wiki page link:
 // https://genshin-impact.fandom.com/wiki/Albedo
 //Tutorial link:
