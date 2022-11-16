@@ -63,7 +63,25 @@ After installing all dependency, make a folder on root of this project `mkdir bu
    ```
     after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cd ../build && cmake --build`. After all completed the executable are in your working directory, for use the program just simply run `./WebScrapperGenshinCharacterCard`.
 2. Windows Build   
-After installing all dependency you need to run this command `vcpkg integrate install` to order Visual Studio can compile it. It's more recommended to compile using Visual Studio 2022. You can build using `x64` architecture, unless you download `x86` using `vcpkg`. The executable is located on `..\x64\{Release or Debug}\WebScrapperGenshinCharacterCard.exe`.  
+After installing all dependency you need to run this command `vcpkg integrate install` to order Visual Studio can compile it. It's more recommended to compile using Visual Studio 2022. You can build using `x64` architecture, unless you download `x86` using `vcpkg`. The executable is located on `..\x64\{Release or Debug}\WebScrapperGenshinCharacterCard.exe`.   
+3. Docker Build   
+There are 2 method for using Docker build:
+   - Using dockerfile   
+     if you want to build your own image you can use available docker file just simply run:
+     ```
+      docker build -t totmalone/wsgcc:latest -f .\Dockerfile .
+     ```
+     After the image done building just simply run the image using:
+     ```
+     docker run -it --rm --name=wsgcc totmalone/wsgcc:latest ash
+     ```
+     If docker image successfully run, just simply run the application `./WebScrapperGenshinCharacterCard`.
+    - Using Docker hub   
+    If you want use pre-build image you just simply run `docker pull totmalone/wsgcc`, after docker image successfully get pulled just simply run the image using:
+      ```
+      docker run -it --rm --name=wsgcc totmalone/wsgcc ash
+      ```
+      If docker image successfully run, just simply run the application `./WebScrapperGenshinCharacterCard`.
 
 ## Citation
 
