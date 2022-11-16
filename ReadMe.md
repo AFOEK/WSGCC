@@ -10,8 +10,8 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
     ├── Wiki Fandom Category Page (https://genshin-impact.fandom.com/wiki/Category:Character_Cards)
     │   └── Character Page (https://genshin-impact.fandom.com/wiki/*Character_Name*)
     │       ├── ...
-    │       ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/<unique_number>/<unique_number_character>/*Character_Name*_Card/revision/latest/])
-    │       ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/<unique_number>/<unique_number_character>/*Character_Name*_Card/revision/latest/])
+    │       ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_number*/*unique_number_character*/*Character_Name*_Card/revision/latest/])
+    │       ├── Character Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_number*/*unique_number_character*/*Character_Name*_Card/revision/latest/])
     │       └── ...
     └── Wiki Fandom Category Page (https://genshin-impact.fandom.com/wiki/Category:Constellation_Overviews)
         └── Constellation Page (https://genshin-impact.fandom.com/wiki/*Constellation_Name*)
@@ -39,6 +39,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Get character constellation images HD and uncropped.[^img_download_const]
 - [x] Adding internet check. [^macOS_imp_and_android_imp]
 - [x] Create seperated folder for character Wish and Card images.
+- [x] Deploy into docker.
 - [x] Compile for Linux (~~x86 and~~ x64 Only).
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Compile for ARM (arm64 and armv7l).
@@ -47,7 +48,6 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [ ] Scrap all character introduction images link for each character.
 - [ ] Download all character introduction images HD and uncropped.
 - [ ] Adding feature for download certain character.
-- [ ] Deploy into docker
 
 ## Build from scratch
 

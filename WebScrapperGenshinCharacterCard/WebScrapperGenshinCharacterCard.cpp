@@ -52,9 +52,11 @@ std::ofstream writeCsv("FileName.csv");
 std::ofstream writeImgLink("FileImg.txt");
 std::ofstream writeLink("ImgLink.txt");
 std::ofstream writeConst("FileConst.txt");
+std::ofstream writeIntro("FileIntro.txt");
 std::ifstream readCsv("FileName.csv");
 std::ifstream readLink("ImgLink.txt");
 std::ifstream readConst("FileConst.txt");
+std::ifstream readIntro("FileIntro.txt");
 
 #if defined(_WIN32)
 bool checkInet() {
@@ -201,6 +203,13 @@ void search_for_img(GumboNode* node, int imgType) {
                     std::cout << LinkImgTmp << "\n";
                 }
             }
+            else if (imgType == 4) {
+                if (LinkImgTmp.rfind("_Introduction.") != 18446744073709551615) {
+                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    writeLink << LinkImgTmp << "\n";
+                    std::cout << LinkImgTmp << "\n";
+                }
+            }
         }
     }
     GumboVector* child = &node->v.element.children;
@@ -257,6 +266,28 @@ void search_for_a_const(GumboNode* node) {
     }
 }
 
+void search_for_a_intro(GumboNode* node) {
+    if (node->type != GUMBO_NODE_ELEMENT) {
+        return;
+    }
+
+    if (node->v.element.tag == GUMBO_TAG_A) {
+        GumboAttribute* classes = gumbo_get_attribute(&node->v.element.attributes, "class");
+        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
+        if (classes && href) {
+            std::string ClassName = classes->value;
+            std::string LinkStr = href->value;
+            if (ClassName.rfind("category-page__member-link") == 0) {
+                writeIntro << LinkStr << "\n";
+            }
+        }
+    }
+    GumboVector* child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++) {
+        search_for_a_intro(static_cast<GumboNode*>(child->data[i]));
+    }
+}
+
 std::vector<std::string> get_img_links() {
     std::string line;
     std::vector<std::string> img_links;
@@ -276,6 +307,17 @@ std::vector<std::string> extract_character_const_link() {
         img_links.push_back(line);
     }
     readConst.close();
+    return img_links;
+}
+
+std::vector<std::string> extract_character_intro_link() {
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readIntro, line)) {
+        std::istringstream ISS;
+        img_links.push_back(line);
+    }
+    readIntro.close();
     return img_links;
 }
 
@@ -321,7 +363,7 @@ void downloads_images(std::string url, std::string file_name) {
             curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
             curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
             curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, progress_bar);
-            //std::cout << file_name;
+            std::cout << file_name;
             res = curl_easy_perform(curl);
             curl_easy_cleanup(curl);
             fclose(f);
@@ -345,15 +387,17 @@ int main() {
         writeConst.close();
         writeImgLink.close();
         writeLink.close();
+        writeIntro.close();
         readCsv.close();
         readLink.close();
         readConst.close();
+        readIntro.close();
         exit(-1);
     }
     else {
         //Get character list from /wiki/Category:Character_Cards
         std::cout << "Getting character list from wiki\n";
-        std::vector<std::string> const_vecs, img_vecs, temp_chara, temp_const, intro_vecs, temp_vecs;
+        std::vector<std::string> const_vecs, img_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro;
         std::string page_content_chara = extract_html_page_category();
         GumboOutput* parsed_res_chara = gumbo_parse(page_content_chara.c_str());
         search_for_a_name(parsed_res_chara->root);
@@ -367,16 +411,23 @@ int main() {
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
         //Get character intorduction banner list from /wiki/Category:Character_Introduction_Cards
         std::string page_content_intro = extract_html_page_category_chara_intro();
+        GumboOutput* parsed_res_intro = gumbo_parse(page_content_intro.c_str());
+        search_for_a_intro(parsed_res_intro->root);
+        writeIntro.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
         //Get character link based by character category
         temp_chara = extract_character_link();
         img_vecs = sanitize_vecs(temp_chara);
         //Get constellation link based by constellation category
         temp_const = extract_character_const_link();
         const_vecs = sanitize_vecs(temp_const);
+        //Get constellation link based by introduction category
+        temp_intro = extract_character_intro_link();
+        intro_vecs = sanitize_vecs(temp_intro);
         //Initialize directory for storing images
         std::string dir;
         int opt=0;
-        std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n0. Cancel\n";
+        std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n0. Cancel\n";
         std::cin >> opt;
         switch (opt) {
         case 1:
@@ -454,6 +505,30 @@ int main() {
                 gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
             }
             break;
+        case 4:
+            dir = "Character Genshin Introduction Card Image\\";
+            if (std::filesystem::is_directory(dir)) {
+                if (!std::filesystem::is_empty("Character Genshin Introduction Card Image")) {
+                    for (const auto& files : std::filesystem::directory_iterator("Character Genshin Introduction Card Image")) {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else {
+                std::filesystem::create_directory("Character Genshin Introduction Card Image");
+                std::cout << "Creating folder\n";
+                #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Introduction Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                #endif
+            }
+            for (int i = 0; i < intro_vecs.size(); i++) {
+                std::string page_intro_content = extract_html_page_character(intro_vecs[i]);
+                GumboOutput* parsed_res_intro = gumbo_parse(page_intro_content.c_str());
+                search_for_img(parsed_res_intro->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
+            }
+            break;
         case 0:
             std::cout << "Bye !\n";
             system("PAUSE");
@@ -461,9 +536,11 @@ int main() {
             writeConst.close();
             writeImgLink.close();
             writeLink.close();
+            writeIntro.close();
             readCsv.close();
             readLink.close();
             readConst.close();
+            readIntro.close();
             exit(-1);
         default:
             //Init folder for contain all image file
