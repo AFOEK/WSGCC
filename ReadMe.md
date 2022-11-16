@@ -64,7 +64,7 @@ After installing all dependency, make a folder on root of this project `mkdir bu
     after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cd ../build && cmake --build`. After all completed the executable are in your working directory, for use the program just simply run `./WebScrapperGenshinCharacterCard`.
 2. Windows Build   
 After installing all dependency you need to run this command `vcpkg integrate install` to order Visual Studio can compile it. It's more recommended to compile using Visual Studio 2022. You can build using `x64` architecture, unless you download `x86` using `vcpkg`. The executable is located on `..\x64\{Release or Debug}\WebScrapperGenshinCharacterCard.exe`.   
-3. Docker Build [^docker_footnote]   
+3. Docker Build[^docker_footnote]   
 There are 2 method for using Docker build:
    - Using dockerfile   
      if you want to build your own image you can use available docker file just simply run:
@@ -94,4 +94,4 @@ Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Gensh
 [^img_download_cards]: For character card images are downloaded into a folder named `Character Genshin Card Image`.
 [^img_download_wishes]: For character wish images are downloaded into a folder named `Character Genshin Wish Image`.
 [^img_download_const]: For character constellation images are download into a folder named `Character Genshin Constellation Image`.
-[^docker_footnoote]: Assumed docker already installed into the device.
+[^docker_footnote]: Assumed docker already installed into the device.
