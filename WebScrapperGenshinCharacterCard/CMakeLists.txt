@@ -11,9 +11,11 @@ if(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64" or CMAKE_HOST_SYSTEM_PROCESSOR S
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_amd64")
 elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "ARM64" or CMAKE_HOST_SYSTEM_PROCESSOR "aarch64")
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_arm64")
+elseif(CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86" or CMAKE_HOST_SYSTEM_PROCESSOR "x86_32")
+    set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_i386")
 else()
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_gen")
-endif
+endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
 find_package(cpr CONFIG REQUIRED)
 target_link_libraries(WebScrapperGenshinCharacterCard PRIVATE cpr::cpr)
