@@ -8,7 +8,9 @@ RUN apk update && apk upgrade && \
     export VCPKG_FORCE_SYSTEM_BINARIES=1 && \
     ./bootstrap-vcpkg.sh && \
     ./vcpkg install cpr gumbo curl && \
+    cd ~ && \
     git clone https://github.com/AFOEK/WSGCC.git && cd WSGCC && mkdir build && \
     cd WebScrapperGenshinCharacterCard && \
     cmake -B ../build -S . -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake && \
-    cd ../build && make all && cd ..
+    cd ../build && make all && \
+    cd ..
