@@ -52,10 +52,10 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [ ] Download all character namecard images HD and uncropped.[^img_download_namecard]
 - [x] Adding internet check. [^macOS_imp_and_android_imp]
 - [x] Create seperated folder for character Wish and Card images.
-- [x] Deploy into docker.
-- [x] Compile for Linux (~~x86 and~~ x64 Only).
+- [x] Deploy into docker.[^docker_footnote]
+- [x] Compile for Linux (~~x86 and~~ x64 only).
+- [x] Compile for ARM (~~armv7l and~~ arm64 only).
 - [ ] Compile for macOS (x64 and arm64).
-- [ ] Compile for ARM (arm64 and armv7l).
 - [ ] Display file name when downloading file.
 - [ ] Adding feature for download certain character.
 
