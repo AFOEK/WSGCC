@@ -505,9 +505,9 @@ int main()
             {
                 std::filesystem::create_directory("Character Genshin Card Image");
                 std::cout << "Creating folder\n";
-#if defined(__linux__) && defined(__unix__)
+                #if defined(__linux__) && defined(__unix__)
                 std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-#endif
+                #endif
             }
 
             for (int i = 8; i < img_vecs.size() - 3; i++)
@@ -596,7 +596,7 @@ int main()
                 std::cout << "Creating folder\n";
                 #if defined(__linux__) && defined(__unix__)
                 std::filesystem::permissions("Character Genshin Introduction Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-#endif
+                #endif
             }
             for (int i = 0; i < intro_vecs.size(); i++)
             {
