@@ -1,6 +1,6 @@
 ﻿## Intro
 
-This is a console programme which using `Gumbo`, `cpr`, and `cUrl` for scrape all character card image, wish image and contellation images from Genshin Impact Wiki Fandom, as [Tree Directory below](##Web-Tree-Directory), all image file is contained into a CDN server. For the image it's always get latest version and uncroped version.
+This is a console programme which using `Gumbo`, `indicators`, `cpr`, and `cUrl` for scrape all character card image, wish image and contellation images from Genshin Impact Wiki Fandom, as [Tree Directory below](##Web-Tree-Directory), all image file is contained into a CDN server. For the image it's always get latest version and uncroped version.
 
 ## Web Tree Directory
 
@@ -56,14 +56,14 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Compile for Linux (~~x86 and~~ x64 only).
 - [x] Compile for ARM (~~armv7l and~~ arm64 only).
 - [ ] Compile for macOS (x64 and arm64).
-- [ ] Display file name when downloading file.
+- [x] Display file name when downloading file.
 - [ ] Adding feature for download certain character.
 
 ## Build from scratch
 
 For who like to build this apps, you need to download `vcpkg` to get neccesary dependency, which can be done with visiting [vcpkg](https://vcpkg.io/en/getting-started.html) website. After `vcpkg` get setup you need install all dependency with command below (assume your working directory is inside on `../../vcpkg`):
 ```
-vcpkg install gumbo cpr curl --triplet x64-{YOUR_OS}-static
+vcpkg install gumbo cpr curl indicators --triplet x64-{YOUR_OS}-static
 ```
 After all dependency is installed there are separate method for building this project.
 1. Linux build   
