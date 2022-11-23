@@ -113,6 +113,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST D:\C++\WebScrapperGenshinCharacterCard\WebScrapperGenshinCharacterCard\wsgcc_x86.exe
+DEL D:\C++\WebScrapperGenshinCharacterCard\WebScrapperGenshinCharacterCard\wsgcc_x86.exe
+ELSE
+COPY D:\C++\WebScrapperGenshinCharacterCard\Release\wsgcc_x86.exe D:\C++\WebScrapperGenshinCharacterCard\WebScrapperGenshinCharacterCard\wsgcc_x86.exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -144,6 +150,12 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <PostBuildEvent>
+      <Command>IF EXIST D:\C++\WebScrapperGenshinCharacterCard\WebScrapperGenshinCharacterCard\wsgcc_x64.exe
+DEL D:\C++\WebScrapperGenshinCharacterCard\WebScrapperGenshinCharacterCard\wsgcc_x64.exe
+ELSE
+COPY D:\C++\WebScrapperGenshinCharacterCard\x64\Release\wsgcc_x64.exe D:\C++\WebScrapperGenshinCharacterCard\WebScrapperGenshinCharacterCard\wsgcc_x64.exe</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="WebScrapperGenshinCharacterCard.cpp">

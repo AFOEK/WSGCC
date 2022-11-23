@@ -12,5 +12,4 @@ RUN apk update && apk upgrade && \
     git clone https://github.com/AFOEK/WSGCC.git && cd WSGCC && mkdir build && \
     cd WebScrapperGenshinCharacterCard && \
     cmake -B ../build -S . -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake && \
-    cd ../build && make all && \
-    cd ..
+    cd ../build && make all

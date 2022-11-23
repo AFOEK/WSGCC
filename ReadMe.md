@@ -80,11 +80,11 @@ There are 2 method for using Docker build:
    - Using dockerfile   
      if you want to build your own image you can use available docker file just simply run:
      ```
-      docker build --no-cache -t totmalone/wsgcc:latest -f .\Dockerfile .
+      docker build --no-cache -t totmalone/wsgcc:latest -f ./Dockerfile .
      ```
      After the image done building just simply run the image using:
      ```
-     docker run -it --rm --name=wsgcc totmalone/wsgcc:latest ash
+     docker run -it --rm -w /root/WSGCC/WebScrapperGenshinCharacterCard --name=wsgcc totmalone/wsgcc:latest ash
      ```
      If docker image successfully run, just simply run the application `./wsgcc_amd64` if build on architecture `x86_64`, or `./wsgcc_arm64` on architecture `aarch64` and `./wsgcc_gen` for unknown architecture.
     - Using Docker hub   
