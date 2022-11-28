@@ -1,6 +1,6 @@
 ﻿## Intro
 
-This is a console programme which using `Gumbo`, `indicators`, `cpr`, and `cUrl` for scrape all character card image, wish image and contellation images from Genshin Impact Wiki Fandom, as [Tree Directory below](##Web-Tree-Directory), all image file is contained into a CDN server. For the image it's always get latest version and uncroped version.
+This is a console programme which using `Gumbo`, `indicators`, `cpr`, and `cUrl` for scrape all character card image, wish image and contellation images from Genshin Impact Wiki Fandom, as [Tree Directory below](##Web-Tree-Directory), all image file is contained into a CDN server. For the image it's always get latest version and uncroped version. Docker image build are available.
 
 ## Web Tree Directory
 
@@ -86,13 +86,13 @@ There are 2 method for using Docker build:
      ```
      docker run -it --rm -w /root/WSGCC/WebScrapperGenshinCharacterCard --name=wsgcc totmalone/wsgcc:latest ash
      ```
-     If docker image successfully run, just simply run the application `./wsgcc_amd64` if build on architecture `x86_64`, or `./wsgcc_arm64` on architecture `aarch64` and `./wsgcc_gen` for unknown architecture.
+     If docker image successfully run, just simply run the application `./wsgcc_amd64` if build on architecture `x86_64`, or `./wsgcc_arm64` on architecture `aarch64` and `./wsgcc_gen` for unknown architecture. To get desire image folder just run, `mkdir genshin_images && docker cp wsgcc:/<folder_name> genshin_images/`.
     - Using Docker hub   
     If you want use pre-build image you just simply run `docker pull totmalone/wsgcc`, after docker image successfully get pulled just simply run the image using:
       ```
-      docker run -it --rm --name=wsgcc totmalone/wsgcc ash
+      docker run -it --rm -w /root/WSGCC/WebScrapperGenshinCharacterCard --name=wsgcc totmalone/wsgcc:latest ash
       ```
-      If docker image successfully run, just simply run the application `./wsgcc_amd64` if build on architecture `x86_64`, or `./wsgcc_arm64` on architecture `aarch64` and `./wsgcc_gen` for unknown architecture.
+      If docker image successfully run, just simply run the application `./wsgcc_amd64` if build on architecture `x86_64`, or `./wsgcc_arm64` on architecture `aarch64` and `./wsgcc_gen` for unknown architecture. To get desire image folder just run, `mkdir genshin_images && docker cp wsgcc:/<folder_name> genshin_images/`.
 
 ## Citation
 

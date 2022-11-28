@@ -779,6 +779,7 @@ int main()
             downloads_images(link_vecs[i], dir + file_name);
         }
         readLink.close();
+        //Check if file is closed properly
         if(writeChara.is_open() || writeConst.is_open() || writeImgLink.is_open() || writeLink.is_open() || writeIntro.is_open() || writeNamecard.is_open() || readChara.is_open() || readLink.is_open() || readConst.is_open() || readIntro.is_open() || readCard.is_open()){
             writeChara.close();
             writeConst.close();
@@ -792,6 +793,7 @@ int main()
             readIntro.close();
             readCard.close();
         }
+        //Delete unused file
         for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
             if (entry.path().extension().string() == ".gsct") {
                 std::filesystem::remove(entry.path());
