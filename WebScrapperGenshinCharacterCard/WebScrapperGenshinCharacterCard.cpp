@@ -508,7 +508,7 @@ int main()
         readIntro.close();
         readCard.close();
         for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
-            if (entry.path().extension().string() == ".txt") {
+            if (entry.path().extension().string() == ".gsct") {
                 std::filesystem::remove(entry.path());
             }
         }
