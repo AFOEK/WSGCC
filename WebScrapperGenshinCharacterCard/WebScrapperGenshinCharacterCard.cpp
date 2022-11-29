@@ -1,4 +1,4 @@
-﻿// Suppress warning for fopen (depecration warning: Security SEVERE)
+﻿// Suppress warning for fopen, deprecated, and confused min max (depecration warning: Security SEVERE)
 #define _CRT_SECURE_NO_WARNINGS
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
@@ -41,14 +41,18 @@
 // https://static.wikia.nocookie.net/gensin-impact/images/f/f8/Character_Albedo_Card.png/revision/latest
 // This is an example static links assets of character wish image:
 // https://static.wikia.nocookie.net/gensin-impact/images/5/51/Character_Albedo_Full_Wish.png/revision/latest
-//  This is an example static links assets of character constellation images :
-//  https://static.wikia.nocookie.net/gensin-impact/images/8/84/Trifolium_Shape.png/revision/latest
-//  This is an example static links assets of character introduction images:
-//  https://static.wikia.nocookie.net/gensin-impact/images/b/b1/Character_Albedo_Introduction.png/revision/latest
-//  This is an example static links assets of character namecard images:
-//  https://static.wikia.nocookie.net/gensin-impact/images/5/55/Item_Albedo_Sun_Blossom.png/revision/latest
-//  This is an example character wiki page link:
-//  https://genshin-impact.fandom.com/wiki/Albedo
+// This is an example static links assets of character constellation images :
+// https://static.wikia.nocookie.net/gensin-impact/images/8/84/Trifolium_Shape.png/revision/latest
+// This is an example static links assets of character introduction images:
+// https://static.wikia.nocookie.net/gensin-impact/images/b/b1/Character_Albedo_Introduction.png/revision/latest
+// This is an example static links assets of character namecard images:
+// https://static.wikia.nocookie.net/gensin-impact/images/5/55/Item_Albedo_Sun_Blossom.png/revision/latest
+// This is an example static links assets of version images:
+// https://static.wikia.nocookie.net/gensin-impact/images/6/61/Splashscreen_Welcome_To_Teyvat.png/revision/latest
+// This is an example character wiki page link:
+// https://genshin-impact.fandom.com/wiki/Albedo
+// This is a version wiki page link:
+// https://genshin-impact.fandom.com/wiki/Version
 // Tutorial link:
 // https://www.webscrapingapi.com/c-web-scraping/
 
@@ -61,11 +65,13 @@ std::ofstream writeLink("ImgLink.gsct");
 std::ofstream writeConst("FileConst.gsct");
 std::ofstream writeIntro("FileIntro.gsct");
 std::ofstream writeNamecard("FileNamecard.gsct");
+std::ofstream writeVer("Version.gsct");
 std::ifstream readChara("FileName.gsct");
 std::ifstream readLink("ImgLink.gsct");
 std::ifstream readConst("FileConst.gsct");
 std::ifstream readIntro("FileIntro.gsct");
 std::ifstream readCard("FileNamecard.gsct");
+std::ifstream readVer("Version.gsct");
 
 #if defined(_WIN32)
 bool checkInet()
@@ -157,6 +163,13 @@ std::string extract_html_page_category_const()
     return res.text;
 }
 
+std::string extract_html_page_version()
+{
+    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Version" };
+    cpr::Response res = Get(url_category);
+    return res.text;
+}
+
 std::string extract_html_page_character(std::string character_wiki_link)
 {
     cpr::Url url_character = cpr::Url{root_url + character_wiki_link};
@@ -188,45 +201,50 @@ void search_for_img(GumboNode *node, int imgType)
         {
             std::string LinkImg;
             std::string LinkImgTmp = imgLink->value;
-            if (imgType == 1)
-            {
+
+            switch (imgType) {
+            case 1:
                 if (LinkImgTmp.rfind("_Card") != 18446744073709551615)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
                 }
-            }
-            else if (imgType == 2)
-            {
+                break;
+            case 2:
                 if (LinkImgTmp.rfind("_Wish") != 18446744073709551615)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
                 }
-            }
-            else if (imgType == 3)
-            {
+                break;
+            case 3:
                 if (LinkImgTmp.rfind("_Shape") != 18446744073709551615)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
                 }
-            }
-            else if (imgType == 4)
-            {
+                break;
+            case 4:
                 if (LinkImgTmp.rfind("_Introduction.") != 18446744073709551615)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
                 }
-            }
-            else if (imgType == 5)
-            {
+                break;
+            case 5:
                 if (LinkImgTmp.rfind("Namecard_Background_") != 18446744073709551615)
+                {
+                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    writeLink << LinkImgTmp << "\n";
+                    std::cout << LinkImgTmp << "\n";
+                }
+                break;
+            case 6:
+                if (LinkImgTmp.rfind("Splashscreen_") != 18446744073709551615)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
@@ -354,6 +372,35 @@ void search_for_a_intro(GumboNode *node)
     }
 }
 
+void search_for_img_version(GumboNode* node)
+{
+    if (node->type != GUMBO_NODE_ELEMENT)
+    {
+        return;
+    }
+
+    if (node->v.element.tag == GUMBO_TAG_IMG)
+    {
+        GumboAttribute* load = gumbo_get_attribute(&node->v.element.attributes, "loading");
+        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
+        if (load && href)
+        {
+            std::string LoadAtr = load->value;
+            std::string LinkStr = href->value;
+            std::cout << LoadAtr.rfind("lazy") << "\n";
+            if (LoadAtr.rfind("lazy") == 0)
+            {
+                //writeVer << LinkStr << "\n";
+            }
+        }
+    }
+    GumboVector* child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++)
+    {
+        search_for_img_version(static_cast<GumboNode*>(child->data[i]));
+    }
+}
+
 std::vector<std::string> extract_img_links(int opt)
 {
     std::string line;
@@ -397,6 +444,19 @@ std::vector<std::string> extract_character_const_link()
         img_links.push_back(line);
     }
     readConst.close();
+    return img_links;
+}
+
+std::vector<std::string> extract_version_link()
+{
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readVer, line))
+    {
+        std::istringstream ISS;
+        img_links.push_back(line);
+    }
+    readVer.close();
     return img_links;
 }
 
@@ -489,6 +549,27 @@ void downloads_images(std::string url, std::string file_name)
     indicators::show_console_cursor(true);
 }
 
+void close_all() {
+    writeChara.close();
+    writeConst.close();
+    writeImgLink.close();
+    writeLink.close();
+    writeIntro.close();
+    writeNamecard.close();
+    writeVer.close();
+    readChara.close();
+    readLink.close();
+    readConst.close();
+    readIntro.close();
+    readCard.close();
+    readVer.close();
+    /*for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
+        if (entry.path().extension().string() == ".gsct") {
+            std::filesystem::remove(entry.path());
+        }
+    }*/
+}
+
 int main()
 {
     if (!checkInet())
@@ -496,67 +577,66 @@ int main()
         std::cout << "Failed to connect to internet, this program need internet to working properly !"<< "\n";
         std::cin.ignore();
         std::cin.get();
-        writeChara.close();
-        writeConst.close();
-        writeImgLink.close();
-        writeLink.close();
-        writeIntro.close();
-        writeNamecard.close();
-        readChara.close();
-        readLink.close();
-        readConst.close();
-        readIntro.close();
-        readCard.close();
-        for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
-            if (entry.path().extension().string() == ".gsct") {
-                std::filesystem::remove(entry.path());
-            }
-        }
+        close_all();
         exit(-1);
     }
     else
     {
         // Get character list from /wiki/Category:Character_Cards
         std::cout << "Getting character list from wiki\n";
-        std::vector<std::string> const_vecs, img_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card, card_vecs;
+        std::vector<std::string> const_vecs, img_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card, card_vecs, temp_ver, ver_vecs;
         std::string page_content_chara = extract_html_page_category();
         GumboOutput *parsed_res_chara = gumbo_parse(page_content_chara.c_str());
         search_for_a_name(parsed_res_chara->root);
         writeChara.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
         // Get character constellation list from /wiki/Category:Constellation_Overviews
+        std::cout << "Getting character constellation list from wiki\n";
         std::string page_content_const = extract_html_page_category_const();
         GumboOutput *parsed_res_const = gumbo_parse(page_content_const.c_str());
         search_for_a_const(parsed_res_const->root);
         writeConst.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
-        // Get character intorduction banner list from /wiki/Category:Character_Introduction_Cards
+        // Get character introduction banner list from /wiki/Category:Character_Introduction_Cards
+        std::cout << "Getting character introduction list from wiki\n";
         std::string page_content_intro = extract_html_page_category_chara_intro();
         GumboOutput *parsed_res_intro = gumbo_parse(page_content_intro.c_str());
         search_for_a_intro(parsed_res_intro->root);
         writeIntro.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
-        // Get character intorduction banner list from /wiki/Category:Character_Namecards
+        // Get character namecards list from /wiki/Category:Character_Namecards
+        std::cout << "Getting character namecard list from wiki\n";
         std::string page_content_namecard = extract_html_page_category_namecard();
         GumboOutput* parsed_res_namecard = gumbo_parse(page_content_namecard.c_str());
         search_for_a_namecard(parsed_res_namecard->root);
         writeNamecard.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_namecard);
+        // Get version images from /wiki/Version
+        std::cout << "Getting version list from wiki\n";
+        std::string page_content_version = extract_html_page_version();
+        GumboOutput* parsed_res_version = gumbo_parse(page_content_version.c_str());
+        search_for_img_version(parsed_res_version->root);
+        writeVer.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_version);
         // Get character link based by character category
         temp_chara = extract_character_chara_link();
         img_vecs = sanitize_vecs(temp_chara);
         // Get constellation link based by constellation category
         temp_const = extract_character_const_link();
         const_vecs = sanitize_vecs(temp_const);
-        // Get constellation link based by introduction category
+        // Get introdcution link based by introduction category
         temp_intro = extract_character_intro_link();
         intro_vecs = sanitize_vecs(temp_intro);
-        // Get constellation link based by namecard category
+        // Get namecard link based by namecard category
         temp_card = extract_character_namecard_link();
         card_vecs = sanitize_vecs(temp_card);
+        // Get version link based by version page
+        temp_ver = extract_version_link();
+        ver_vecs = sanitize_vecs(temp_ver);
         // Initialize directory for storing images
         std::string dir;
         int opt = 0;
-        std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n0. Cancel\n";
+        std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n0. Cancel\n";
         std::cin >> opt;
         switch (opt)
         {
@@ -708,26 +788,40 @@ int main()
                 gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_card);
             }
             break;
+        case 6:
+            dir = "Genshin Version Image\\";
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Genshin Version Image"))
+                {
+                    for (const auto& files : std::filesystem::directory_iterator("Genshin Version Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Genshin Version Image");
+                std::cout << "Creating folder\n";
+                #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Genshin Version Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                #endif
+            }
+            for (int i = 1; i < ver_vecs.size(); i++)
+            {
+                std::string page_ver_content = extract_html_page_character(ver_vecs[i]);
+                GumboOutput* parsed_res_ver = gumbo_parse(page_ver_content.c_str());
+                search_for_img(parsed_res_ver->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_ver);
+            }
+            break;
         case 0:
             std::cout << "Bye !\n";
             std::cin.ignore();
             std::cin.get();
-            writeChara.close();
-            writeConst.close();
-            writeImgLink.close();
-            writeLink.close();
-            writeIntro.close();
-            writeNamecard.close();
-            readChara.close();
-            readLink.close();
-            readConst.close();
-            readIntro.close();
-            readCard.close();
-            for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
-                if (entry.path().extension().string() == ".gsct") {
-                    std::filesystem::remove(entry.path());
-                }
-            }
+            close_all();
             exit(-1);
         default:
             // Init folder for contain all image file
@@ -781,23 +875,7 @@ int main()
         readLink.close();
         //Check if file is closed properly
         if(writeChara.is_open() || writeConst.is_open() || writeImgLink.is_open() || writeLink.is_open() || writeIntro.is_open() || writeNamecard.is_open() || readChara.is_open() || readLink.is_open() || readConst.is_open() || readIntro.is_open() || readCard.is_open()){
-            writeChara.close();
-            writeConst.close();
-            writeImgLink.close();
-            writeLink.close();
-            writeIntro.close();
-            writeNamecard.close();
-            readChara.close();
-            readLink.close();
-            readConst.close();
-            readIntro.close();
-            readCard.close();
-        }
-        //Delete unused file
-        for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
-            if (entry.path().extension().string() == ".gsct") {
-                std::filesystem::remove(entry.path());
-            }
+            close_all();
         }
         // Exit gracefully and return memory to OS
         return 0;
