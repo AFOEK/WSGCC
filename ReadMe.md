@@ -58,7 +58,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Compile for ARM (~~armv7l and~~ arm64 only).
 - [x] Display file name when downloading file.
 - [x] Scrap all genshin version image link from `/wiki/Version`.
-- [ ] Download all version image HD and uncroppped.[^img_download_namecard]
+- [ ] Download all version image HD and uncroppped.[^img_download_version]
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Adding feature for download certain character.
 
@@ -114,5 +114,5 @@ Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Gensh
 [^img_download_const]: For character constellation images are downloaded into a folder named `Character Genshin Constellation Image`.
 [^img_download_intro]: For character constellation images are downloaded into a folder named `Character Genshin Introduction Card Image`.
 [^img_download_namecard]: For character constellation images are downloaded into a folder named `Character Genshin Namecard Image`.
-[^img_download_namecard]: For genshin version images are downloaded into a folder named `Genshin Version Images`.
+[^img_download_version]: For genshin version images are downloaded into a folder named `Genshin Version Images`.
 [^docker_footnote]: Assumed docker already installed into the device.
