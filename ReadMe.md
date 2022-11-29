@@ -56,8 +56,10 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Deploy into docker.[^docker_footnote]
 - [x] Compile for Linux (~~x86 and~~ x64 only).
 - [x] Compile for ARM (~~armv7l and~~ arm64 only).
-- [ ] Compile for macOS (x64 and arm64).
 - [x] Display file name when downloading file.
+- [x] Scrap all genshin version image link from `/wiki/Version`.
+- [ ] Download all version image HD and uncroppped.[^img_download_namecard]
+- [ ] Compile for macOS (x64 and arm64).
 - [ ] Adding feature for download certain character.
 
 ## Build from scratch
@@ -94,6 +96,11 @@ There are 2 method for using Docker build:
       ```
       If docker image successfully run, just simply run the application `./wsgcc_amd64` if build on architecture `x86_64`, or `./wsgcc_arm64` on architecture `aarch64` and `./wsgcc_gen` for unknown architecture. To get desire image folder just run, `mkdir genshin_images && docker cp wsgcc:/<folder_name> genshin_images/`.
 
+## Misc
+
+For whom interested how this programme work, this project have a decent flowchart to follow with:
+![flowchart_wsgcc](samples/WSGCC.png)
+
 ## Citation
 
 ASCII Tree Directory powered by: [ASCII Tree Generator](https://codepen.io/weizhenye/details/eoYvye).   
@@ -101,10 +108,11 @@ This project powered by: [vcpkg](https://vcpkg.io/en/getting-started.html), [gum
 Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki).   
 
 ### Footnote
-[^macOS_imp_and_android_imp]: For macOS and Android implementation for internet check are limited, since this project are pure C++ and I don't want to call `system()` (it's already memory heavy). ~~The function always return `true`.~~ The function are using `cUrl` to get response from `www.google.com`.  
+[^macOS_imp_and_android_imp]: For macOS and Android implementation for internet check are limited, since this project are pure C++ and I don't want to call `system()` (it's already memory heavy). ~~The function always return `true`.~~ The function are using `cUrl` to get response from `www.google.com`.
 [^img_download_cards]: For character card images are downloaded into a folder named `Character Genshin Card Image`.
 [^img_download_wishes]: For character wish images are downloaded into a folder named `Character Genshin Wish Image`.
-[^img_download_const]: For character constellation images are download into a folder named `Character Genshin Constellation Image`.
-[^img_download_intro]: For character constellation images are download into a folder named `Character Genshin Introduction Card Image`.
-[^img_download_namecard]: For character constellation images are download into a folder named `Character Genshin Namecard Image`.
+[^img_download_const]: For character constellation images are downloaded into a folder named `Character Genshin Constellation Image`.
+[^img_download_intro]: For character constellation images are downloaded into a folder named `Character Genshin Introduction Card Image`.
+[^img_download_namecard]: For character constellation images are downloaded into a folder named `Character Genshin Namecard Image`.
+[^img_download_namecard]: For genshin version images are downloaded into a folder named `Genshin Version Images`.
 [^docker_footnote]: Assumed docker already installed into the device.
