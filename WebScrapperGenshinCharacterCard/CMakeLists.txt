@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 project(WebScrapperGenshinCharacterCard LANGUAGES CXX)
-#set(CMAKE_CXX20_STANDARD_COMPILE_OPTION "-std=c++2a")
-#set(CMAKE_CXX20_EXTENSION_COMPILE_OPTION "-std=gnu++2a")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS "-lstdc++fs -std=c++2a")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../WebScrapperGenshinCharacterCard/)
