@@ -244,12 +244,13 @@ void search_for_img(GumboNode *node, int imgType)
                 }
                 break;
             case 6:
-                if (LinkImgTmp.rfind("Splashscreen_") != 18446744073709551615)
+                /*if (LinkImgTmp.rfind("/Splashscreen_") != 18446744073709551615)
                 {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    LinkImgTmp.erase(LinkImgTmp.end() - 18, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
-                }
+                }*/
+                break;
             }
         }
     }
@@ -379,18 +380,17 @@ void search_for_img_version(GumboNode* node)
         return;
     }
 
-    if (node->v.element.tag == GUMBO_TAG_IMG)
+    if (node->v.element.tag == GUMBO_TAG_A)
     {
-        GumboAttribute* load = gumbo_get_attribute(&node->v.element.attributes, "loading");
+        GumboAttribute* classA = gumbo_get_attribute(&node->v.element.attributes, "class");
         GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
-        if (load && href)
+        if (classA && href)
         {
-            std::string LoadAtr = load->value;
+            std::string ClassAtr = classA->value;
             std::string LinkStr = href->value;
-            std::cout << LoadAtr.rfind("lazy") << "\n";
-            if (LoadAtr.rfind("lazy") == 0)
+            if (LinkStr.rfind("/Splashscreen_") != 18446744073709551615)
             {
-                //writeVer << LinkStr << "\n";
+                writeVer << LinkStr << "\n";
             }
         }
     }
@@ -563,11 +563,11 @@ void close_all() {
     readIntro.close();
     readCard.close();
     readVer.close();
-    /*for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
+    for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
         if (entry.path().extension().string() == ".gsct") {
             std::filesystem::remove(entry.path());
         }
-    }*/
+    }
 }
 
 int main()
@@ -809,13 +809,6 @@ int main()
                 std::filesystem::permissions("Genshin Version Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
-            for (int i = 1; i < ver_vecs.size(); i++)
-            {
-                std::string page_ver_content = extract_html_page_character(ver_vecs[i]);
-                GumboOutput* parsed_res_ver = gumbo_parse(page_ver_content.c_str());
-                search_for_img(parsed_res_ver->root, opt);
-                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_ver);
-            }
             break;
         case 0:
             std::cout << "Bye !\n";
@@ -864,19 +857,29 @@ int main()
         std::cout << "Downloading Images";
         std::vector<std::string> link_vecs;
         std::string file_name;
-        link_vecs = get_img_links();
-        for (int i = 0; i < link_vecs.size(); i++)
-        {
-            file_name = link_vecs[i];
-            file_name.erase(0, 60);
-            file_name.erase(file_name.size() - 17);
-            downloads_images(link_vecs[i], dir + file_name);
+        if (opt == 6) {
+            for (int i = 0; i < ver_vecs.size(); i++) {
+                std::string link_ver =  ver_vecs[i];
+                link_ver.erase(link_ver.size() - 18);
+                file_name = ver_vecs[i];
+                file_name.erase(0, 60);
+                file_name.erase(file_name.size() - 34);
+                downloads_images(link_ver, dir + file_name);
+            }
+        }
+        else {
+            link_vecs = get_img_links();
+            for (int i = 0; i < link_vecs.size(); i++)
+            {
+                file_name = link_vecs[i];
+                file_name.erase(0, 60);
+                file_name.erase(file_name.size() - 17);
+                downloads_images(link_vecs[i], dir + file_name);
+            }
         }
         readLink.close();
         //Check if file is closed properly
-        if(writeChara.is_open() || writeConst.is_open() || writeImgLink.is_open() || writeLink.is_open() || writeIntro.is_open() || writeNamecard.is_open() || readChara.is_open() || readLink.is_open() || readConst.is_open() || readIntro.is_open() || readCard.is_open()){
-            close_all();
-        }
+        close_all();
         // Exit gracefully and return memory to OS
         return 0;
     }

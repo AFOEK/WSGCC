@@ -1,4 +1,4 @@
-﻿## Intro
+﻿0## Intro
 
 This is a console programme which using `Gumbo`, `indicators`, `cpr`, and `cUrl` for scrape all character card image, wish image and contellation images from Genshin Impact Wiki Fandom, as [Tree Directory below](##Web-Tree-Directory), all image file is contained into a CDN server. For the image it's always get latest version and uncroped version. Docker image build are available.
 
@@ -33,6 +33,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_cons](samples/Constellation.png)
 ![sample_output_intro](samples/Introduction.png)
 ![sample_output_namecard](samples/Namecard.png)
+![sample_output_version](samples/Version.png)
 
 ## To-Do
 
@@ -58,7 +59,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Compile for ARM (~~armv7l and~~ arm64 only).
 - [x] Display file name when downloading file.
 - [x] Scrap all genshin version image link from `/wiki/Version`.
-- [ ] Download all version image HD and uncroppped.[^img_download_version]
+- [x] Download all version image HD and uncroppped.[^img_download_version]
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Adding feature for download certain character.
 
