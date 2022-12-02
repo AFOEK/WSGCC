@@ -243,14 +243,6 @@ void search_for_img(GumboNode *node, int imgType)
                     std::cout << LinkImgTmp << "\n";
                 }
                 break;
-            case 6:
-                /*if (LinkImgTmp.rfind("/Splashscreen_") != 18446744073709551615)
-                {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 18, LinkImgTmp.end());
-                    writeLink << LinkImgTmp << "\n";
-                    std::cout << LinkImgTmp << "\n";
-                }*/
-                break;
             }
         }
     }
@@ -538,12 +530,14 @@ void downloads_images(std::string url, std::string file_name)
         else
         {
             std::cout << (stderr, "Can't create file !");
+            close_all();
             exit(-1);
         }
     }
     else
     {
         std::cout << (stderr, "Can't initialize cUrl !");
+        close_all();
         exit(-1);
     }
     indicators::show_console_cursor(true);
