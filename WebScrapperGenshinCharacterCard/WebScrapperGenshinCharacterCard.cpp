@@ -502,6 +502,27 @@ int download_progress_default_callback(void *clientp, curl_off_t dltotal, curl_o
     return CURL_PROGRESSFUNC_CONTINUE;
 }
 
+void close_all() {
+    writeChara.close();
+    writeConst.close();
+    writeImgLink.close();
+    writeLink.close();
+    writeIntro.close();
+    writeNamecard.close();
+    writeVer.close();
+    readChara.close();
+    readLink.close();
+    readConst.close();
+    readIntro.close();
+    readCard.close();
+    readVer.close();
+    for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
+        if (entry.path().extension().string() == ".gsct") {
+            std::filesystem::remove(entry.path());
+        }
+    }
+}
+
 void downloads_images(std::string url, std::string file_name)
 {
     indicators::show_console_cursor(false);
@@ -541,27 +562,6 @@ void downloads_images(std::string url, std::string file_name)
         exit(-1);
     }
     indicators::show_console_cursor(true);
-}
-
-void close_all() {
-    writeChara.close();
-    writeConst.close();
-    writeImgLink.close();
-    writeLink.close();
-    writeIntro.close();
-    writeNamecard.close();
-    writeVer.close();
-    readChara.close();
-    readLink.close();
-    readConst.close();
-    readIntro.close();
-    readCard.close();
-    readVer.close();
-    for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
-        if (entry.path().extension().string() == ".gsct") {
-            std::filesystem::remove(entry.path());
-        }
-    }
 }
 
 int main()
