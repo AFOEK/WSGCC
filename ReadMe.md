@@ -5,6 +5,8 @@ This is a console programme which using `Gumbo`, `indicators`, `cpr`, and `cUrl`
 ## Web Tree Directory
 
 <pre>
+
+
 Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 └── ...
     ├── Wiki Fandom Character Category Page (https://genshin-impact.fandom.com/wiki/Category:Character_Cards)
@@ -24,9 +26,13 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
     │       ├── Character Introduction Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_character*/*unique_number_character*/*Character_Name*_Introduction.png/revision/latest/])
     │       ├── Character Namecard Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_character*/*unique_number_character*/*Name_Card_Name*.png/revision/latest/])
     │       └── ...
-    └── Wiki Fandom Version page (https://genshin-impact.fandom.com/wiki/Version)
+    ├── Wiki Fandom Version page (https://genshin-impact.fandom.com/wiki/Version)
+    │   ├── ...
+    │   ├── Version Splashscreen Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/1/11/Splashscreen_*Version_Name*.png/revision/latest/])
+    │   └── ...
+    └── Wiki Fandom TGC Character Card Page (https://genshin-impact.fandom.com/wiki/Category:Genius_Invokation_TCG_Character_Cards)
         ├── ...
-        ├── Version Splashscreen Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/1/11/Splashscreen_*Version_Name*.png/revision/latest/])
+        ├── Character TGC Card Image (Static_CDN_File [https://static.wikia.nocookie.net/gensin-impact/images/*unique_number*/*unique_character_number*/*Character_Name*_Character_Card.png/revision/latest/])
         └── ...
 </pre>
 
@@ -38,6 +44,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_intro](samples/Introduction.png)
 ![sample_output_namecard](samples/Namecard.png)
 ![sample_output_version](samples/Version.png)
+![sample_output_TCG](samples/TCG.png)
 
 ## To-Do
 
@@ -64,6 +71,9 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Display file name when downloading file.
 - [x] Scrap all genshin version image link from `/wiki/Version`.
 - [x] Download all version image HD and uncroppped.[^img_download_version]
+- [x] Scrap all character TCG card images link from `/wiki/Category:Character_Introduction_Cards`.
+- [x] Scrap all character TCG card images link for each character.
+- [x] Download all character TCG card images HD and uncropped.[^img_download_tcg]
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Adding feature for download certain character.
 
@@ -117,7 +127,8 @@ Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Gensh
 [^img_download_cards]: For character card images are downloaded into a folder named `Character Genshin Card Image`.
 [^img_download_wishes]: For character wish images are downloaded into a folder named `Character Genshin Wish Image`.
 [^img_download_const]: For character constellation images are downloaded into a folder named `Character Genshin Constellation Image`.
-[^img_download_intro]: For character constellation images are downloaded into a folder named `Character Genshin Introduction Card Image`.
-[^img_download_namecard]: For character constellation images are downloaded into a folder named `Character Genshin Namecard Image`.
+[^img_download_intro]: For character introduction images are downloaded into a folder named `Character Genshin Introduction Card Image`.
+[^img_download_namecard]: For character namecard images are downloaded into a folder named `Character Genshin Namecard Image`.
+[^img_download_tcg]: For TCG character card images are downloaded into a folder named `Genshin TGC Character Card Image`.
 [^img_download_version]: For genshin version images are downloaded into a folder named `Genshin Version Images`.
 [^docker_footnote]: Assumed docker already installed into the device.

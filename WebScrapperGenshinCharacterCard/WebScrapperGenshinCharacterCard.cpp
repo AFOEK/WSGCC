@@ -49,6 +49,8 @@
 // https://static.wikia.nocookie.net/gensin-impact/images/5/55/Item_Albedo_Sun_Blossom.png/revision/latest
 // This is an example static links assets of version images:
 // https://static.wikia.nocookie.net/gensin-impact/images/6/61/Splashscreen_Welcome_To_Teyvat.png/revision/latest
+// This is an example static links assets of version TGC cahracter card images:
+// https://static.wikia.nocookie.net/gensin-impact/images/8/87/Ganyu_Character_Card.png/revision/latest
 // This is an example character wiki page link:
 // https://genshin-impact.fandom.com/wiki/Albedo
 // This is a version wiki page link:
@@ -66,12 +68,14 @@ std::ofstream writeConst("FileConst.gsct");
 std::ofstream writeIntro("FileIntro.gsct");
 std::ofstream writeNamecard("FileNamecard.gsct");
 std::ofstream writeVer("Version.gsct");
+std::ofstream writeTGC("FileTGC.gsct");
 std::ifstream readChara("FileName.gsct");
 std::ifstream readLink("ImgLink.gsct");
 std::ifstream readConst("FileConst.gsct");
 std::ifstream readIntro("FileIntro.gsct");
 std::ifstream readCard("FileNamecard.gsct");
 std::ifstream readVer("Version.gsct");
+std::ifstream readTGC("FileTGC.gsct");
 
 #if defined(_WIN32)
 bool checkInet()
@@ -138,6 +142,13 @@ size_t write_data(void *ptr, size_t size, size_t buff, FILE *stream)
 std::string extract_html_page_category()
 {
     cpr::Url url_category = cpr::Url{root_url + "/wiki/Category:Character_Cards"};
+    cpr::Response res = Get(url_category);
+    return res.text;
+}
+
+std::string extract_html_page_category_TGC()
+{
+    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Category:Genius_Invokation_TCG_Character_Cards" };
     cpr::Response res = Get(url_category);
     return res.text;
 }
@@ -243,6 +254,15 @@ void search_for_img(GumboNode *node, int imgType)
                     std::cout << LinkImgTmp << "\n";
                 }
                 break;
+            /*Case 6: already reserved for Version Images*/
+            case 7:
+                if(LinkImgTmp.rfind("_Character_Card") != 18446744073709551615)
+                {
+                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    writeLink << LinkImgTmp << "\n";
+                    std::cout << LinkImgTmp << "\n";
+                }
+                break;
             }
         }
     }
@@ -334,6 +354,34 @@ void search_for_a_namecard(GumboNode* node)
     for (unsigned int i = 0; i < child->length; i++)
     {
         search_for_a_namecard(static_cast<GumboNode*>(child->data[i]));
+    }
+}
+
+void search_for_a_TGC(GumboNode* node)
+{
+    if (node->type != GUMBO_NODE_ELEMENT)
+    {
+        return;
+    }
+
+    if (node->v.element.tag == GUMBO_TAG_A)
+    {
+        GumboAttribute* classes = gumbo_get_attribute(&node->v.element.attributes, "class");
+        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
+        if (classes && href)
+        {
+            std::string ClassName = classes->value;
+            std::string LinkStr = href->value;
+            if (ClassName.rfind("category-page__member-link") == 0)
+            {
+                writeTGC << LinkStr << "\n";
+            }
+        }
+    }
+    GumboVector* child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++)
+    {
+        search_for_a_TGC(static_cast<GumboNode*>(child->data[i]));
     }
 }
 
@@ -439,6 +487,19 @@ std::vector<std::string> extract_character_const_link()
     return img_links;
 }
 
+std::vector<std::string> extract_character_tgc_link()
+{
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readTGC, line))
+    {
+        std::istringstream ISS;
+        img_links.push_back(line);
+    }
+    readTGC.close();
+    return img_links;
+}
+
 std::vector<std::string> extract_version_link()
 {
     std::string line;
@@ -510,12 +571,14 @@ void close_all() {
     writeIntro.close();
     writeNamecard.close();
     writeVer.close();
+    writeTGC.close();
     readChara.close();
     readLink.close();
     readConst.close();
     readIntro.close();
     readCard.close();
     readVer.close();
+    readTGC.close();
     for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
         if (entry.path().extension().string() == ".gsct") {
             std::filesystem::remove(entry.path());
@@ -528,7 +591,8 @@ void downloads_images(std::string url, std::string file_name)
     indicators::show_console_cursor(false);
     indicators::ProgressBar prog_bar{
         indicators::option::BarWidth{65}, indicators::option::Start{" ["}, indicators::option::Fill{"█"}, indicators::option::Lead{"█"}, indicators::option::Remainder{"-"}, indicators::option::End{"]"},
-        indicators::option::PrefixText{file_name}, indicators::option::ShowElapsedTime{true}, indicators::option::ShowRemainingTime{true}};
+        indicators::option::PrefixText{file_name}, indicators::option::ShowElapsedTime{true}, indicators::option::ShowRemainingTime{true}
+    };
     CURL *curl;
     FILE *f;
     CURLcode res;
@@ -576,9 +640,10 @@ int main()
     }
     else
     {
-        // Get character list from /wiki/Category:Character_Cards
+        // Init variables
         std::cout << "Getting character list from wiki\n";
-        std::vector<std::string> const_vecs, img_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card, card_vecs, temp_ver, ver_vecs;
+        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card, temp_ver, temp_tgc;
+        // Get character list from /wiki/Category:Character_Cards
         std::string page_content_chara = extract_html_page_category();
         GumboOutput *parsed_res_chara = gumbo_parse(page_content_chara.c_str());
         search_for_a_name(parsed_res_chara->root);
@@ -612,6 +677,13 @@ int main()
         search_for_img_version(parsed_res_version->root);
         writeVer.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_version);
+        // Get TGC character card list from /wiki/Category:Genius_Invokation_TCG_Character_Cards
+        std::cout << "Getting TCG card list from wiki\n";
+        std::string page_content_TGC = extract_html_page_category_TGC();
+        GumboOutput* parsed_res_TGC = gumbo_parse(page_content_TGC.c_str());
+        search_for_a_TGC(parsed_res_TGC->root);
+        writeTGC.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_TGC);
         // Get character link based by character category
         temp_chara = extract_character_chara_link();
         img_vecs = sanitize_vecs(temp_chara);
@@ -627,10 +699,13 @@ int main()
         // Get version link based by version page
         temp_ver = extract_version_link();
         ver_vecs = sanitize_vecs(temp_ver);
+        // Get namecard link based by namecard category
+        temp_tgc = extract_character_tgc_link();
+        tgc_vecs = sanitize_vecs(temp_tgc);
         // Initialize directory for storing images
         std::string dir;
         int opt = 0;
-        std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n0. Cancel\n";
+        std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n0. Cancel\n";
         std::cin >> opt;
         switch (opt)
         {
@@ -804,6 +879,35 @@ int main()
                 #endif
             }
             break;
+        case 7:
+            dir = "Genshin TGC Character Card Image\\";
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Genshin TGC Character Card Image"))
+                {
+                    for (const auto& files : std::filesystem::directory_iterator("Genshin TGC Character Card Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Genshin TGC Character Card Image");
+                std::cout << "Creating folder\n";
+                #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Genshin TGC Character Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                #endif
+            }
+            for (int i = 2; i < tgc_vecs.size(); i++)
+            {
+                std::string page_tgc_content = extract_html_page_character(tgc_vecs[i]);
+                GumboOutput* parsed_res_tgc = gumbo_parse(page_tgc_content.c_str());
+                search_for_img(parsed_res_tgc->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_tgc);
+            }
+            break;
         case 0:
             std::cout << "Bye !\n";
             std::cin.ignore();
@@ -832,7 +936,7 @@ int main()
                 std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
-            for (int i = 8; i < img_vecs.size() - 3; i++)
+            for (int i = 0; i < img_vecs.size(); i++)
             {
                 std::string page_chara_content = extract_html_page_character(img_vecs[i]);
                 GumboOutput *parsed_res_chara = gumbo_parse(page_chara_content.c_str());
