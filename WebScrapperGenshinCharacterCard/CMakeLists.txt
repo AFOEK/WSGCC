@@ -9,11 +9,16 @@ if(ANDROID)
     set(CMAKE_USE_WIN32_THREADS_INIT 0)
     set(CMAKE_USE_PTHREADS_INIT 1)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
-    set(CMAKE_CXX11_EXTENSION_COMPILE_OPTION "-std=c++2a")
+    set(VCPKG_TARGET_ANDROID ON)
+    set(CMAKE_ANDROID_STL_TYPE c++_static)
+    set(CMAKE_CXX20_EXTENSION_COMPILE_OPTION "-std=c++2a")
     set(CMAKE_CXX_FLAGS "-lstdc++fs -std=c++2a")
 else()
     set(CMAKE_CXX_FLAGS "-lstdc++fs -std=c++2a")
 endif()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../WebScrapperGenshinCharacterCard/)
+add_executable(WebScrapperGenshinCharacterCard WebScrapperGenshinCharacterCard.cpp)
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL AMD64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL x86_64)
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_amd64")
@@ -28,9 +33,6 @@ set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "ws
 else()
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_gen")
 endif()
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../WebScrapperGenshinCharacterCard/)
-add_executable(WebScrapperGenshinCharacterCard WebScrapperGenshinCharacterCard.cpp)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
 
