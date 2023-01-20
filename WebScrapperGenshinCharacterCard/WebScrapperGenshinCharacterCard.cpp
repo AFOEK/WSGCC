@@ -25,7 +25,6 @@
 // Preprocessor
 #if defined(__linux__)
 #include <unistd.h>
-#include <bits/stdc++.h>
 #elif defined(_WIN32)
 #include <windows.h>
 #include <Wininet.h>
