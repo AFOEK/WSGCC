@@ -32,7 +32,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL x86 OR CMAKE_SYSTEM_PROCESSOR STREQUAL x8
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_i386")
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL ARM64 OR CMAKE_SYSTEM_PROCESSOR STREQUAL aarch64)
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_arm64")
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES ";armv[6-7]l;" or CMAKE_SYSTEM_PROCESSOR STREQUAL ARM32)
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL ARM32)
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_arm32")
 elseif(VCPKG_TARGET_ANDROID)
     set_target_properties(WebScrapperGenshinCharacterCard PROPERTIES OUTPUT_NAME "wsgcc_android_arm64")
