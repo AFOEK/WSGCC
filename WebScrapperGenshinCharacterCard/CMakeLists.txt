@@ -4,7 +4,6 @@ project(WebScrapperGenshinCharacterCard LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(VCPKG_TARGET_ANDROID)
-	include("cmake/vcpkg_android.cmake")
     set(CMAKE_THREAD_LIBS_INIT "-lpthread")
     set(CMAKE_HAVE_THREADS_LIBRARY 1)
     set(CMAKE_USE_WIN32_THREADS_INIT 0)
