@@ -34,6 +34,8 @@
 #pragma comment(lib, "Crypt32.lib")
 #elif defined(__APPLE__) && defined(__MACH__)
 #include <sys/sysctl.h>
+#elif defined(__ANDROID__)
+
 #endif
 
 // This is an example static links assets of character card image:
@@ -578,11 +580,19 @@ void close_all() {
     readCard.close();
     readVer.close();
     readTGC.close();
+    #if defined(__ANDROID__)
+        for (auto const& entry : std::__fs::filesystem::directory_iterator{ std::__fs::filesystem::current_path().string() }) {
+        if (entry.path().extension().string() == ".gsct") {
+            std::__fs::filesystem::remove(entry.path());
+        }
+    }
+    #else
     for (auto const& entry : std::filesystem::directory_iterator{ std::filesystem::current_path().string() }) {
         if (entry.path().extension().string() == ".gsct") {
             std::filesystem::remove(entry.path());
         }
     }
+    #endif
 }
 
 void downloads_images(std::string url, std::string file_name)
@@ -711,25 +721,44 @@ int main()
         case 1:
             // Init folder for contain all image file
             dir = "Character Genshin Card Image\\";
-            if (std::filesystem::is_directory(dir))
-            {
-                if (!std::filesystem::is_empty("Character Genshin Card Image"))
+            #if defined(__ANDROID__)
+                if (std::__fs::filesystem::is_directory(dir))
                 {
-                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Card Image"))
+                    if (!std::__fs::filesystem::is_empty("Character Genshin Card Image"))
                     {
-                        std::cout << "Clearing existing file\n";
-                        std::filesystem::remove_all(files.path());
+                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Card Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::__fs::filesystem::remove_all(files.path());
+                        }
                     }
                 }
-            }
-            else
-            {
-                std::filesystem::create_directory("Character Genshin Card Image");
-                std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-            }
+                else
+                {
+                    std::__fs::filesystem::create_directory("Character Genshin Card Image");
+                    std::cout << "Creating folder\n";
+                }
+            #else
+                if (std::filesystem::is_directory(dir))
+                {
+                    if (!std::filesystem::is_empty("Character Genshin Card Image"))
+                    {
+                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Card Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::filesystem::remove_all(files.path());
+                        }
+                    }
+                }
+                else
+                {
+                    std::filesystem::create_directory("Character Genshin Card Image");
+                    std::cout << "Creating folder\n";
+                    #if defined(__linux__) && defined(__unix__)
+                    std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                    #endif
+                }
+            #endif
 
             for (int i = 8; i < img_vecs.size() - 3; i++)
             {
@@ -742,25 +771,44 @@ int main()
         case 2:
             // Init folder for contain all image file
             dir = "Character Genshin Wish Image\\";
-            if (std::filesystem::is_directory(dir))
-            {
-                if (!std::filesystem::is_empty("Character Genshin Wish Image"))
+            #if defined(__ANDROID__)
+                if (std::__fs::filesystem::is_directory(dir))
                 {
-                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Wish Image"))
+                    if (!std::__fs::filesystem::is_empty("Character Genshin Wish Image"))
                     {
-                        std::cout << "Clearing existing file\n";
-                        std::filesystem::remove_all(files.path());
+                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Wish Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::__fs::filesystem::remove_all(files.path());
+                        }
                     }
                 }
-            }
-            else
-            {
-                std::filesystem::create_directory("Character Genshin Wish Image");
-                std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                std::filesystem::permissions("Character Genshin Wish Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-            }
+                else
+                {
+                    std::__fs::filesystem::create_directory("Character Genshin Wish Image");
+                    std::cout << "Creating folder\n";
+                }
+            #else
+                if (std::filesystem::is_directory(dir))
+                {
+                    if (!std::filesystem::is_empty("Character Genshin Wish Image"))
+                    {
+                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Wish Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::filesystem::remove_all(files.path());
+                        }
+                    }
+                }
+                else
+                {
+                    std::filesystem::create_directory("Character Genshin Wish Image");
+                    std::cout << "Creating folder\n";
+                    #if defined(__linux__) && defined(__unix__)
+                    std::filesystem::permissions("Character Genshin Wish Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                    #endif
+                }
+            #endif
             for (int i = 8; i < img_vecs.size() - 3; i++)
             {
                 std::string page_chara_content = extract_html_page_character(img_vecs[i]);
@@ -771,25 +819,44 @@ int main()
             break;
         case 3:
             dir = "Character Genshin Constellation Image\\";
-            if (std::filesystem::is_directory(dir))
-            {
-                if (!std::filesystem::is_empty("Character Genshin Constellation Image"))
+            #if defined(__ANDROID__)
+                if (std::__fs::filesystem::is_directory(dir))
                 {
-                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Constellation Image"))
+                    if (!std::__fs::filesystem::is_empty("Character Genshin Constellation Image"))
                     {
-                        std::cout << "Clearing existing file\n";
-                        std::filesystem::remove_all(files.path());
+                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Constellation Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::__fs::filesystem::remove_all(files.path());
+                        }
                     }
                 }
-            }
-            else
-            {
-                std::filesystem::create_directory("Character Genshin Constellation Image");
-                std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                std::filesystem::permissions("Character Genshin Constellation Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-            }
+                else
+                {
+                    std::__fs::filesystem::create_directory("Character Genshin Constellation Image");
+                    std::cout << "Creating folder\n";
+                }
+            #else
+                if (std::filesystem::is_directory(dir))
+                {
+                    if (!std::filesystem::is_empty("Character Genshin Constellation Image"))
+                    {
+                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Constellation Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::filesystem::remove_all(files.path());
+                        }
+                    }
+                }
+                else
+                {
+                    std::filesystem::create_directory("Character Genshin Constellation Image");
+                    std::cout << "Creating folder\n";
+                    #if defined(__linux__) && defined(__unix__)
+                    std::filesystem::permissions("Character Genshin Constellation Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                    #endif
+                }
+            #endif
             for (int i = 0; i < const_vecs.size(); i++)
             {
                 std::string page_const_content = extract_html_page_character(const_vecs[i]);
@@ -800,6 +867,24 @@ int main()
             break;
         case 4:
             dir = "Character Genshin Introduction Card Image\\";
+            #if defined(__ANDROID__)
+                if (std::__fs::filesystem::is_directory(dir))
+                {
+                    if (!std::__fs::filesystem::is_empty("Character Genshin Introduction Card Image"))
+                    {
+                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Introduction Card Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::__fs::filesystem::remove_all(files.path());
+                        }
+                    }
+                }
+                else
+                {
+                    std::__fs::filesystem::create_directory("Character Genshin Introduction Card Image");
+                    std::cout << "Creating folder\n";
+                }
+            #else
             if (std::filesystem::is_directory(dir))
             {
                 if (!std::filesystem::is_empty("Character Genshin Introduction Card Image"))
@@ -819,6 +904,7 @@ int main()
                 std::filesystem::permissions("Character Genshin Introduction Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
+            #endif
             for (int i = 0; i < intro_vecs.size(); i++)
             {
                 std::string page_intro_content = extract_html_page_character(intro_vecs[i]);
@@ -829,6 +915,24 @@ int main()
             break;
         case 5:
             dir = "Character Genshin Namecard Background Image\\";
+            #if defined(__ANDROID__)
+                if (std::__fs::filesystem::is_directory(dir))
+                {
+                    if (!std::__fs::filesystem::is_empty("Character Genshin Namecard Background Image"))
+                    {
+                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Namecard Background Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::__fs::filesystem::remove_all(files.path());
+                        }
+                    }
+                }
+                else
+                {
+                    std::__fs::filesystem::create_directory("Character Genshin Namecard Background Image");
+                    std::cout << "Creating folder\n";
+                }
+            #else
             if (std::filesystem::is_directory(dir))
             {
                 if (!std::filesystem::is_empty("Character Genshin Namecard Background Image"))
@@ -848,6 +952,7 @@ int main()
                 std::filesystem::permissions("Character Genshin Namecard Background Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
+            #endif
             for (int i = 0; i < card_vecs.size(); i++)
             {
                 std::string page_card_content = extract_html_page_character(card_vecs[i]);
@@ -858,6 +963,24 @@ int main()
             break;
         case 6:
             dir = "Genshin Version Image\\";
+            #if defined(__ANDROID__)
+                if (std::__fs::filesystem::is_directory(dir))
+                {
+                    if (!std::__fs::filesystem::is_empty("Genshin Version Image"))
+                    {
+                        for (const auto &files : std::__fs::filesystem::directory_iterator("Genshin Version Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::__fs::filesystem::remove_all(files.path());
+                        }
+                    }
+                }
+                else
+                {
+                    std::__fs::filesystem::create_directory("Genshin Version Image");
+                    std::cout << "Creating folder\n";
+                }
+            #else
             if (std::filesystem::is_directory(dir))
             {
                 if (!std::filesystem::is_empty("Genshin Version Image"))
@@ -877,9 +1000,28 @@ int main()
                 std::filesystem::permissions("Genshin Version Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
+            #endif
             break;
         case 7:
             dir = "Genshin TGC Character Card Image\\";
+            #if defined(__ANDROID__)
+                if (std::__fs::filesystem::is_directory(dir))
+                {
+                    if (!std::__fs::filesystem::is_empty("Genshin TCG Character Card Image"))
+                    {
+                        for (const auto &files : std::__fs::filesystem::directory_iterator("Genshin TCG Character Card Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::__fs::filesystem::remove_all(files.path());
+                        }
+                    }
+                }
+                else
+                {
+                    std::__fs::filesystem::create_directory("Genshin TCG Character Card Image");
+                    std::cout << "Creating folder\n";
+                }
+            #else
             if (std::filesystem::is_directory(dir))
             {
                 if (!std::filesystem::is_empty("Genshin TGC Character Card Image"))
@@ -899,6 +1041,7 @@ int main()
                 std::filesystem::permissions("Genshin TGC Character Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
+            #endif
             for (int i = 2; i < tgc_vecs.size(); i++)
             {
                 std::string page_tgc_content = extract_html_page_character(tgc_vecs[i]);
@@ -916,6 +1059,24 @@ int main()
         default:
             // Init folder for contain all image file
             dir = "Character Genshin Card Image\\";
+            #if defined(__ANDROID__)
+                if (std::__fs::filesystem::is_directory(dir))
+                {
+                    if (!std::__fs::filesystem::is_empty("Character Genshin Card Image"))
+                    {
+                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Card Image"))
+                        {
+                            std::cout << "Clearing existing file\n";
+                            std::__fs::filesystem::remove_all(files.path());
+                        }
+                    }
+                }
+                else
+                {
+                    std::__fs::filesystem::create_directory("Character Genshin Card Image");
+                    std::cout << "Creating folder\n";
+                }
+            #else
             if (std::filesystem::is_directory(dir))
             {
                 if (!std::filesystem::is_empty("Character Genshin Card Image"))
@@ -935,6 +1096,7 @@ int main()
                 std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
                 #endif
             }
+            #endif
             for (int i = 0; i < img_vecs.size(); i++)
             {
                 std::string page_chara_content = extract_html_page_character(img_vecs[i]);
