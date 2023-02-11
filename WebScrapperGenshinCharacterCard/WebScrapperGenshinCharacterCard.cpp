@@ -84,7 +84,7 @@ bool checkInet()
     bool con = InternetCheckConnectionA("https://www.google.com", FLAG_ICC_FORCE_CONNECTION, 0);
     return con;
 }
-#elif defined(__linux__) && defined(__unix__)
+#elif defined(__linux__) && defined(__unix__) && !defined(__ANDROID__)
 bool checkInet()
 {
     FILE *output;
