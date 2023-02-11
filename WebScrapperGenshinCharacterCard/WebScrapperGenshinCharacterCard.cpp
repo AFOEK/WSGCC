@@ -3,7 +3,7 @@
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS
 #define NOMINMAX
-// Included library STL
+// Include library STL
 #include <cstdio>
 #include <string>
 #include <fstream>
@@ -16,7 +16,7 @@
 #include <cmath>
 #include <curl/curl.h>
 #include <curl/easy.h>
-// Included library external
+// Include library external
 #include <cpr/cpr.h>
 #include <gumbo.h>
 #include <indicators/progress_bar.hpp>
@@ -35,7 +35,7 @@
 #elif defined(__APPLE__) && defined(__MACH__)
 #include <sys/sysctl.h>
 #elif defined(__ANDROID__)
-
+// Android library
 #endif
 
 // This is an example static links assets of character card image:
