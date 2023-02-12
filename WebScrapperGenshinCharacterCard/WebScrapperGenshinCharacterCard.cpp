@@ -115,6 +115,7 @@ bool checkInet()
     if (curl)
     {
         curl_easy_setopt(curl, CURLOPT_URL, "http://www.google.com");
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_silent);
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
         if (res == 0)
@@ -138,6 +139,11 @@ size_t write_data(void *ptr, size_t size, size_t buff, FILE *stream)
     size_t written;
     written = fwrite(ptr, size, buff, stream);
     return written;
+}
+
+size_t write_data_silent(void *ptr, size_t size, size_t buff, void *userp)
+{
+    return size * buff;
 }
 
 std::string extract_html_page_category()
