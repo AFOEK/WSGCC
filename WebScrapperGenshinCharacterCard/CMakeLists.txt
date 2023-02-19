@@ -1,11 +1,11 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.23)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 project(WebScrapperGenshinCharacterCard LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CROSSCOMPILING "TRUE")
 
 if(VCPKG_TARGET_ANDROID)
-    set(CMAKE_THREAD_LIBS_INIT "-pthreads")
+    set(CMAKE_THREAD_LIBS_INIT "-pthread")
     set(CMAKE_HAVE_THREADS_LIBRARY 1)
     set(CMAKE_USE_WIN32_THREADS_INIT 0)
     set(CMAKE_USE_PTHREADS_INIT 1)
