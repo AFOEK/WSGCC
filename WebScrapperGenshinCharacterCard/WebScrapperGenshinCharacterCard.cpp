@@ -110,6 +110,12 @@ bool checkInet()
     pclose(output);
 }
 #elif (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
+
+size_t write_data_silent(void *ptr, size_t size, size_t buff, void *userp)
+{
+    return size * buff;
+}
+
 bool checkInet()
 {
     /*Fall back using cUrl, this is more cost effective method other then forcing to use OS command
@@ -144,11 +150,6 @@ size_t write_data(void *ptr, size_t size, size_t buff, FILE *stream)
     size_t written;
     written = fwrite(ptr, size, buff, stream);
     return written;
-}
-
-size_t write_data_silent(void *ptr, size_t size, size_t buff, void *userp)
-{
-    return size * buff;
 }
 
 std::string extract_html_page_category()
@@ -661,10 +662,17 @@ void downloads_images(std::string url, std::string file_name)
 
 int main(int argc, char **argv)
 {
-    if (argc != 0)
+    if (argc > 2)
     {
-        for(int i=0;i < argc;i++){
-            std::cout << argv[i] << "\n";
+        for(i=1; i < argc; i++){
+            if((argv[i] == "-h") || (argv[i] == "--help")){
+                std::cout << "-c [--characard] : Downloads all charcter card images\n-cc [--const]: Downloads all character constellations images\n-ci [--charaintro]: Downloads all character intro images\n-nc [--namecard]: Downloads all character namecard images\n-vi [--verimg]: Downloads all version images\n-tgc: Dowloads all TGC images";
+                break;
+            }else if ((argv[i] == "-c") || (argv[i] == "--characard")){
+                std::cout << "Character card selected"
+                opt = 1;
+                sleep(3);
+            }
         }
     }
     else
