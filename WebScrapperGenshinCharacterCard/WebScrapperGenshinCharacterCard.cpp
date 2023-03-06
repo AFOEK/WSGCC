@@ -64,7 +64,6 @@
 std::string root_url = "https://genshin-impact.fandom.com";
 int nb_bar;
 int opt = 0;
-bool verbose = false;
 std::string app_version = "v0.0.8";
 double last_progress, progress_bar_adv;
 std::ofstream writeChara("FileName.gsct");
@@ -577,7 +576,7 @@ int download_progress_default_callback(void *clientp, curl_off_t dltotal, curl_o
     return CURL_PROGRESSFUNC_CONTINUE;
 }
 
-void close_all(int verbose)
+void close_all(bool verbose)
 {
     writeChara.close();
     writeConst.close();
@@ -595,7 +594,7 @@ void close_all(int verbose)
     readVer.close();
     readTGC.close();
 #if defined(__ANDROID__)
-    if(verbose == 0){
+    if(verbose == false){
         for (auto const &entry : std::__fs::filesystem::directory_iterator{std::__fs::filesystem::current_path().string()})
         {
             if (entry.path().extension().string() == ".gsct")
@@ -605,7 +604,7 @@ void close_all(int verbose)
         }
     }
 #else
-    if(verbose == 0){
+    if(verbose == false){
         for (auto const &entry : std::filesystem::directory_iterator{std::filesystem::current_path().string()})
         {
             if (entry.path().extension().string() == ".gsct")
@@ -662,6 +661,21 @@ void downloads_images(std::string url, std::string file_name)
 
 int main(int argc, char **argv)
 {
+
+    argparse::ArgumentParser program("wsgcc");
+    program.add_argument("--verbose","-v").help("It will not delete all download log").default_value(false).implicit_value(true);
+    program.add_argument("--characard", "-cc").help("Downloads all Chracter card images");
+    try{
+        program.parse_args(argc, argv);
+    }catch(const std::runtime_error& err){
+        std::cerr << err.what() << std::endl;
+        std::cerr << program;
+        std::cin.ignore();
+        std::cin.get();
+        close_all();
+        std::exit(-1);
+    }
+
     if (!checkInet())
     {
         std::cout << "Failed to connect to internet, this program need internet to working properly !"<< "\n";
