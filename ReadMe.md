@@ -1,6 +1,6 @@
 ﻿## Intro
 
-This is a console programme which using `Gumbo`, `indicators`, `cpr`, and `cUrl` for scrape all character card image, wish image and contellation images from Genshin Impact Wiki Fandom, as [Tree Directory below](##Web-Tree-Directory), all image file is contained into a CDN server. For the image it's always get latest version and uncroped version. Docker image build are available.
+This is a console programme which using `Gumbo`, `indicators`, `cpr`, `argparse` and `cUrl` for scrape all character card image, wish image and contellation images from Genshin Impact Wiki Fandom, as [Tree Directory below](##Web-Tree-Directory), all image file is contained into a CDN server. For the image it's always get latest version and uncroped version. Docker image build are available.
 
 ## Web Tree Directory
 
@@ -75,6 +75,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Scrap all character TCG card images link from `/wiki/Category:Character_Introduction_Cards`.
 - [x] Scrap all character TCG card images link for each character.
 - [x] Download all character TCG card images HD and uncropped.[^img_download_tcg]
+- [ ] Make program can took command line arguments.
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Adding feature for download certain character.
 
@@ -82,7 +83,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 
 For who like to build this apps, you need to download `vcpkg` to get neccesary dependency, which can be done with visiting [vcpkg](https://vcpkg.io/en/getting-started.html) website. After `vcpkg` already installed, you need install all dependency with command below (assume your working directory is inside on `../../vcpkg`):
 ```
-vcpkg install gumbo cpr curl indicators --triplet x64-{YOUR_OS}-static
+vcpkg install gumbo cpr curl indicators argparse --triplet x64-{YOUR_OS}-static
 ```   
 > **Note**
 > You can list all supported and available triplet by using `vcpkg help triplet` command.   
@@ -119,14 +120,17 @@ For building for android you need, installed `vcpkg` dependency which must suite
     export VCPKG_ROOT=~/Documents/vcpkg && export export ANDROID_NDK_HOME=~/Documents/android-ndk-r25c && export vcpkg_toolchain_file=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake && export android_toolchain_file=$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake && export android_abi=x86 && export vcpkg_target_triplet=x86-android
     ```   
     > **Note**
-    > for `android_abi` and `vcpkg_target_triplet` can be modified as needed, for reference
+    > For `android_abi` and `vcpkg_target_triplet` can be modified as needed, for reference
     > [microsoft guide for android abi](https://learn.microsoft.com/en-us/vcpkg/users/platforms/android#vcpkg-triplets-and-their-corresponding-android-abi).  
     
     After that run code below:
     ```
     cmake -B ../build -S . -DCMAKE_TOOLCHAIN_FILE=$vcpkg_toolchain_file -DVCPKG_CHAINLOAD_TOOLCHAIN_FILE=$android_toolchain_file -DVCPKG_TARGET_TRIPLET=$vcpkg_target_triplet -DANDROID_ABI=$android_abi -DANDROID_PLATFORM=25 -DVCPKG_TARGET_ANDROID=ON
     ```
-    after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cmake --build ../build`. After all completed the executable are in your working directory, for use the program just simply run `./wsgcc_{YOUR_OS}_{OS_ARCH}` if build on android ABI `arm64-v8a` it will generate `./wsgcc_android_arm64`.
+    after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cmake --build ../build`. After all completed the executable are in your working directory, for use the program just simply run `./wsgcc_{YOUR_OS}_{OS_ARCH}` if build on android ABI `arm64-v8a` it will generate `./wsgcc_android_arm64`. You can run the compiled binary using [termux](https://f-droid.org/en/packages/com.termux/), just simply clone this repository and run the binary file.
+    > **Note**
+    > For `termux` it isn't possible to build from there, because termux aren't supported advance Linux filesystem which may required to build this project.
+    > What tested is `vcpkg` successful installed, `vcpkg` package failed to install due `make` unbale to write file into `termux`.
 
 ## Misc
 
@@ -149,4 +153,4 @@ Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Gensh
 [^img_download_tcg]: For TCG character card images are downloaded into a folder named `Genshin TGC Character Card Image`.
 [^img_download_version]: For genshin version images are downloaded into a folder named `Genshin Version Images`.
 [^docker_footnote]: Assumed docker already installed into the device.
-[^android_footnote]: For installing could use `termux` and `adb`.
+[^android_footnote]: For installing could use `termux` ~~and `adb`~~.

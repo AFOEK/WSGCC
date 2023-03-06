@@ -14,7 +14,6 @@
 #include <filesystem>
 #include <cstdlib>
 #include <cmath>
-#include <unordered_map>
 #include <functional>
 // Include library external
 #include <curl/curl.h>
@@ -23,6 +22,7 @@
 #include <gumbo.h>
 #include <indicators/progress_bar.hpp>
 #include <indicators/cursor_control.hpp>
+#include <argparse/argparse.hpp>
 
 // Preprocessor
 #if defined(__linux__)
@@ -64,7 +64,7 @@
 std::string root_url = "https://genshin-impact.fandom.com";
 int nb_bar;
 int opt = 0;
-int verbose = 0;
+bool verbose = false;
 std::string app_version = "v0.0.8";
 double last_progress, progress_bar_adv;
 std::ofstream writeChara("FileName.gsct");
@@ -111,7 +111,7 @@ bool checkInet()
 }
 #elif (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
 
-size_t write_data_silent(void *ptr, size_t size, size_t buff, void *userp)
+size_t write_data_silent(char *ptr, size_t size, size_t buff, void *userp)
 {
     return size * buff;
 }
@@ -577,7 +577,7 @@ int download_progress_default_callback(void *clientp, curl_off_t dltotal, curl_o
     return CURL_PROGRESSFUNC_CONTINUE;
 }
 
-void close_all()
+void close_all(int verbose)
 {
     writeChara.close();
     writeConst.close();
@@ -662,526 +662,510 @@ void downloads_images(std::string url, std::string file_name)
 
 int main(int argc, char **argv)
 {
-    if (argc > 2)
+    if (!checkInet())
     {
-        for(i=1; i < argc; i++){
-            if((argv[i] == "-h") || (argv[i] == "--help")){
-                std::cout << "-c [--characard] : Downloads all charcter card images\n-cc [--const]: Downloads all character constellations images\n-ci [--charaintro]: Downloads all character intro images\n-nc [--namecard]: Downloads all character namecard images\n-vi [--verimg]: Downloads all version images\n-tgc: Dowloads all TGC images";
-                break;
-            }else if ((argv[i] == "-c") || (argv[i] == "--characard")){
-                std::cout << "Character card selected"
-                opt = 1;
-                sleep(3);
-            }
-        }
+        std::cout << "Failed to connect to internet, this program need internet to working properly !"<< "\n";
+        std::cin.ignore();
+        std::cin.get();
+        close_all();
+        exit(-1);
     }
     else
     {
-        if (!checkInet())
-        {
-            std::cout << "Failed to connect to internet, this program need internet to working properly !"<< "\n";
-            std::cin.ignore();
-            std::cin.get();
-            close_all();
-            exit(-1);
+        // Init variables
+        std::cout << "Getting character list from wiki\n";
+        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card, temp_ver, temp_tgc;
+        // Get character list from /wiki/Category:Character_Cards
+        std::string page_content_chara = extract_html_page_category();
+        GumboOutput *parsed_res_chara = gumbo_parse(page_content_chara.c_str());
+        search_for_a_name(parsed_res_chara->root);
+        writeChara.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+        // Get character constellation list from /wiki/Category:Constellation_Overviews
+        std::cout << "Getting character constellation list from wiki\n";
+        std::string page_content_const = extract_html_page_category_const();
+        GumboOutput *parsed_res_const = gumbo_parse(page_content_const.c_str());
+        search_for_a_const(parsed_res_const->root);
+        writeConst.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
+        // Get character introduction banner list from /wiki/Category:Character_Introduction_Cards
+        std::cout << "Getting character introduction list from wiki\n";
+        std::string page_content_intro = extract_html_page_category_chara_intro();
+        GumboOutput *parsed_res_intro = gumbo_parse(page_content_intro.c_str());
+        search_for_a_intro(parsed_res_intro->root);
+        writeIntro.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
+        // Get character namecards list from /wiki/Category:Character_Namecards
+        std::cout << "Getting character namecard list from wiki\n";
+        std::string page_content_namecard = extract_html_page_category_namecard();
+        GumboOutput *parsed_res_namecard = gumbo_parse(page_content_namecard.c_str());
+        search_for_a_namecard(parsed_res_namecard->root);
+        writeNamecard.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_namecard);
+        // Get version images from /wiki/Version
+        std::cout << "Getting version list from wiki\n";
+        std::string page_content_version = extract_html_page_version();
+        GumboOutput *parsed_res_version = gumbo_parse(page_content_version.c_str());
+        search_for_img_version(parsed_res_version->root);
+        writeVer.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_version);
+        // Get TGC character card list from /wiki/Category:Genius_Invokation_TCG_Character_Cards
+        std::cout << "Getting TCG card list from wiki\n";
+        std::string page_content_TGC = extract_html_page_category_TGC();
+        GumboOutput *parsed_res_TGC = gumbo_parse(page_content_TGC.c_str());
+        search_for_a_TGC(parsed_res_TGC->root);
+        writeTGC.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_TGC);
+        // Get character link based by character category
+        temp_chara = extract_character_chara_link();
+        img_vecs = sanitize_vecs(temp_chara);
+        // Get constellation link based by constellation category
+        temp_const = extract_character_const_link();
+        const_vecs = sanitize_vecs(temp_const);
+        // Get introdcution link based by introduction category
+        temp_intro = extract_character_intro_link();
+        intro_vecs = sanitize_vecs(temp_intro);
+        // Get namecard link based by namecard category
+        temp_card = extract_character_namecard_link();
+        card_vecs = sanitize_vecs(temp_card);
+        // Get version link based by version page
+        temp_ver = extract_version_link();
+        ver_vecs = sanitize_vecs(temp_ver);
+        // Get namecard link based by namecard category
+        temp_tgc = extract_character_tgc_link();
+        tgc_vecs = sanitize_vecs(temp_tgc);
+        // Initialize directory for storing images
+        std::string dir;
+        if(opt == 0){
+            std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n0. Cancel\n";
+            std::cin >> opt;
         }
-        else
+        switch (opt)
         {
-            // Init variables
-            std::cout << "Getting character list from wiki\n";
-            std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card, temp_ver, temp_tgc;
-            // Get character list from /wiki/Category:Character_Cards
-            std::string page_content_chara = extract_html_page_category();
-            GumboOutput *parsed_res_chara = gumbo_parse(page_content_chara.c_str());
-            search_for_a_name(parsed_res_chara->root);
-            writeChara.close();
-            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
-            // Get character constellation list from /wiki/Category:Constellation_Overviews
-            std::cout << "Getting character constellation list from wiki\n";
-            std::string page_content_const = extract_html_page_category_const();
-            GumboOutput *parsed_res_const = gumbo_parse(page_content_const.c_str());
-            search_for_a_const(parsed_res_const->root);
-            writeConst.close();
-            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
-            // Get character introduction banner list from /wiki/Category:Character_Introduction_Cards
-            std::cout << "Getting character introduction list from wiki\n";
-            std::string page_content_intro = extract_html_page_category_chara_intro();
-            GumboOutput *parsed_res_intro = gumbo_parse(page_content_intro.c_str());
-            search_for_a_intro(parsed_res_intro->root);
-            writeIntro.close();
-            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
-            // Get character namecards list from /wiki/Category:Character_Namecards
-            std::cout << "Getting character namecard list from wiki\n";
-            std::string page_content_namecard = extract_html_page_category_namecard();
-            GumboOutput *parsed_res_namecard = gumbo_parse(page_content_namecard.c_str());
-            search_for_a_namecard(parsed_res_namecard->root);
-            writeNamecard.close();
-            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_namecard);
-            // Get version images from /wiki/Version
-            std::cout << "Getting version list from wiki\n";
-            std::string page_content_version = extract_html_page_version();
-            GumboOutput *parsed_res_version = gumbo_parse(page_content_version.c_str());
-            search_for_img_version(parsed_res_version->root);
-            writeVer.close();
-            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_version);
-            // Get TGC character card list from /wiki/Category:Genius_Invokation_TCG_Character_Cards
-            std::cout << "Getting TCG card list from wiki\n";
-            std::string page_content_TGC = extract_html_page_category_TGC();
-            GumboOutput *parsed_res_TGC = gumbo_parse(page_content_TGC.c_str());
-            search_for_a_TGC(parsed_res_TGC->root);
-            writeTGC.close();
-            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_TGC);
-            // Get character link based by character category
-            temp_chara = extract_character_chara_link();
-            img_vecs = sanitize_vecs(temp_chara);
-            // Get constellation link based by constellation category
-            temp_const = extract_character_const_link();
-            const_vecs = sanitize_vecs(temp_const);
-            // Get introdcution link based by introduction category
-            temp_intro = extract_character_intro_link();
-            intro_vecs = sanitize_vecs(temp_intro);
-            // Get namecard link based by namecard category
-            temp_card = extract_character_namecard_link();
-            card_vecs = sanitize_vecs(temp_card);
-            // Get version link based by version page
-            temp_ver = extract_version_link();
-            ver_vecs = sanitize_vecs(temp_ver);
-            // Get namecard link based by namecard category
-            temp_tgc = extract_character_tgc_link();
-            tgc_vecs = sanitize_vecs(temp_tgc);
-            // Initialize directory for storing images
-            std::string dir;
-            if(opt == 0){
-                std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n0. Cancel\n";
-                std::cin >> opt;
-            }
-            switch (opt)
+        case 1:
+            // Init folder for contain all image file
+            dir = "Character Genshin Card Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
             {
-            case 1:
-                // Init folder for contain all image file
-                dir = "Character Genshin Card Image\\";
-                #if defined(__ANDROID__)
-                if (std::__fs::filesystem::is_directory(dir))
+                if (!std::__fs::filesystem::is_empty("Character Genshin Card Image"))
                 {
-                    if (!std::__fs::filesystem::is_empty("Character Genshin Card Image"))
+                    for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Card Image"))
                     {
-                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Card Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::__fs::filesystem::remove_all(files.path());
-                        }
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
                     }
-                }
-                else
-                {
-                    std::__fs::filesystem::create_directory("Character Genshin Card Image");
-                    std::cout << "Creating folder\n";
-                }
-                #else
-                if (std::filesystem::is_directory(dir))
-                {
-                    if (!std::filesystem::is_empty("Character Genshin Card Image"))
-                    {
-                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Card Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::filesystem::create_directory("Character Genshin Card Image");
-                    std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                    std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-                }
-                #endif
-
-                for (int i = 8; i < img_vecs.size() - 3; i++)
-                {
-                    std::string page_chara_content = extract_html_page_character(img_vecs[i]);
-                    GumboOutput *parsed_res_chara = gumbo_parse(page_chara_content.c_str());
-                    search_for_img(parsed_res_chara->root, opt);
-                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
-                }
-                break;
-            case 2:
-                // Init folder for contain all image file
-                dir = "Character Genshin Wish Image\\";
-                #if defined(__ANDROID__)
-                if (std::__fs::filesystem::is_directory(dir))
-                {
-                    if (!std::__fs::filesystem::is_empty("Character Genshin Wish Image"))
-                    {
-                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Wish Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::__fs::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::__fs::filesystem::create_directory("Character Genshin Wish Image");
-                    std::cout << "Creating folder\n";
-                }
-                #else
-                if (std::filesystem::is_directory(dir))
-                {
-                    if (!std::filesystem::is_empty("Character Genshin Wish Image"))
-                    {
-                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Wish Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::filesystem::create_directory("Character Genshin Wish Image");
-                    std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                    std::filesystem::permissions("Character Genshin Wish Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-                }
-                #endif
-                for (int i = 8; i < img_vecs.size() - 3; i++)
-                {
-                    std::string page_chara_content = extract_html_page_character(img_vecs[i]);
-                    GumboOutput *parsed_res_chara = gumbo_parse(page_chara_content.c_str());
-                    search_for_img(parsed_res_chara->root, opt);
-                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
-                }
-                break;
-            case 3:
-                dir = "Character Genshin Constellation Image\\";
-                #if defined(__ANDROID__)
-                if (std::__fs::filesystem::is_directory(dir))
-                {
-                    if (!std::__fs::filesystem::is_empty("Character Genshin Constellation Image"))
-                    {
-                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Constellation Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::__fs::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::__fs::filesystem::create_directory("Character Genshin Constellation Image");
-                    std::cout << "Creating folder\n";
-                }
-                #else
-                if (std::filesystem::is_directory(dir))
-                {
-                    if (!std::filesystem::is_empty("Character Genshin Constellation Image"))
-                    {
-                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Constellation Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::filesystem::create_directory("Character Genshin Constellation Image");
-                    std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                    std::filesystem::permissions("Character Genshin Constellation Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-                }
-                #endif
-                for (int i = 0; i < const_vecs.size(); i++)
-                {
-                    std::string page_const_content = extract_html_page_character(const_vecs[i]);
-                    GumboOutput *parsed_res_const = gumbo_parse(page_const_content.c_str());
-                    search_for_img(parsed_res_const->root, opt);
-                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
-                }
-                break;
-            case 4:
-                dir = "Character Genshin Introduction Card Image\\";
-                #if defined(__ANDROID__)
-                if (std::__fs::filesystem::is_directory(dir))
-                {
-                    if (!std::__fs::filesystem::is_empty("Character Genshin Introduction Card Image"))
-                    {
-                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Introduction Card Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::__fs::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::__fs::filesystem::create_directory("Character Genshin Introduction Card Image");
-                    std::cout << "Creating folder\n";
-                }
-                #else
-                if (std::filesystem::is_directory(dir))
-                {
-                    if (!std::filesystem::is_empty("Character Genshin Introduction Card Image"))
-                    {
-                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Introduction Card Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::filesystem::create_directory("Character Genshin Introduction Card Image\\");
-                    std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                    std::filesystem::permissions("Character Genshin Introduction Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-                }
-                #endif
-                for (int i = 0; i < intro_vecs.size(); i++)
-                {
-                    std::string page_intro_content = extract_html_page_character(intro_vecs[i]);
-                    GumboOutput *parsed_res_intro = gumbo_parse(page_intro_content.c_str());
-                    search_for_img(parsed_res_intro->root, opt);
-                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
-                }
-                break;
-            case 5:
-                dir = "Character Genshin Namecard Background Image\\";
-                #if defined(__ANDROID__)
-                if (std::__fs::filesystem::is_directory(dir))
-                {
-                    if (!std::__fs::filesystem::is_empty("Character Genshin Namecard Background Image"))
-                    {
-                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Namecard Background Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::__fs::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::__fs::filesystem::create_directory("Character Genshin Namecard Background Image");
-                    std::cout << "Creating folder\n";
-                }
-                #else
-                if (std::filesystem::is_directory(dir))
-                {
-                    if (!std::filesystem::is_empty("Character Genshin Namecard Background Image"))
-                    {
-                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Namecard Background Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::filesystem::create_directory("Character Genshin Namecard Background Image");
-                    std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                    std::filesystem::permissions("Character Genshin Namecard Background Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-                }
-                #endif
-                for (int i = 0; i < card_vecs.size(); i++)
-                {
-                    std::string page_card_content = extract_html_page_character(card_vecs[i]);
-                    GumboOutput *parsed_res_card = gumbo_parse(page_card_content.c_str());
-                    search_for_img(parsed_res_card->root, opt);
-                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_card);
-                }
-                break;
-            case 6:
-                dir = "Genshin Version Image\\";
-                #if defined(__ANDROID__)
-                if (std::__fs::filesystem::is_directory(dir))
-                {
-                    if (!std::__fs::filesystem::is_empty("Genshin Version Image"))
-                    {
-                        for (const auto &files : std::__fs::filesystem::directory_iterator("Genshin Version Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::__fs::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::__fs::filesystem::create_directory("Genshin Version Image");
-                    std::cout << "Creating folder\n";
-                }
-                #else
-                if (std::filesystem::is_directory(dir))
-                {
-                    if (!std::filesystem::is_empty("Genshin Version Image"))
-                    {
-                        for (const auto &files : std::filesystem::directory_iterator("Genshin Version Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::filesystem::create_directory("Genshin Version Image");
-                    std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                    std::filesystem::permissions("Genshin Version Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-                }
-                #endif
-                break;
-            case 7:
-                dir = "Genshin TGC Character Card Image\\";
-                #if defined(__ANDROID__)
-                if (std::__fs::filesystem::is_directory(dir))
-                {
-                    if (!std::__fs::filesystem::is_empty("Genshin TCG Character Card Image"))
-                    {
-                        for (const auto &files : std::__fs::filesystem::directory_iterator("Genshin TCG Character Card Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::__fs::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::__fs::filesystem::create_directory("Genshin TCG Character Card Image");
-                    std::cout << "Creating folder\n";
-                }
-                #else
-                if (std::filesystem::is_directory(dir))
-                {
-                    if (!std::filesystem::is_empty("Genshin TGC Character Card Image"))
-                    {
-                        for (const auto &files : std::filesystem::directory_iterator("Genshin TGC Character Card Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::filesystem::create_directory("Genshin TGC Character Card Image");
-                    std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                    std::filesystem::permissions("Genshin TGC Character Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-                }
-                #endif
-                for (int i = 2; i < tgc_vecs.size(); i++)
-                {
-                    std::string page_tgc_content = extract_html_page_character(tgc_vecs[i]);
-                    GumboOutput *parsed_res_tgc = gumbo_parse(page_tgc_content.c_str());
-                    search_for_img(parsed_res_tgc->root, opt);
-                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_tgc);
-                }
-                break;
-            case 0:
-                std::cout << "Bye !\n";
-                std::cin.ignore();
-                std::cin.get();
-                close_all();
-                exit(-1);
-            default:
-                // Init folder for contain all image file
-                dir = "Character Genshin Card Image\\";
-                #if defined(__ANDROID__)
-                if (std::__fs::filesystem::is_directory(dir))
-                {
-                    if (!std::__fs::filesystem::is_empty("Character Genshin Card Image"))
-                    {
-                        for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Card Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::__fs::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::__fs::filesystem::create_directory("Character Genshin Card Image");
-                    std::cout << "Creating folder\n";
-                }
-                #else
-                if (std::filesystem::is_directory(dir))
-                {
-                    if (!std::filesystem::is_empty("Character Genshin Card Image"))
-                    {
-                        for (const auto &files : std::filesystem::directory_iterator("Character Genshin Card Image"))
-                        {
-                            std::cout << "Clearing existing file\n";
-                            std::filesystem::remove_all(files.path());
-                        }
-                    }
-                }
-                else
-                {
-                    std::filesystem::create_directory("Character Genshin Card Image");
-                    std::cout << "Creating folder\n";
-                #if defined(__linux__) && defined(__unix__)
-                    std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-                #endif
-                }
-                #endif
-                for (int i = 0; i < img_vecs.size(); i++)
-                {
-                    std::string page_chara_content = extract_html_page_character(img_vecs[i]);
-                    GumboOutput *parsed_res_chara = gumbo_parse(page_chara_content.c_str());
-                    search_for_img(parsed_res_chara->root, 1);
-                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
-                }
-                break;
-            }
-            // Don't delete it's for debugging !!
-            /*std::string page_chara_content = extract_html_page_character(img_vecs[69]);
-            GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
-            search_for_img(parsed_res_chara->root);
-            gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);*/
-            writeLink.close();
-            // Download Img
-            std::cout << "Downloading Images";
-            std::vector<std::string> link_vecs;
-            std::string file_name;
-            if (opt == 6)
-            {
-                for (int i = 0; i < ver_vecs.size(); i++)
-                {
-                    std::string link_ver = ver_vecs[i];
-                    link_ver.erase(link_ver.size() - 18);
-                    file_name = ver_vecs[i];
-                    file_name.erase(0, 60);
-                    file_name.erase(file_name.size() - 34);
-                    downloads_images(link_ver, dir + file_name);
                 }
             }
             else
             {
-                link_vecs = get_img_links();
-                for (int i = 0; i < link_vecs.size(); i++)
+                std::__fs::filesystem::create_directory("Character Genshin Card Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Character Genshin Card Image"))
                 {
-                    file_name = link_vecs[i];
-                    file_name.erase(0, 60);
-                    file_name.erase(file_name.size() - 17);
-                    downloads_images(link_vecs[i], dir + file_name);
+                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Card Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
                 }
             }
-            readLink.close();
-            // Check if file is closed properly
+            else
+            {
+                std::filesystem::create_directory("Character Genshin Card Image");
+                std::cout << "Creating folder\n";
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+            }
+            #endif
+
+            for (int i = 8; i < img_vecs.size() - 3; i++)
+            {
+                std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+                GumboOutput *parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+                search_for_img(parsed_res_chara->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+            }
+            break;
+        case 2:
+            // Init folder for contain all image file
+            dir = "Character Genshin Wish Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Character Genshin Wish Image"))
+                {
+                    for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Wish Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Character Genshin Wish Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Character Genshin Wish Image"))
+                {
+                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Wish Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Character Genshin Wish Image");
+                std::cout << "Creating folder\n";
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Wish Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+            }
+            #endif
+            for (int i = 8; i < img_vecs.size() - 3; i++)
+            {
+                std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+                GumboOutput *parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+                search_for_img(parsed_res_chara->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+            }
+            break;
+        case 3:
+            dir = "Character Genshin Constellation Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Character Genshin Constellation Image"))
+                {
+                    for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Constellation Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Character Genshin Constellation Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Character Genshin Constellation Image"))
+                {
+                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Constellation Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Character Genshin Constellation Image");
+                std::cout << "Creating folder\n";
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Constellation Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+            }
+            #endif
+            for (int i = 0; i < const_vecs.size(); i++)
+            {
+                std::string page_const_content = extract_html_page_character(const_vecs[i]);
+                GumboOutput *parsed_res_const = gumbo_parse(page_const_content.c_str());
+                search_for_img(parsed_res_const->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
+            }
+            break;
+        case 4:
+            dir = "Character Genshin Introduction Card Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Character Genshin Introduction Card Image"))
+                {
+                    for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Introduction Card Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Character Genshin Introduction Card Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Character Genshin Introduction Card Image"))
+                {
+                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Introduction Card Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Character Genshin Introduction Card Image\\");
+                std::cout << "Creating folder\n";
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Introduction Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+            }
+            #endif
+            for (int i = 0; i < intro_vecs.size(); i++)
+            {
+                std::string page_intro_content = extract_html_page_character(intro_vecs[i]);
+                GumboOutput *parsed_res_intro = gumbo_parse(page_intro_content.c_str());
+                search_for_img(parsed_res_intro->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
+            }
+            break;
+        case 5:
+            dir = "Character Genshin Namecard Background Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Character Genshin Namecard Background Image"))
+                {
+                    for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Namecard Background Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Character Genshin Namecard Background Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Character Genshin Namecard Background Image"))
+                {
+                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Namecard Background Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Character Genshin Namecard Background Image");
+                std::cout << "Creating folder\n";
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Namecard Background Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+            }
+            #endif
+            for (int i = 0; i < card_vecs.size(); i++)
+            {
+                std::string page_card_content = extract_html_page_character(card_vecs[i]);
+                GumboOutput *parsed_res_card = gumbo_parse(page_card_content.c_str());
+                search_for_img(parsed_res_card->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_card);
+            }
+            break;
+        case 6:
+            dir = "Genshin Version Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Genshin Version Image"))
+                {
+                    for (const auto &files : std::__fs::filesystem::directory_iterator("Genshin Version Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Genshin Version Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Genshin Version Image"))
+                {
+                    for (const auto &files : std::filesystem::directory_iterator("Genshin Version Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Genshin Version Image");
+                std::cout << "Creating folder\n";
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Genshin Version Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+            }
+            #endif
+            break;
+        case 7:
+            dir = "Genshin TGC Character Card Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Genshin TCG Character Card Image"))
+                {
+                    for (const auto &files : std::__fs::filesystem::directory_iterator("Genshin TCG Character Card Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Genshin TCG Character Card Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Genshin TGC Character Card Image"))
+                {
+                    for (const auto &files : std::filesystem::directory_iterator("Genshin TGC Character Card Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Genshin TGC Character Card Image");
+                std::cout << "Creating folder\n";
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Genshin TGC Character Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+            }
+            #endif
+            for (int i = 2; i < tgc_vecs.size(); i++)
+            {
+                std::string page_tgc_content = extract_html_page_character(tgc_vecs[i]);
+                GumboOutput *parsed_res_tgc = gumbo_parse(page_tgc_content.c_str());
+                search_for_img(parsed_res_tgc->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_tgc);
+            }
+            break;
+        case 0:
+            std::cout << "Bye !\n";
+            std::cin.ignore();
+            std::cin.get();
             close_all();
+            exit(-1);
+        default:
+            // Init folder for contain all image file
+            dir = "Character Genshin Card Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Character Genshin Card Image"))
+                {
+                    for (const auto &files : std::__fs::filesystem::directory_iterator("Character Genshin Card Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Character Genshin Card Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Character Genshin Card Image"))
+                {
+                    for (const auto &files : std::filesystem::directory_iterator("Character Genshin Card Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Character Genshin Card Image");
+                std::cout << "Creating folder\n";
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions("Character Genshin Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+            }
+            #endif
+            for (int i = 0; i < img_vecs.size(); i++)
+            {
+                std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+                GumboOutput *parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+                search_for_img(parsed_res_chara->root, 1);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
+            }
+            break;
         }
+        // Don't delete it's for debugging !!
+        /*std::string page_chara_content = extract_html_page_character(img_vecs[69]);
+        GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
+        search_for_img(parsed_res_chara->root);
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);*/
+        writeLink.close();
+        // Download Img
+        std::cout << "Downloading Images";
+        std::vector<std::string> link_vecs;
+        std::string file_name;
+        if (opt == 6)
+        {
+            for (int i = 0; i < ver_vecs.size(); i++)
+            {
+                std::string link_ver = ver_vecs[i];
+                link_ver.erase(link_ver.size() - 18);
+                file_name = ver_vecs[i];
+                file_name.erase(0, 60);
+                file_name.erase(file_name.size() - 34);
+                downloads_images(link_ver, dir + file_name);
+            }
+        }
+        else
+        {
+            link_vecs = get_img_links();
+            for (int i = 0; i < link_vecs.size(); i++)
+            {
+                file_name = link_vecs[i];
+                file_name.erase(0, 60);
+                file_name.erase(file_name.size() - 17);
+                downloads_images(link_vecs[i], dir + file_name);
+            }
+        }
+        readLink.close();
+        // Check if file is closed properly
+        close_all();
         // Exit gracefully and return memory to OS
         return 0;
     }
