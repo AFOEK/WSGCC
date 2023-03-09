@@ -50,6 +50,8 @@
 // https://static.wikia.nocookie.net/gensin-impact/images/b/b1/Character_Albedo_Introduction.png/revision/latest
 // This is an example static links assets of character namecard images:
 // https://static.wikia.nocookie.net/gensin-impact/images/5/55/Item_Albedo_Sun_Blossom.png/revision/latest
+// This is an example static links assets of battle pass namecard images:
+// https://static.wikia.nocookie.net/gensin-impact/images/a/ae/Item_Travel_Notes_Catch_the_Wind.png/revision/latest
 // This is an example static links assets of version images:
 // https://static.wikia.nocookie.net/gensin-impact/images/6/61/Splashscreen_Welcome_To_Teyvat.png/revision/latest
 // This is an example static links assets of version TGC cahracter card images:
@@ -64,6 +66,7 @@
 std::string root_url = "https://genshin-impact.fandom.com";
 int nb_bar;
 int opt = 0;
+bool verbose;
 std::string app_version = "v0.0.8";
 double last_progress, progress_bar_adv;
 std::ofstream writeChara("FileName.gsct");
@@ -71,14 +74,16 @@ std::ofstream writeImgLink("FileImg.gsct");
 std::ofstream writeLink("ImgLink.gsct");
 std::ofstream writeConst("FileConst.gsct");
 std::ofstream writeIntro("FileIntro.gsct");
-std::ofstream writeNamecard("FileNamecard.gsct");
+std::ofstream writeNameCardChara("FileNamecardChara.gsct");
+std::ofstream writeNameCardBP("FileNamecardBP.gsct");
 std::ofstream writeVer("Version.gsct");
 std::ofstream writeTGC("FileTGC.gsct");
 std::ifstream readChara("FileName.gsct");
 std::ifstream readLink("ImgLink.gsct");
 std::ifstream readConst("FileConst.gsct");
 std::ifstream readIntro("FileIntro.gsct");
-std::ifstream readCard("FileNamecard.gsct");
+std::ifstream readNameCardChara("FileNamecardChara.gsct");
+std::ifstream readNameCardBP("FileNamecardBP.gsct");
 std::ifstream readVer("Version.gsct");
 std::ifstream readTGC("FileTGC.gsct");
 
@@ -175,6 +180,13 @@ std::string extract_html_page_category_chara_intro()
 std::string extract_html_page_category_namecard()
 {
     cpr::Url url_category = cpr::Url{root_url + "/wiki/Category:Character_Namecards"};
+    cpr::Response res = Get(url_category);
+    return res.text;
+}
+
+std::string extract_html_page_category_namecard_bp()
+{
+    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Category:Battle_Pass_Namecards" };
     cpr::Response res = Get(url_category);
     return res.text;
 }
@@ -276,6 +288,14 @@ void search_for_img(GumboNode *node, int imgType)
                     std::cout << LinkImgTmp << "\n";
                 }
                 break;
+            case 8:
+                if (LinkImgTmp.rfind("Namecard_Background_Travel_Notes") != 18446744073709551615UL)
+                {
+                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    writeLink << LinkImgTmp << "\n";
+                    std::cout << LinkImgTmp << "\n";
+                }
+                break;
             }
         }
     }
@@ -342,7 +362,7 @@ void search_for_a_const(GumboNode *node)
     }
 }
 
-void search_for_a_namecard(GumboNode *node)
+void search_for_a_namecard_chara(GumboNode *node)
 {
     if (node->type != GUMBO_NODE_ELEMENT)
     {
@@ -359,14 +379,42 @@ void search_for_a_namecard(GumboNode *node)
             std::string LinkStr = href->value;
             if (ClassName.rfind("category-page__member-link") == 0)
             {
-                writeNamecard << LinkStr << "\n";
+                writeNameCardChara << LinkStr << "\n";
             }
         }
     }
     GumboVector *child = &node->v.element.children;
     for (unsigned int i = 0; i < child->length; i++)
     {
-        search_for_a_namecard(static_cast<GumboNode *>(child->data[i]));
+        search_for_a_namecard_chara(static_cast<GumboNode *>(child->data[i]));
+    }
+}
+
+void search_for_a_namecard_bp(GumboNode* node)
+{
+    if (node->type != GUMBO_NODE_ELEMENT)
+    {
+        return;
+    }
+
+    if (node->v.element.tag == GUMBO_TAG_A)
+    {
+        GumboAttribute* classes = gumbo_get_attribute(&node->v.element.attributes, "class");
+        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "href");
+        if (classes && href)
+        {
+            std::string ClassName = classes->value;
+            std::string LinkStr = href->value;
+            if (ClassName.rfind("category-page__member-link") == 0)
+            {
+                writeNameCardBP << LinkStr << "\n";
+            }
+        }
+    }
+    GumboVector* child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++)
+    {
+        search_for_a_namecard_bp(static_cast<GumboNode*>(child->data[i]));
     }
 }
 
@@ -539,16 +587,29 @@ std::vector<std::string> extract_character_intro_link()
     return img_links;
 }
 
-std::vector<std::string> extract_character_namecard_link()
+std::vector<std::string> extract_character_namecard_chara_link()
 {
     std::string line;
     std::vector<std::string> img_links;
-    while (std::getline(readCard, line))
+    while (std::getline(readNameCardChara, line))
     {
         std::istringstream ISS;
         img_links.push_back(line);
     }
-    readCard.close();
+    readNameCardChara.close();
+    return img_links;
+}
+
+std::vector<std::string> extract_character_namecard_bp_link()
+{
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readNameCardBP, line))
+    {
+        std::istringstream ISS;
+        img_links.push_back(line);
+    }
+    readNameCardBP.close();
     return img_links;
 }
 
@@ -583,14 +644,14 @@ void close_all(bool verbose)
     writeImgLink.close();
     writeLink.close();
     writeIntro.close();
-    writeNamecard.close();
+    writeNameCardChara.close();
     writeVer.close();
     writeTGC.close();
     readChara.close();
     readLink.close();
     readConst.close();
     readIntro.close();
-    readCard.close();
+    readNameCardChara.close();
     readVer.close();
     readTGC.close();
 #if defined(__ANDROID__)
@@ -644,14 +705,14 @@ void downloads_images(std::string url, std::string file_name)
         else
         {
             std::cout << (stderr, "Can't create file !");
-            close_all();
+            close_all(verbose);
             exit(-1);
         }
     }
     else
     {
         std::cout << (stderr, "Can't initialize cUrl !");
-        close_all();
+        close_all(verbose);
         exit(-1);
     }
     indicators::show_console_cursor(true);
@@ -662,7 +723,7 @@ void downloads_images(std::string url, std::string file_name)
 int main(int argc, char **argv)
 {
 
-    argparse::ArgumentParser program("wsgcc");
+    argparse::ArgumentParser program(argv[0]);
     program.add_argument("--verbose","-v").help("It will not delete all download log").default_value(false).implicit_value(true);
     program.add_argument("--characard", "-cc").help("Downloads all Chracter card images");
     try{
@@ -672,7 +733,7 @@ int main(int argc, char **argv)
         std::cerr << program;
         std::cin.ignore();
         std::cin.get();
-        close_all();
+        close_all(verbose);
         std::exit(-1);
     }
 
@@ -681,14 +742,14 @@ int main(int argc, char **argv)
         std::cout << "Failed to connect to internet, this program need internet to working properly !"<< "\n";
         std::cin.ignore();
         std::cin.get();
-        close_all();
+        close_all(verbose);
         exit(-1);
     }
     else
     {
         // Init variables
         std::cout << "Getting character list from wiki\n";
-        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card, temp_ver, temp_tgc;
+        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card_bp;
         // Get character list from /wiki/Category:Character_Cards
         std::string page_content_chara = extract_html_page_category();
         GumboOutput *parsed_res_chara = gumbo_parse(page_content_chara.c_str());
@@ -713,8 +774,8 @@ int main(int argc, char **argv)
         std::cout << "Getting character namecard list from wiki\n";
         std::string page_content_namecard = extract_html_page_category_namecard();
         GumboOutput *parsed_res_namecard = gumbo_parse(page_content_namecard.c_str());
-        search_for_a_namecard(parsed_res_namecard->root);
-        writeNamecard.close();
+        search_for_a_namecard_chara(parsed_res_namecard->root);
+        writeNameCardChara.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_namecard);
         // Get version images from /wiki/Version
         std::cout << "Getting version list from wiki\n";
@@ -740,7 +801,7 @@ int main(int argc, char **argv)
         temp_intro = extract_character_intro_link();
         intro_vecs = sanitize_vecs(temp_intro);
         // Get namecard link based by namecard category
-        temp_card = extract_character_namecard_link();
+        temp_card = extract_character_namecard_chara_link();
         card_vecs = sanitize_vecs(temp_card);
         // Get version link based by version page
         temp_ver = extract_version_link();
@@ -1092,7 +1153,7 @@ int main(int argc, char **argv)
             std::cout << "Bye !\n";
             std::cin.ignore();
             std::cin.get();
-            close_all();
+            close_all(verbose);
             exit(-1);
         default:
             // Init folder for contain all image file
@@ -1179,7 +1240,7 @@ int main(int argc, char **argv)
         }
         readLink.close();
         // Check if file is closed properly
-        close_all();
+        close_all(verbose);
         // Exit gracefully and return memory to OS
         return 0;
     }
