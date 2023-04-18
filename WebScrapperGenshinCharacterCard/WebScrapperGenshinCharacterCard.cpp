@@ -65,7 +65,7 @@
 
 std::string root_url = "https://genshin-impact.fandom.com";
 int nb_bar;
-int opt = 0;
+int opt = 99;
 bool verbose;
 std::string app_version = "v0.0.8";
 double last_progress, progress_bar_adv;
@@ -722,21 +722,6 @@ void downloads_images(std::string url, std::string file_name)
 
 int main(int argc, char **argv)
 {
-
-    argparse::ArgumentParser program(argv[0]);
-    program.add_argument("--verbose","-v").help("It will not delete all download log").default_value(false).implicit_value(true);
-    program.add_argument("--characard", "-cc").help("Downloads all Chracter card images");
-    try{
-        program.parse_args(argc, argv);
-    }catch(const std::runtime_error& err){
-        std::cerr << err.what() << std::endl;
-        std::cerr << program;
-        std::cin.ignore();
-        std::cin.get();
-        close_all(verbose);
-        std::exit(-1);
-    }
-
     if (!checkInet())
     {
         std::cout << "Failed to connect to internet, this program need internet to working properly !"<< "\n";
@@ -746,10 +731,32 @@ int main(int argc, char **argv)
         exit(-1);
     }
     else
-    {
+    {   
+        if(argc != 1){
+            argparse::ArgumentParser program(argv[0]);
+            program.add_argument("--verbose","-v").help("It will not delete all download log").default_value(false).implicit_value(true);
+            program.add_argument("--characard", "-cc").help("Downloads all Character card images");
+            program.add_argument("--constel","-co").help("Downloads all Character Constellation images");
+            program.add_argument("--charanamecard","-cn").help("Downloads all Character Namecard images");
+            program.add_argument("--introcard","-ic").help("Downloads all Character Introduction images");
+            program.add_argument("--verimg","-vi").help("Downloads all Version Images");
+            program.add_argument("--tcgimg","-ti").help("Downloads all TGC Character Images");
+            try{
+                program.parse_args(argc, argv);
+            }catch(const std::runtime_error& err){
+                std::cerr << err.what() << std::endl;
+                std::cerr << program;
+                std::cin.ignore();
+                std::cin.get();
+                close_all(verbose);
+                std::exit(-1);
+            }
+        } else {
+            std::cout << "No command line args supplied\n";
+        }
         // Init variables
         std::cout << "Getting character list from wiki\n";
-        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card_bp;
+        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card;
         // Get character list from /wiki/Category:Character_Cards
         std::string page_content_chara = extract_html_page_category();
         GumboOutput *parsed_res_chara = gumbo_parse(page_content_chara.c_str());
@@ -811,7 +818,7 @@ int main(int argc, char **argv)
         tgc_vecs = sanitize_vecs(temp_tgc);
         // Initialize directory for storing images
         std::string dir;
-        if(opt == 0){
+        if(opt == 99){
             std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n0. Cancel\n";
             std::cin >> opt;
         }
