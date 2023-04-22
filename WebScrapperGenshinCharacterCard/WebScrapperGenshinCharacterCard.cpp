@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <cmath>
 #include <functional>
+#include <unordered_set>
 // Include library external
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -52,9 +53,11 @@
 // https://static.wikia.nocookie.net/gensin-impact/images/5/55/Item_Albedo_Sun_Blossom.png/revision/latest
 // This is an example static links assets of battle pass namecard images:
 // https://static.wikia.nocookie.net/gensin-impact/images/a/ae/Item_Travel_Notes_Catch_the_Wind.png/revision/latest
+// This is an example static links assets of TCG character dynamics card images:
+// https://static.wikia.nocookie.net/gensin-impact/images/c/c2/Ganyu_Dynamic_Skin.ogv/revision/latest
 // This is an example static links assets of version images:
 // https://static.wikia.nocookie.net/gensin-impact/images/6/61/Splashscreen_Welcome_To_Teyvat.png/revision/latest
-// This is an example static links assets of version TGC cahracter card images:
+// This is an example static links assets of TCG character card images:
 // https://static.wikia.nocookie.net/gensin-impact/images/8/87/Ganyu_Character_Card.png/revision/latest
 // This is an example character wiki page link:
 // https://genshin-impact.fandom.com/wiki/Albedo
@@ -240,11 +243,12 @@ void search_for_img(GumboNode *node, int imgType)
             switch (imgType)
             {
             case 1:
-                if (LinkImgTmp.rfind("_Card") != 18446744073709551615UL)
+                if ((LinkImgTmp.rfind("_Card.") != 18446744073709551615UL) && !(LinkImgTmp.rfind("Introduction") != 18446744073709551615UL))
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
+                    /*std::cout << LinkImgTmp.rfind("_Card.") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 2:
@@ -645,6 +649,7 @@ void close_all(bool verbose)
     writeLink.close();
     writeIntro.close();
     writeNameCardChara.close();
+    writeNameCardBP.close();
     writeVer.close();
     writeTGC.close();
     readChara.close();
@@ -652,6 +657,7 @@ void close_all(bool verbose)
     readConst.close();
     readIntro.close();
     readNameCardChara.close();
+    readNameCardBP.close();
     readVer.close();
     readTGC.close();
 #if defined(__ANDROID__)
@@ -756,7 +762,7 @@ int main(int argc, char **argv)
         }
         // Init variables
         std::cout << "Getting character list from wiki\n";
-        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card;
+        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_const, intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card, temp_card_bp_vecs;
         // Get character list from /wiki/Category:Character_Cards
         std::string page_content_chara = extract_html_page_category();
         GumboOutput *parsed_res_chara = gumbo_parse(page_content_chara.c_str());
@@ -798,6 +804,13 @@ int main(int argc, char **argv)
         search_for_a_TGC(parsed_res_TGC->root);
         writeTGC.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_TGC);
+        // Get TGC character card list from /wiki/Category:Genius_Invokation_TCG_Character_Cards
+        std::cout << "Getting Battle Pass Namecard list from wiki\n";
+        std::string page_content_BP_namecard = extract_html_page_category_namecard_bp();
+        GumboOutput* parsed_res_BP_namecard = gumbo_parse(page_content_BP_namecard.c_str());
+        search_for_a_namecard_bp(parsed_res_BP_namecard->root);
+        writeNameCardBP.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_BP_namecard);
         // Get character link based by character category
         temp_chara = extract_character_chara_link();
         img_vecs = sanitize_vecs(temp_chara);
@@ -816,6 +829,9 @@ int main(int argc, char **argv)
         // Get namecard link based by namecard category
         temp_tgc = extract_character_tgc_link();
         tgc_vecs = sanitize_vecs(temp_tgc);
+        // Get namecard link based by BP namecard category
+        temp_card_bp_vecs = extract_character_tgc_link();
+        card_bp_vecs = sanitize_vecs(temp_card_bp_vecs);
         // Initialize directory for storing images
         std::string dir;
         if(opt == 99){
@@ -1156,6 +1172,54 @@ int main(int argc, char **argv)
                 gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_tgc);
             }
             break;
+        case 8:
+            dir = "Genshin BP Namecard Image\\";
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Genshin BP Namecard Image"))
+                {
+                    for (const auto& files : std::__fs::filesystem::directory_iterator("Genshin BP Namecard Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Genshin BP Namecard Image");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Genshin BP Namecard Image"))
+                {
+                    for (const auto& files : std::filesystem::directory_iterator("Genshin BP Namecard Image"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Genshin BP Namecard Image");
+                std::cout << "Creating folder\n";
+                #if defined(__linux__) && defined(__unix__)
+                    std::filesystem::permissions("Genshin BP Namecard Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                #endif
+            }
+                #endif
+            for (int i = 2; i < card_bp_vecs.size(); i++)
+            {
+                std::string page_bp_content = extract_html_page_character(card_bp_vecs[i]);
+                GumboOutput* parsed_res_bp = gumbo_parse(page_bp_content.c_str());
+                search_for_img(parsed_res_bp->root, opt);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_bp);
+            }
+            break;
         case 0:
             std::cout << "Bye !\n";
             std::cin.ignore();
@@ -1237,11 +1301,19 @@ int main(int argc, char **argv)
         else
         {
             link_vecs = get_img_links();
+            std::sort(link_vecs.begin(), link_vecs.end());
+            auto iter = std::unique(link_vecs.begin(), link_vecs.end());
+            link_vecs.erase(iter, link_vecs.end());
             for (int i = 0; i < link_vecs.size(); i++)
-            {
+            {   
                 file_name = link_vecs[i];
                 file_name.erase(0, 60);
-                file_name.erase(file_name.size() - 17);
+                if (file_name.back() == '/') {
+                    file_name.erase(file_name.size() - 17);
+                }
+                else {
+                    file_name.erase(file_name.size() - 16);
+                }
                 downloads_images(link_vecs[i], dir + file_name);
             }
         }
