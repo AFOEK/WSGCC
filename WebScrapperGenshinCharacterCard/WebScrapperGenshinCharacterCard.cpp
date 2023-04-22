@@ -268,7 +268,7 @@ void search_for_img(GumboNode *node, int imgType)
                 }
                 break;
             case 4:
-                if (LinkImgTmp.rfind("_Introduction.") != 18446744073709551615UL)
+                if (LinkImgTmp.rfind("_Introduction") != 18446744073709551615UL)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
@@ -565,6 +565,20 @@ std::vector<std::string> extract_character_tgc_link()
     return img_links;
 }
 
+std::vector<std::string> extract_battle_pass_namecard_link()
+{
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readNameCardBP, line))
+    {
+        std::istringstream ISS;
+        img_links.push_back(line);
+    }
+    readNameCardBP.close();
+    return img_links;
+}
+
+
 std::vector<std::string> extract_version_link()
 {
     std::string line;
@@ -740,13 +754,14 @@ int main(int argc, char **argv)
     {   
         if(argc != 1){
             argparse::ArgumentParser program(argv[0]);
-            program.add_argument("--verbose","-v").help("It will not delete all download log").default_value(false).implicit_value(true);
+            program.add_argument("--verbose","-vv").help("It will not delete all download log").default_value(false).implicit_value(true);
             program.add_argument("--characard", "-cc").help("Downloads all Character card images");
             program.add_argument("--constel","-co").help("Downloads all Character Constellation images");
-            program.add_argument("--charanamecard","-cn").help("Downloads all Character Namecard images");
+            program.add_argument("--charanamecard","-cn").help("Dsearch_for_a_namecard_bpownloads all Character Namecard images");
             program.add_argument("--introcard","-ic").help("Downloads all Character Introduction images");
             program.add_argument("--verimg","-vi").help("Downloads all Version Images");
             program.add_argument("--tcgimg","-ti").help("Downloads all TGC Character Images");
+            program.add_argument("--bpcard","-bc").help("Downloads all Battle Pass namecard images");
             try{
                 program.parse_args(argc, argv);
             }catch(const std::runtime_error& err){
@@ -830,19 +845,23 @@ int main(int argc, char **argv)
         temp_tgc = extract_character_tgc_link();
         tgc_vecs = sanitize_vecs(temp_tgc);
         // Get namecard link based by BP namecard category
-        temp_card_bp_vecs = extract_character_tgc_link();
+        temp_card_bp_vecs = extract_battle_pass_namecard_link();
         card_bp_vecs = sanitize_vecs(temp_card_bp_vecs);
         // Initialize directory for storing images
         std::string dir;
         if(opt == 99){
-            std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n0. Cancel\n";
+            std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n8. Battle Pass Namecard\n0. Cancel\n";
             std::cin >> opt;
         }
         switch (opt)
         {
         case 1:
             // Init folder for contain all image file
+            #if defined(_WIN32)
             dir = "Character Genshin Card Image\\";
+            #else
+            dir = "Character Genshin Card Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
@@ -892,7 +911,11 @@ int main(int argc, char **argv)
             break;
         case 2:
             // Init folder for contain all image file
+            #if defined(_WIN32)
             dir = "Character Genshin Wish Image\\";
+            #else
+            dir = "Character Genshin Wish Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
@@ -940,7 +963,11 @@ int main(int argc, char **argv)
             }
             break;
         case 3:
+            #if defined(_WIN32)
             dir = "Character Genshin Constellation Image\\";
+            #else
+            dir = "Character Genshin Constellation Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
@@ -988,7 +1015,11 @@ int main(int argc, char **argv)
             }
             break;
         case 4:
+            #if defined(_WIN32)
             dir = "Character Genshin Introduction Card Image\\";
+            #else
+            dir = "Character Genshin Introduction Card Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
@@ -1020,7 +1051,7 @@ int main(int argc, char **argv)
             }
             else
             {
-                std::filesystem::create_directory("Character Genshin Introduction Card Image\\");
+                std::filesystem::create_directory("Character Genshin Introduction Card Image");
                 std::cout << "Creating folder\n";
             #if defined(__linux__) && defined(__unix__)
                 std::filesystem::permissions("Character Genshin Introduction Card Image", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
@@ -1036,7 +1067,11 @@ int main(int argc, char **argv)
             }
             break;
         case 5:
+            #if defined(_WIN32)
             dir = "Character Genshin Namecard Background Image\\";
+            #else
+            dir = "Character Genshin Namecard Background Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
@@ -1084,7 +1119,11 @@ int main(int argc, char **argv)
             }
             break;
         case 6:
+            #if defined(_WIN32)
             dir = "Genshin Version Image\\";
+            #else
+            dir = "Genshin Version Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
@@ -1125,7 +1164,11 @@ int main(int argc, char **argv)
             #endif
             break;
         case 7:
+            #if defined(_WIN32)
             dir = "Genshin TGC Character Card Image\\";
+            #else
+            dir = "Genshin TGC Character Card Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
@@ -1173,7 +1216,11 @@ int main(int argc, char **argv)
             }
             break;
         case 8:
+            #if defined(_WIN32)
             dir = "Genshin BP Namecard Image\\";
+            #else
+            dir = "Genshin BP Namecard Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
@@ -1228,7 +1275,11 @@ int main(int argc, char **argv)
             exit(-1);
         default:
             // Init folder for contain all image file
+            #if defined(_WIN32)
             dir = "Character Genshin Card Image\\";
+            #else
+            dir = "Character Genshin Card Image/";
+            #endif
             #if defined(__ANDROID__)
             if (std::__fs::filesystem::is_directory(dir))
             {
