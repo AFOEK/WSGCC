@@ -69,7 +69,7 @@
 std::string root_url = "https://genshin-impact.fandom.com";
 int nb_bar;
 int opt = 99;
-bool verbose;
+bool verbose = true;
 std::string app_version = "v0.0.8";
 double last_progress, progress_bar_adv;
 std::ofstream writeChara("FileName.gsct");
@@ -79,6 +79,7 @@ std::ofstream writeConst("FileConst.gsct");
 std::ofstream writeIntro("FileIntro.gsct");
 std::ofstream writeNameCardChara("FileNamecardChara.gsct");
 std::ofstream writeNameCardBP("FileNamecardBP.gsct");
+std::ofstream writeDynamicsTGC("FileTGCDynamic.gsct");
 std::ofstream writeVer("Version.gsct");
 std::ofstream writeTGC("FileTGC.gsct");
 std::ifstream readChara("FileName.gsct");
@@ -89,6 +90,7 @@ std::ifstream readNameCardChara("FileNamecardChara.gsct");
 std::ifstream readNameCardBP("FileNamecardBP.gsct");
 std::ifstream readVer("Version.gsct");
 std::ifstream readTGC("FileTGC.gsct");
+std::ifstream readDynamicsTGC("FileTGCDynamic.gsct");
 
 #if defined(_WIN32)
 bool checkInet()
@@ -307,6 +309,32 @@ void search_for_img(GumboNode *node, int imgType)
     for (unsigned int i = 0; i < child->length; i++)
     {
         search_for_img(static_cast<GumboNode *>(child->data[i]), imgType);
+    }
+}
+
+void search_for_video(GumboNode *node){
+    if (node->type != GUMBO_NODE_ELEMENT)
+    {
+        return;
+    }
+    
+    if(node->v.element.tag == GUMBO_TAG_A){
+        GumboAttribute *VidLink = gumbo_get_attribute(&node->v.element.attributes, "href");
+        std::string LinkVid;
+        std::string LinkVidTmp = VidLink->value;
+        std::cout << LinkVidTmp.rfind("_Dynamic_Skin") << "->" << LinkVidTmp << "\n";
+
+        /*if (LinkVidTmp.rfind("_Dynamic_Skin") != 18446744073709551615UL)
+        {
+            LinkVidTmp.erase(LinkVidTmp.end() - 18, LinkVidTmp.end());
+            writeLink << LinkVidTmp << "\n";
+            std::cout << LinkVidTmp << "\n";
+        }*/
+    }
+    GumboVector *child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++)
+    {
+        search_for_video(static_cast<GumboNode *>(child->data[i]));
     }
 }
 
@@ -850,7 +878,7 @@ int main(int argc, char **argv)
         // Initialize directory for storing images
         std::string dir;
         if(opt == 99){
-            std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n8. Battle Pass Namecard\n0. Cancel\n";
+            std::cout << "Getting character link image.\nWhat image do you want ?\n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n0. Cancel\n";
             std::cin >> opt;
         }
         switch (opt)
@@ -1265,6 +1293,58 @@ int main(int argc, char **argv)
                 GumboOutput* parsed_res_bp = gumbo_parse(page_bp_content.c_str());
                 search_for_img(parsed_res_bp->root, opt);
                 gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_bp);
+            }
+            break;
+        case 9:
+            #if defined(_WIN32)
+            dir = "Genshin TGC Dynamics Character Card\\";
+            #else
+            dir = "Genshin TGC Dynamics Character Card/";
+            #endif
+            #if defined(__ANDROID__)
+            if (std::__fs::filesystem::is_directory(dir))
+            {
+                if (!std::__fs::filesystem::is_empty("Genshin TGC Dynamics Character Card"))
+                {
+                    for (const auto& files : std::__fs::filesystem::directory_iterator("Genshin TGC Dynamics Character Card"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::__fs::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::__fs::filesystem::create_directory("Genshin TGC Dynamics Character Card");
+                std::cout << "Creating folder\n";
+            }
+            #else
+            if (std::filesystem::is_directory(dir))
+            {
+                if (!std::filesystem::is_empty("Genshin TGC Dynamics Character Card"))
+                {
+                    for (const auto& files : std::filesystem::directory_iterator("Genshin TGC Dynamics Character Card"))
+                    {
+                        std::cout << "Clearing existing file\n";
+                        std::filesystem::remove_all(files.path());
+                    }
+                }
+            }
+            else
+            {
+                std::filesystem::create_directory("Genshin TGC Dynamics Character Card");
+                std::cout << "Creating folder\n";
+                #if defined(__linux__) && defined(__unix__)
+                    std::filesystem::permissions("Genshin TGC Dynamics Character Card", std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+                #endif
+            }
+                #endif
+            for (int i = 2; i < tgc_vecs.size(); i++)
+            {
+                std::string page_tgc_content = extract_html_page_character(tgc_vecs[i]);
+                GumboOutput *parsed_res_tgc_dyn = gumbo_parse(page_tgc_content.c_str());
+                search_for_video(parsed_res_tgc_dyn->root);
+                gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_tgc_dyn);
             }
             break;
         case 0:
