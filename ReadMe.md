@@ -51,6 +51,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_namecard](samples/Namecard.png)
 ![sample_output_version](samples/Version.png)
 ![sample_output_TCG](samples/TCG.png)
+![sample_ouput_TCG_dyn](samples/TCG_Dynamics.png)
 
 ## To-Do
 
