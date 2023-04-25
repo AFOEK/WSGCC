@@ -70,7 +70,7 @@ std::string root_url = "https://genshin-impact.fandom.com";
 int nb_bar;
 int opt = 99;
 bool verbose = true;
-std::string app_version = "v0.0.8";
+std::string app_version = "v0.0.9";
 double last_progress, progress_bar_adv;
 std::ofstream writeChara("FileName.gsct");
 std::ofstream writeImgLink("FileImg.gsct");
@@ -270,7 +270,7 @@ void search_for_img(GumboNode *node, int imgType)
                 }
                 break;
             case 4:
-                if (LinkImgTmp.rfind("_Introduction") != 18446744073709551615UL)
+                if (LinkImgTmp.rfind("_Introduction_Card.png") != 18446744073709551615UL)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
@@ -320,16 +320,17 @@ void search_for_video(GumboNode *node){
     
     if(node->v.element.tag == GUMBO_TAG_A){
         GumboAttribute *VidLink = gumbo_get_attribute(&node->v.element.attributes, "href");
-        std::string LinkVid;
-        std::string LinkVidTmp = VidLink->value;
-        std::cout << LinkVidTmp.rfind("_Dynamic_Skin") << "->" << LinkVidTmp << "\n";
-
-        /*if (LinkVidTmp.rfind("_Dynamic_Skin") != 18446744073709551615UL)
-        {
-            LinkVidTmp.erase(LinkVidTmp.end() - 18, LinkVidTmp.end());
-            writeLink << LinkVidTmp << "\n";
-            std::cout << LinkVidTmp << "\n";
-        }*/
+        if (VidLink) {
+            std::string LinkVid;
+            std::string LinkVidTmp = VidLink->value;
+            if (LinkVidTmp.rfind("_Dynamic_Skin.gif/") != 4294967295UL)
+            {
+                LinkVidTmp.erase(LinkVidTmp.end() - 18, LinkVidTmp.end());
+                writeLink << LinkVidTmp << "\n";
+                std::cout << LinkVidTmp << "\n";
+                /*std::cout << LinkVidTmp.rfind("_Dynamic_Skin.gif/") << "->" << LinkVidTmp << "\n";*/
+            }
+        }
     }
     GumboVector *child = &node->v.element.children;
     for (unsigned int i = 0; i < child->length; i++)
@@ -686,12 +687,13 @@ int download_progress_default_callback(void *clientp, curl_off_t dltotal, curl_o
 void close_all(bool verbose)
 {
     writeChara.close();
-    writeConst.close();
     writeImgLink.close();
     writeLink.close();
+    writeConst.close();
     writeIntro.close();
     writeNameCardChara.close();
     writeNameCardBP.close();
+    writeDynamicsTGC.close();
     writeVer.close();
     writeTGC.close();
     readChara.close();
@@ -702,6 +704,7 @@ void close_all(bool verbose)
     readNameCardBP.close();
     readVer.close();
     readTGC.close();
+    readDynamicsTGC.close();
 #if defined(__ANDROID__)
     if(verbose == false){
         for (auto const &entry : std::__fs::filesystem::directory_iterator{std::__fs::filesystem::current_path().string()})
@@ -783,13 +786,44 @@ int main(int argc, char **argv)
         if(argc != 1){
             argparse::ArgumentParser program(argv[0]);
             program.add_argument("--verbose","-vv").help("It will not delete all download log").default_value(false).implicit_value(true);
-            program.add_argument("--characard", "-cc").help("Downloads all Character card images");
-            program.add_argument("--constel","-co").help("Downloads all Character Constellation images");
-            program.add_argument("--charanamecard","-cn").help("Dsearch_for_a_namecard_bpownloads all Character Namecard images");
-            program.add_argument("--introcard","-ic").help("Downloads all Character Introduction images");
-            program.add_argument("--verimg","-vi").help("Downloads all Version Images");
-            program.add_argument("--tcgimg","-ti").help("Downloads all TGC Character Images");
-            program.add_argument("--bpcard","-bc").help("Downloads all Battle Pass namecard images");
+            program.add_argument("--characard", "-cc").help("Downloads all Character card images").implicit_value(true);
+            program.add_argument("--wishimg", "-wi").help("Downloads all Character wish images").implicit_value(true);
+            program.add_argument("--constel","-co").help("Downloads all Character Constellation images").implicit_value(true);
+            program.add_argument("--charanamecard","-cn").help("Dsearch_for_a_namecard_bpownloads all Character Namecard images").implicit_value(true);
+            program.add_argument("--introcard","-ic").help("Downloads all Character Introduction images").implicit_value(true);
+            program.add_argument("--verimg","-vi").help("Downloads all Version Images").implicit_value(true);
+            program.add_argument("--tcgimg","-ti").help("Downloads all TGC Character Images").implicit_value(true);
+            program.add_argument("--bpcard","-bc").help("Downloads all Battle Pass namecard images").implicit_value(true);
+            program.add_argument("--tcgdyn", "-td").help("Downloads all TGC Character Images").implicit_value(true);
+
+            if (program["--characard"] == true || program["--cc"] == true) {
+                opt = 1;
+            }
+            else if (program["--wishimg"] == true || program["--wi"] == true) {
+                opt = 2;
+            }
+            else if (program["--constel"] == true || program["--co"] == true) {
+                opt = 3;
+            }
+            else if (program["--charanamecard"] == true || program["--cn"] == true) {
+                opt = 5;
+            }
+            else if (program["--introcard"] == true || program["--ic"] == true) {
+                opt = 4;
+            }
+            else if (program["--verimg"] == true || program["--vi"] == true) {
+                opt = 6;
+            }
+            else if (program["--tcgimg"] == true || program["--ti"] == true) {
+                opt = 7;
+            }
+            else if (program["--bpcard"] == true || program["--bc"] == true) {
+                opt = 8;
+            }
+            else if (program["--tcgdyn"] == true || program["--td"] == true) {
+                opt = 9;
+            }
+
             try{
                 program.parse_args(argc, argv);
             }catch(const std::runtime_error& err){
@@ -982,7 +1016,7 @@ int main(int argc, char **argv)
             #endif
             }
             #endif
-            for (int i = 8; i < img_vecs.size() - 3; i++)
+            for (int i = 8; i < img_vecs.size(); i++)
             {
                 std::string page_chara_content = extract_html_page_character(img_vecs[i]);
                 GumboOutput *parsed_res_chara = gumbo_parse(page_chara_content.c_str());
