@@ -259,6 +259,7 @@ void search_for_img(GumboNode *node, int imgType)
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
+                    /*std::cout << LinkImgTmp.rfind("_Wish") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 3:
@@ -267,6 +268,7 @@ void search_for_img(GumboNode *node, int imgType)
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
+                    /*std::cout << LinkImgTmp.rfind("_Shape") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 4:
@@ -275,6 +277,7 @@ void search_for_img(GumboNode *node, int imgType)
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
+                    /*std::cout << LinkImgTmp.rfind("_Introduction_Card.png") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 5:
@@ -283,6 +286,7 @@ void search_for_img(GumboNode *node, int imgType)
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
+                    /*std::cout << LinkImgTmp.rfind("Namecard_Background_") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             /*Case 6: already reserved for Version Images*/
@@ -292,6 +296,7 @@ void search_for_img(GumboNode *node, int imgType)
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
+                    /*std::cout << LinkImgTmp.rfind("_Character_Card") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 8:
@@ -300,6 +305,7 @@ void search_for_img(GumboNode *node, int imgType)
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << LinkImgTmp << "\n";
+                    /*std::cout << LinkImgTmp.rfind("Namecard_Background_Travel_Notes") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             }
@@ -732,8 +738,15 @@ void downloads_images(std::string url, std::string file_name)
 {
     indicators::show_console_cursor(false);
     indicators::ProgressBar prog_bar{
-        indicators::option::BarWidth{65}, indicators::option::Start{" ["}, indicators::option::Fill{"█"}, indicators::option::Lead{"█"}, indicators::option::Remainder{"-"}, indicators::option::End{"]"},
-        indicators::option::PrefixText{file_name}, indicators::option::ShowElapsedTime{true}, indicators::option::ShowRemainingTime{true}};
+        indicators::option::BarWidth{65},
+        indicators::option::Start{" ["},
+        indicators::option::Fill{"█"},
+        indicators::option::Lead{"█"},
+        indicators::option::Remainder{"-"},
+        indicators::option::End{"]"},
+        indicators::option::PrefixText{file_name},
+        indicators::option::ShowElapsedTime{true},
+        indicators::option::ShowRemainingTime{true}};
     CURL *curl;
     FILE *f;
     CURLcode res;
