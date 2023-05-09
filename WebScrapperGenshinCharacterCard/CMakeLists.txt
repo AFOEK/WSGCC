@@ -92,4 +92,4 @@ find_package(argparse CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE argparse::argparse)
 
 find_path(TERMCOLOR_INCLUDE_DIRS "termcolor/termcolor.hpp")
-target_include_directories(main PRIVATE ${TERMCOLOR_INCLUDE_DIRS})
+target_include_directories(${PROJECT_NAME} PRIVATE ${TERMCOLOR_INCLUDE_DIRS})
