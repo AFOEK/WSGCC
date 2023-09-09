@@ -220,10 +220,10 @@ std::string extract_html_page_character(std::string character_wiki_link)
     return res.text;
 }
 
-std::string extract_html_page_sticker()
+std::string extract_html_page_character_sticker(std::string character_wiki_link)
 {
-    cpr::Url url_sticker = cpr::Url{ root_url + "/wiki/HoYoLAB/Paimon's_Paintings" };
-    cpr::Response res = Get(url_sticker);
+    cpr::Url url_character = cpr::Url{ root_url + character_wiki_link + "/Gallery"};
+    cpr::Response res = Get(url_character);
     return res.text;
 }
 
@@ -255,7 +255,7 @@ void search_for_img(GumboNode *node, int imgType)
             switch (imgType)
             {
             case 1:
-                if ((LinkImgTmp.rfind("_Card.") != 18446744073709551615UL) && !(LinkImgTmp.rfind("Introduction") != 18446744073709551615UL))
+                if ((LinkImgTmp.rfind("_Card.png") != 18446744073709551615UL) && !(LinkImgTmp.rfind("Introduction") != 18446744073709551615UL))
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
@@ -319,6 +319,15 @@ void search_for_img(GumboNode *node, int imgType)
                 }
                 break;
             /*Case 9: already reserved for TGC Dynamics*/
+            case 10:
+                if (LinkImgTmp.rfind("Icon_Emoji_") != 18446744073709551615UL)
+                {
+                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    writeLink << LinkImgTmp << "\n";
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("Icon_Emoji_") << "->" << LinkImgTmp << "\n";*/
+                }
+                break;
             }
         }
     }
@@ -741,6 +750,7 @@ int download_progress_default_callback(void *clientp, curl_off_t dltotal, curl_o
 
 void close_all(bool verbose)
 {
+    //Close all file
     writeChara.close();
     writeImgLink.close();
     writeLink.close();
@@ -762,7 +772,8 @@ void close_all(bool verbose)
     readTGC.close();
     readDynamicsTGC.close();
     readSticker.close();
-#if defined(__ANDROID__)
+    //Delete all the temporary file
+    #if defined(__ANDROID__)
     if(verbose == false){
         for (auto const &entry : std::__fs::filesystem::directory_iterator{std::__fs::filesystem::current_path().string()})
         {
@@ -772,7 +783,7 @@ void close_all(bool verbose)
             }
         }
     }
-#else
+    #else
     if(verbose == false){
         for (auto const &entry : std::filesystem::directory_iterator{std::filesystem::current_path().string()})
         {
@@ -782,7 +793,7 @@ void close_all(bool verbose)
             }
         }
     }
-#endif
+    #endif
 }
 
 void downloads_images(std::string url, std::string file_name)
@@ -1086,9 +1097,9 @@ int main(int argc, char **argv)
 
         // Get Sticker character list from /wiki/HoYoLAB/Paimon's_Paintings
         std::cout << termcolor::bright_red << "Getting Paimon's painting Sticker list from wiki\n" << termcolor::reset;
-        std::string page_content_sticker = extract_html_page_sticker();
+        std::string page_content_sticker = extract_html_page_category();
         GumboOutput* parsed_res_sticker = gumbo_parse(page_content_sticker.c_str());
-        search_for_img_sticker(parsed_res_sticker->root);
+        search_for_a_name_gallery(parsed_res_sticker->root);
         writeSticker.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_sticker);
         
@@ -1208,6 +1219,14 @@ int main(int argc, char **argv)
                 break;
             case 10:
                 create_download_folder(opt);
+                for (int i = 2; i < sticker_vecs.size(); i++)
+                {
+                    std::string page_sticker_content = extract_html_page_character(tgc_vecs[i]);
+                    GumboOutput* parsed_res_tgc_dyn = gumbo_parse(page_sticker_content.c_str());
+                    search_for_video(parsed_res_tgc_dyn->root);
+                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_tgc_dyn);
+                }
+                break;
                 break;
             case 0:
                 std::cout << termcolor::bright_blue << termcolor::on_bright_white << "Bye !\n" << termcolor::reset;
@@ -1246,18 +1265,6 @@ int main(int argc, char **argv)
                     file_name.erase(0, 60);
                     file_name.erase(file_name.size() - 34);
                     downloads_images(link_ver, dir + file_name);
-                }
-                std::cout << termcolor::bold << termcolor::bright_green << "Images succesfully downloaded !\n" << termcolor::reset;
-            }
-            else if (opt == 10) {
-                for (int i = 0; i < sticker_vecs.size(); i++)
-                {
-                    std::string link_sticker = sticker_vecs[i];
-                    link_sticker.erase(link_sticker.size() - 41);
-                    file_name = sticker_vecs[i];
-                    file_name.erase(0, 95);
-                    file_name.erase(file_name.size() - 16);
-                    downloads_images(link_sticker, dir + file_name);
                 }
                 std::cout << termcolor::bold << termcolor::bright_green << "Images succesfully downloaded !\n" << termcolor::reset;
             }
