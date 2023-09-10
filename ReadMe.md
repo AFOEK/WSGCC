@@ -164,7 +164,7 @@ Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Gensh
 [^img_download_intro]: For character introduction images are downloaded into a folder named `Character Genshin Introduction Card Image`.
 [^img_download_namecard]: For character namecard images are downloaded into a folder named `Character Genshin Namecard Image`.
 [^img_download_tcg]: For TCG character card images are downloaded into a folder named `Genshin TGC Character Card Image`.
-[^img_download_tcg]: For TCG dynamics character card images are downloaded into a folder named `Genshin TGC Dynamics Character Card Image`.
+[^img_download_tcg_dyn]: For TCG dynamics character card images are downloaded into a folder named `Genshin TGC Dynamics Character Card Image`.
 [^img_download_version]: For genshin version images are downloaded into a folder named `Genshin Version Images`.
 [^docker_footnote]: Assumed docker already installed into the device.
 [^android_footnote]: For installing could use `termux` ~~and `adb`~~.
