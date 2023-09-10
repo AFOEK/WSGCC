@@ -52,7 +52,11 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_version](samples/Version.png)
 ![sample_output_TCG](samples/TCG.png)
 ![sample_ouput_TCG_dyn](samples/TCG_Dynamics.png)
-
+![sample_TCG_dynamic_Klee](sample/sample_TCG_dynamic_Klee.gif)
+![sample_TCG_dynamic_ZhongLi](sample/sample_TCG_dynamic_ZhongLi.gif)
+![sample_TCG_dynamic_NingGuang](sample/sample_TCG_dynamic_NingGuang.gif)
+![sample_TCG_dynamic_YaeMiko](sample/sample_TCG_dynamic_YaeMiko.gif)
+![sample_TCG_dynamic_ElectroHypotasis](sample/sample_TCG_dynamic_ElectroHypotasis.gif)
 ## To-Do
 
 - [x] Scrap all character link from `/wiki/Category:Character_Card`.
