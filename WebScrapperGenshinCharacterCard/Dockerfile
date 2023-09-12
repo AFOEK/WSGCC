@@ -7,7 +7,7 @@ RUN apk update && apk upgrade && \
     git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg && \
     export VCPKG_FORCE_SYSTEM_BINARIES=1 && \
     ./bootstrap-vcpkg.sh && \
-    ./vcpkg install cpr gumbo curl indicators argparse && \
+    ./vcpkg install cpr gumbo curl indicators argparse termcolor && \
     cd ~ && \
     git clone https://github.com/AFOEK/WSGCC.git && cd WSGCC && mkdir build && \
     cd WebScrapperGenshinCharacterCard && \
