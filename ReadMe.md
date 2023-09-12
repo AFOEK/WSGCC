@@ -50,6 +50,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_intro](samples/Introduction.png)
 ![sample_output_namecard](samples/Namecard.png)
 ![sample_output_version](samples/Version.png)
+![sample_output_sticker](samples/Sticker.png)
 ![sample_output_TCG](samples/TCG.png)
 ![sample_ouput_TCG_dyn](samples/TCG_Dynamics.png)
 ![sample_TCG_dynamic_Klee](samples/sample_TCG_dynamic_Klee.gif)
@@ -89,8 +90,8 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Download all characters TCG card images HD and uncropped.[^img_download_tcg]
 - [x] Scrap all dynamics characters TCG card images link for each characters.
 - [x] Download all dynamics characters TCG card images HD and uncropped.[^img_download_tcg_dyn]
-- [ ] Scarp all sticker images link for each characters.
-- [ ] Download all sticker images HD and uncropped.[^img_download_sticker]
+- [x] Scarp all sticker images link for each characters.
+- [x] Download all sticker images HD and uncropped.[^img_download_sticker]
 - [ ] Scarp all vision images link.
 - [ ] Download all vision images HD and uncropped.[^img_download_vision]
 - [x] Make program can took command line arguments.

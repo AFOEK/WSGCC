@@ -87,7 +87,7 @@ std::ofstream writeNameCardBP("FileNamecardBP.gsct");
 std::ofstream writeDynamicsTGC("FileTGCDynamic.gsct");
 std::ofstream writeVer("Version.gsct");
 std::ofstream writeTGC("FileTGC.gsct");
-std::ofstream writeSticker("Sticker.gstc");
+std::ofstream writeSticker("Sticker.gsct");
 
 //Create read file streams
 std::ifstream readChara("FileName.gsct");
@@ -233,13 +233,6 @@ std::string extract_html_page_character(std::string character_wiki_link)
     return res.text;
 }
 
-std::string extract_html_page_character_sticker(std::string character_wiki_link)
-{
-    cpr::Url url_character = cpr::Url{ root_url + character_wiki_link + "/Gallery"};
-    cpr::Response res = Get(url_character);
-    return res.text;
-}
-
 std::vector<std::string> sanitize_vecs(std::vector<std::string> vecs)
 {  
     //Remove empty vector space 
@@ -339,10 +332,17 @@ void search_for_img(GumboNode *node, int imgType)
             case 10:
                 if (LinkImgTmp.rfind("Icon_Emoji") != 18446744073709551615UL)
                 {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
-                    /*writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;*/
-                    std::cout << LinkImgTmp.rfind("Icon_Emoji") << "->" << LinkImgTmp << "\n";
+                    size_t find_scale = LinkImgTmp.find("scale-to-width-down");
+                    size_t find_cb = LinkImgTmp.find("?cb=");
+                    if (find_scale != std::string::npos) {
+                        LinkImgTmp.erase(find_scale);
+                    }
+                    else if (find_cb != std::string::npos) {
+                        LinkImgTmp.erase(find_cb);
+                    }
+                    writeLink << LinkImgTmp << "\n";
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    //std::cout << LinkImgTmp.rfind("Icon_Emoji") << "->" << LinkImgTmp << "\n";
                 }
                 break;
             }
@@ -605,20 +605,13 @@ void search_for_img_version(GumboNode *node)
     }
 }
 
-std::vector<std::string> extract_img_links(int opt)
-{
-    std::string line;
-    std::vector<std::string> img_links;
-    return img_links;
-}
-
 std::vector<std::string> get_img_links()
 {
     std::string line;
     std::vector<std::string> img_links;
     while (std::getline(readLink, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
     readLink.close();
@@ -631,7 +624,7 @@ std::vector<std::string> extract_character_chara_link()
     std::vector<std::string> img_links;
     while (std::getline(readChara, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
     readChara.close();
@@ -644,7 +637,7 @@ std::vector<std::string> extract_character_const_link()
     std::vector<std::string> img_links;
     while (std::getline(readConst, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
     readConst.close();
@@ -657,7 +650,7 @@ std::vector<std::string> extract_character_tgc_link()
     std::vector<std::string> img_links;
     while (std::getline(readTGC, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
     readTGC.close();
@@ -670,13 +663,12 @@ std::vector<std::string> extract_battle_pass_namecard_link()
     std::vector<std::string> img_links;
     while (std::getline(readNameCardBP, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
     readNameCardBP.close();
     return img_links;
 }
-
 
 std::vector<std::string> extract_version_link()
 {
@@ -684,23 +676,10 @@ std::vector<std::string> extract_version_link()
     std::vector<std::string> img_links;
     while (std::getline(readVer, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
     readVer.close();
-    return img_links;
-}
-
-std::vector<std::string> extract_sticker_link()
-{
-    std::string line;
-    std::vector<std::string> img_links;
-    while (std::getline(readSticker, line))
-    {
-        std::istringstream ISS;
-        img_links.push_back(line);
-    }
-    readSticker.close();
     return img_links;
 }
 
@@ -710,10 +689,24 @@ std::vector<std::string> extract_character_intro_link()
     std::vector<std::string> img_links;
     while (std::getline(readIntro, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line" << line << std::endl;
         img_links.push_back(line);
     }
     readIntro.close();
+    return img_links;
+}
+
+std::vector<std::string> extract_sticker_link()
+{
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readSticker, line))
+    {
+        //std::cout << "Read line " << line << std::endl;
+        img_links.push_back(line);
+        
+    }
+    readSticker.close();
     return img_links;
 }
 
@@ -723,7 +716,7 @@ std::vector<std::string> extract_character_namecard_chara_link()
     std::vector<std::string> img_links;
     while (std::getline(readNameCardChara, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
     readNameCardChara.close();
@@ -736,7 +729,7 @@ std::vector<std::string> extract_character_namecard_bp_link()
     std::vector<std::string> img_links;
     while (std::getline(readNameCardBP, line))
     {
-        std::istringstream ISS;
+        //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
     readNameCardBP.close();
@@ -1151,7 +1144,7 @@ int main(int argc, char **argv)
         //Main process
         do {
             if (opt == 99) {
-                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1.Card\n2.Wish\n3.Constellation\n4.Introduction Banner\n5.Namecard\n6.Version\n7.Character TGC Card\n8.Battle Pass Namecard\n9.Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n0.Cancel\n";
+                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n0. Cancel\n";
                 std::cin >> opt;
             }
             switch (opt)
@@ -1295,7 +1288,7 @@ int main(int argc, char **argv)
                 std::sort(link_vecs.begin(), link_vecs.end());
                 auto iter = std::unique(link_vecs.begin(), link_vecs.end());
                 link_vecs.erase(iter, link_vecs.end());
-                for (int i = 0; i < link_vecs.size(); i++)
+                for (size_t i = 0; i < link_vecs.size(); i++)
                 {
                     file_name = link_vecs[i];
                     file_name.erase(0, 60);
