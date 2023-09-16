@@ -106,7 +106,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 
 For who like to build this apps, you needed to download `vcpkg` to get neccesary dependency, which can be done by visiting [vcpkg](https://vcpkg.io/en/getting-started.html) website. After `vcpkg` has been installed, the next step, you needed install all dependencies by using command below (assume your working directory is inside `../../vcpkg`):
 ```
-vcpkg install gumbo cpr curl indicators argparse --triplet x64-{YOUR_OS}-static
+vcpkg install gumbo cpr curl indicators argparse termcolor --triplet x64-{YOUR_OS}-static
 ```   
 > **Note**
 > You can list all supported and available triplet by using `vcpkg help triplet` command.   

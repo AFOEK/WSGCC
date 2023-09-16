@@ -2,7 +2,7 @@ FROM alpine:latest
 LABEL Description="WSGCC build env"
 
 RUN apk update && apk upgrade && \
-    apk add build-base ninja git cmake curl zip tar unzip linux-headers perl pkgconfig && \
+    apk add build-base ninja git bash cmake make curl zip tar unzip linux-headers perl pkgconfig && \
     cd ~ && \
     git clone https://github.com/Microsoft/vcpkg.git && cd vcpkg && \
     export VCPKG_FORCE_SYSTEM_BINARIES=1 && \
