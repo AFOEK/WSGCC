@@ -60,12 +60,16 @@
 // https://static.wikia.nocookie.net/gensin-impact/images/6/61/Splashscreen_Welcome_To_Teyvat.png/revision/latest
 // This is an example static link assets of TCG character card images:
 // https://static.wikia.nocookie.net/gensin-impact/images/8/87/Ganyu_Character_Card.png/revision/latest
-// This is an example static link asstest of Sticker images:
+// This is an example static link assets of Sticker images:
 // https://static.wikia.nocookie.net/gensin-impact/images/c/c9/Icon_Emoji_Paimon%27s_Paintings_04_Albedo_1.png/revision/latest
+// This is an example static link assets of Version images:
+// https://static.wikia.nocookie.net/gensin-impact/images/5/55/Version_2.6_Wallpaper_1.png/revision/latest
+// This is an example static link assets of Vision images:
+// https://static.wikia.nocookie.net/gensin-impact/images/f/fd/Vision_Liyue_Geo.png/revision/latest
 // This is an example character wiki page link:
 // https://genshin-impact.fandom.com/wiki/Albedo
 // This is a version wiki page link:
-// https://genshin-impact.fandom.com/wiki/Version
+// https://genshin-impact.fandom.com/wiki/Version/Gallery
 // This is a vision wiki page link
 // https://genshin-impact.fandom.com/wiki/Vision/Gallery
 // Tutorial link:
@@ -88,6 +92,8 @@ std::ofstream writeDynamicsTGC("FileTGCDynamic.gsct");
 std::ofstream writeVer("Version.gsct");
 std::ofstream writeTGC("FileTGC.gsct");
 std::ofstream writeSticker("Sticker.gsct");
+std::ofstream writeVision("Vision.gsct");
+std::ofstream writeSplhScr("Vision.gsct");
 
 //Create read file streams
 std::ifstream readChara("FileName.gsct");
@@ -100,6 +106,8 @@ std::ifstream readVer("Version.gsct");
 std::ifstream readTGC("FileTGC.gsct");
 std::ifstream readDynamicsTGC("FileTGCDynamic.gsct");
 std::ifstream readSticker("Sticker.gsct");
+std::ifstream readVision("Vision.gsct");
+std::ifstream readSplhScr("Vision.gsct");
 
 #if defined(_WIN32)
 bool checkInet()
@@ -221,7 +229,14 @@ std::string extract_html_page_category_const()
 
 std::string extract_html_page_version()
 {
-    cpr::Url url_category = cpr::Url{root_url + "/wiki/Version"};
+    cpr::Url url_category = cpr::Url{root_url + "/wiki/Version/Gallery"};
+    cpr::Response res = Get(url_category);
+    return res.text;
+}
+
+std::string extract_html_page_vision()
+{
+    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Vision/Gallery" };
     cpr::Response res = Get(url_category);
     return res.text;
 }
@@ -345,6 +360,8 @@ void search_for_img(GumboNode *node, int imgType)
                     //std::cout << LinkImgTmp.rfind("Icon_Emoji") << "->" << LinkImgTmp << "\n";
                 }
                 break;
+            /*Case 11: already reserved for Vision Images*/
+            /*Case 12: already reserved for Splash Screen*/
             }
         }
     }
@@ -370,7 +387,6 @@ void search_for_video(GumboNode *node){
             {
                 LinkVidTmp.erase(LinkVidTmp.end() - 18, LinkVidTmp.end());
                 writeLink << LinkVidTmp << "\n";
-                std::cout << termcolor::cyan << LinkVidTmp << "\n" << termcolor::reset;
                 /*std::cout << LinkVidTmp.rfind("_Dynamic_Skin.gif/") << "->" << LinkVidTmp << "\n";*/
             }
         }
@@ -586,15 +602,16 @@ void search_for_img_version(GumboNode *node)
         return;
     }
 
-    if (node->v.element.tag == GUMBO_TAG_A)
+    if (node->v.element.tag == GUMBO_TAG_IMG)
     {
-        GumboAttribute *href = gumbo_get_attribute(&node->v.element.attributes, "href");
+        GumboAttribute *href = gumbo_get_attribute(&node->v.element.attributes, "src");
         if (href)
         {
             std::string LinkStr = href->value;
-            if (LinkStr.rfind("/Splashscreen_") != 18446744073709551615UL)
+            if (LinkStr.rfind("/Version_") != 18446744073709551615UL && LinkStr.rfind("Wallpaper") != 18446744073709551615UL && LinkStr.rfind("Key_Visual") != 18446744073709551615UL)
             {
-                writeVer << LinkStr << "\n";
+                //writeVer << LinkStr << "\n";
+                std::cout << LinkStr.rfind("/Version_") << "->" << LinkStr << "\n";
             }
         }
     }
@@ -602,6 +619,60 @@ void search_for_img_version(GumboNode *node)
     for (unsigned int i = 0; i < child->length; i++)
     {
         search_for_img_version(static_cast<GumboNode *>(child->data[i]));
+    }
+}
+
+void search_for_img_vision(GumboNode* node)
+{
+    if (node->type != GUMBO_NODE_ELEMENT)
+    {
+        return;
+    }
+
+    if (node->v.element.tag == GUMBO_TAG_IMG)
+    {
+        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "src");
+        if (href)
+        {
+            std::string LinkStr = href->value;
+            if (LinkStr.rfind("/Vision_") != 18446744073709551615UL)
+            {
+                //writeVer << LinkStr << "\n";
+                std::cout << LinkStr.rfind("/Vision_") << "->" << LinkStr << "\n";
+            }
+        }
+    }
+    GumboVector* child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++)
+    {
+        search_for_img_vision(static_cast<GumboNode*>(child->data[i]));
+    }
+}
+
+void search_for_img_splashscr(GumboNode* node)
+{
+    if (node->type != GUMBO_NODE_ELEMENT)
+    {
+        return;
+    }
+
+    if (node->v.element.tag == GUMBO_TAG_IMG)
+    {
+        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "src");
+        if (href)
+        {
+            std::string LinkStr = href->value;
+            if (LinkStr.rfind("Splashscreen_") != 18446744073709551615UL)
+            {
+                writeSplhScr << LinkStr << "\n";
+                //std::cout << LinkStr.rfind("Splashscreen_") << "->" << LinkStr << "\n";
+            }
+        }
+    }
+    GumboVector* child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++)
+    {
+        search_for_img_splashscr(static_cast<GumboNode*>(child->data[i]));
     }
 }
 
@@ -671,6 +742,19 @@ std::vector<std::string> extract_battle_pass_namecard_link()
 }
 
 std::vector<std::string> extract_version_link()
+{
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readVer, line))
+    {
+        //std::cout << "Read line " << line << std::endl;
+        img_links.push_back(line);
+    }
+    readVer.close();
+    return img_links;
+}
+
+std::vector<std::string> extract_vision_link()
 {
     std::string line;
     std::vector<std::string> img_links;
@@ -774,6 +858,8 @@ void close_all(bool verbose)
     writeVer.close();
     writeTGC.close();
     writeSticker.close();
+    writeVision.close();
+    writeSplhScr.close();
     readChara.close();
     readLink.close();
     readConst.close();
@@ -784,6 +870,8 @@ void close_all(bool verbose)
     readTGC.close();
     readDynamicsTGC.close();
     readSticker.close();
+    readVision.close();
+    readSplhScr.close();
     //Delete all the temporary file
     #if defined(__ANDROID__)
     if(verbose == false){
@@ -896,9 +984,9 @@ void create_download_folder(int opt){
         break;
     case 6:
         #if defined(_WIN32)
-            dir = "Genshin Version Image\\";
+            dir = "Genshin Version Wallpaper\\";
         #else
-            dir = "Genshin Version Image/";
+            dir = "Genshin Version Wallpaper/";
         #endif
         break;
     case 7:
@@ -929,6 +1017,20 @@ void create_download_folder(int opt){
                 dir = "HoYoLab Genshin Sticker/";
         #endif
         break;
+    case 11:
+        #if defined(_WIN32)
+            dir = "Genshin Character Vision\\";
+        #else
+            dir = "Genshin Character Vision/";
+        #endif
+        break;
+    case 12:
+        #if defined(_WIN32)
+                dir = "Genshin Version Splash Screen\\";
+        #else
+                dir = "Genshin Version Splash Screen/";
+        #endif
+        break;
     default:
         #if defined(_WIN32)
             dir = "Character Genshin Card Image\\";
@@ -937,7 +1039,6 @@ void create_download_folder(int opt){
         #endif
         break;
     }
-
     #if defined(__ANDROID__)
         if (std::__fs::filesystem::is_directory(dir))
         {
@@ -955,7 +1056,7 @@ void create_download_folder(int opt){
             std::__fs::filesystem::create_directory(dir);
             std::cout << "Creating folder\n";
         }
-        #else
+    #else
         if (std::filesystem::is_directory(dir))
         {
             if (!std::filesystem::is_empty(dir))
@@ -971,9 +1072,9 @@ void create_download_folder(int opt){
         {
             std::filesystem::create_directory(dir);
             std::cout << termcolor::bright_yellow << "Creating folder\n" << termcolor::reset;
-        #if defined(__linux__) && defined(__unix__)
-            std::filesystem::permissions(dir, std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-        #endif
+            #if defined(__linux__) && defined(__unix__)
+                std::filesystem::permissions(dir, std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
         }
     #endif
 }
@@ -1051,7 +1152,7 @@ int main(int argc, char **argv)
         // Init variables
         std::cout << termcolor::bright_magenta << "Getting character list from wiki\n";
         std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_const, 
-        intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card, temp_card_bp, temp_sticker, sticker_vecs;
+        intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card, temp_card_bp, temp_sticker, sticker_vecs, temp_vision, vision_vecs;
         
         // Get character list from /wiki/Category:Character_Cards
         std::string page_content_chara = extract_html_page_category();
@@ -1084,7 +1185,7 @@ int main(int argc, char **argv)
         writeNameCardChara.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_namecard);
         
-        // Get version images from /wiki/Version
+        // Get version images from /wiki/Version/Gallery
         std::cout << termcolor::blue << "Getting version list from wiki\n";
         std::string page_content_version = extract_html_page_version();
         GumboOutput *parsed_res_version = gumbo_parse(page_content_version.c_str());
@@ -1116,6 +1217,14 @@ int main(int argc, char **argv)
         writeSticker.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara_sticker);
 
+        // Get vision images from /wiki/Vision/Gallery
+        std::cout << termcolor::bright_blue << "Getting vision list from wiki\n";
+        std::string page_content_vision = extract_html_page_vision();
+        GumboOutput* parsed_res_vision = gumbo_parse(page_content_vision.c_str());
+        search_for_img_vision(parsed_res_vision->root);
+        writeVision.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_vision);
+
         // Get character link based by character category
         temp_chara = extract_character_chara_link();
         img_vecs = sanitize_vecs(temp_chara);
@@ -1128,7 +1237,7 @@ int main(int argc, char **argv)
         // Get namecard link based by namecard category
         temp_card = extract_character_namecard_chara_link();
         card_vecs = sanitize_vecs(temp_card);
-        // Get version link based by version page
+        // Get version link based by version images
         temp_ver = extract_version_link();
         ver_vecs = sanitize_vecs(temp_ver);
         // Get namecard link based by namecard category
@@ -1140,11 +1249,14 @@ int main(int argc, char **argv)
         // Get sticker link based by Characters Gallery
         temp_sticker = extract_sticker_link();
         sticker_vecs = sanitize_vecs(temp_sticker);
+        // Get version link based by vision images
+        temp_vision = extract_vision_link();
+        vision_vecs = sanitize_vecs(temp_vision);
 
         //Main process
         do {
             if (opt == 99) {
-                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n0. Cancel\n";
+                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n11. Genshin Character Vision\n12. Genshin Version Splash Screen\n0. Cancel\n";
                 std::cin >> opt;
             }
             switch (opt)
@@ -1201,6 +1313,7 @@ int main(int argc, char **argv)
                 break;
             case 6:
                 create_download_folder(opt);
+                //Version image link alrady been stored and ready to be downloaded
                 break;
             case 7:
                 create_download_folder(opt);
@@ -1242,6 +1355,14 @@ int main(int argc, char **argv)
                     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_sticker);
                 }
                 break;
+            case 11:
+                create_download_folder(opt);
+                //Vision image link alrady been stored and ready to be downloaded
+                break;
+            case 12:
+                create_download_folder(opt);
+                //Splash Screen image link alrady been stored and ready to be downloaded
+                break;
             case 0:
                 std::cout << termcolor::bright_blue << termcolor::on_bright_white << "Bye !\n" << termcolor::reset;
                 std::cin.ignore();
@@ -1269,16 +1390,48 @@ int main(int argc, char **argv)
             std::cout << termcolor::bold << termcolor::bright_magenta << "Downloading Images\n" << termcolor::reset;
             std::vector<std::string> link_vecs;
             std::string file_name;
-            if (opt == 6)
+            size_t pos,  pos_fname;
+            if (opt == 6 || opt == 11 || opt == 12)
             {
-                for (int i = 0; i < ver_vecs.size(); i++)
-                {
-                    std::string link_ver = ver_vecs[i];
-                    link_ver.erase(link_ver.size() - 18);
-                    file_name = ver_vecs[i];
-                    file_name.erase(0, 60);
-                    file_name.erase(file_name.size() - 34);
-                    downloads_images(link_ver, dir + file_name);
+                switch (opt) {
+                case 6:
+                    for (int i = 0; i < ver_vecs.size(); i++)
+                    {
+                        std::string links = ver_vecs[i];
+                        pos = links.find("/scale-to-width-down/");
+                        if (pos != std::string::npos) {
+                            links.erase(pos);
+                        }
+                        file_name = links;
+                        file_name.erase(0, 60);
+                        pos = file_name.find("/revision/latest");
+                        if (pos != std::string::npos) {
+                            file_name.erase(pos);
+                        }
+                        downloads_images(links, dir + file_name);
+                    }
+                    break;
+                case 11:
+                    for (int i = 0; i < vision_vecs.size(); i++)
+                    {
+                        std::string links = vision_vecs[i];
+                        pos = links.find("/scale-to-width-down/");
+                        if (pos != std::string::npos) {
+                            links.erase(pos);
+                        }
+                        file_name = links;
+                        file_name.erase(0, 60);
+                        pos = file_name.find("/revision/latest");
+                        if (pos != std::string::npos) {
+                            file_name.erase(pos);
+                        }
+                        downloads_images(links, dir + file_name);
+                    }
+                    break;
+                case 12:
+                    break;
+                default:
+                    break;
                 }
                 std::cout << termcolor::bold << termcolor::bright_green << "Images succesfully downloaded !\n" << termcolor::reset;
             }
