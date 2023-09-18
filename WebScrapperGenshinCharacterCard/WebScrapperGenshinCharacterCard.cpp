@@ -6,6 +6,7 @@
 // Include STL library
 #include <cstdio>
 #include <string>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -39,7 +40,10 @@
 #elif defined(__APPLE__) && defined(__MACH__)
 #include <sys/sysctl.h>
 #elif defined(__ANDROID__)
-// Android library
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+#include <unistd.h>
 #endif
 
 // This is an example static link assets of character card image:
@@ -135,7 +139,7 @@ bool checkInet()
     }
     pclose(output);
 }
-#elif (defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__)
+#elif (defined(__APPLE__) && defined(__MACH__))
 
 size_t write_data_silent(char *ptr, size_t size, size_t buff, void *userp)
 {
@@ -168,6 +172,40 @@ bool checkInet()
     {
         return false;
     }
+}
+#elif defined(__ANDROID__)
+bool checkInet()
+{
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        return false;
+    }
+
+    struct sockaddr_in server;
+    struct hostent* host;
+
+    // Google's DNS server IP address
+    const char* serverAddress = "8.8.8.8";
+
+    host = gethostbyname(serverAddress);
+
+    if (host == nullptr) {
+        close(sockfd);
+        return false;
+    }
+
+    memset(&server, 0, sizeof(server));
+    server.sin_family = AF_INET;
+    server.sin_port = htons(80);
+    memcpy(&server.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
+
+    if (connect(sockfd, (struct sockaddr*)&server, sizeof(server)) < 0) {
+        close(sockfd);
+        return false;
+    }
+
+    close(sockfd);
+    return true;
 }
 #endif
 
@@ -284,8 +322,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    /*std::cout << LinkImgTmp.rfind("_Card.") << "->" << LinkImgTmp << "\n";*/
+                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    std::cout << LinkImgTmp.rfind("_Card.") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 2:
@@ -293,8 +331,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    /*std::cout << LinkImgTmp.rfind("_Wish") << "->" << LinkImgTmp << "\n";*/
+                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    std::cout << LinkImgTmp.rfind("_Wish") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 3:
@@ -302,8 +340,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    /*std::cout << LinkImgTmp.rfind("_Shape") << "->" << LinkImgTmp << "\n";*/
+                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    std::cout << LinkImgTmp.rfind("_Shape") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 4:
@@ -311,8 +349,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    /*std::cout << LinkImgTmp.rfind("_Introduction_Card.png") << "->" << LinkImgTmp << "\n";*/
+                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    std::cout << LinkImgTmp.rfind("_Introduction_Card.png") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 5:
@@ -320,8 +358,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    /*std::cout << LinkImgTmp.rfind("Namecard_Background_") << "->" << LinkImgTmp << "\n";*/
+                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    std::cout << LinkImgTmp.rfind("Namecard_Background_") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             /*Case 6: already reserved for Version Images*/
@@ -330,8 +368,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    //std::cout << LinkImgTmp.rfind("_Character_Card.png/") << "->" << LinkImgTmp << "\n";
+                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    std::cout << LinkImgTmp.rfind("_Character_Card.png/") << "->" << LinkImgTmp << "\n"*/;
                 }
                 break;
             case 8:
@@ -339,8 +377,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    /*std::cout << LinkImgTmp.rfind("Namecard_Background_Travel_Notes") << "->" << LinkImgTmp << "\n";*/
+                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    std::cout << LinkImgTmp.rfind("Namecard_Background_Travel_Notes") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             /*Case 9: already reserved for TGC Dynamics*/
@@ -356,8 +394,8 @@ void search_for_img(GumboNode *node, int imgType)
                         LinkImgTmp.erase(find_cb);
                     }
                     writeLink << LinkImgTmp << "\n";
-                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    //std::cout << LinkImgTmp.rfind("Icon_Emoji") << "->" << LinkImgTmp << "\n";
+                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    std::cout << LinkImgTmp.rfind("Icon_Emoji") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             /*Case 11: already reserved for Vision Images*/
@@ -608,10 +646,10 @@ void search_for_img_version(GumboNode *node)
         if (href)
         {
             std::string LinkStr = href->value;
-            if (LinkStr.rfind("/Version_") != 18446744073709551615UL && LinkStr.rfind("Wallpaper") != 18446744073709551615UL && LinkStr.rfind("Key_Visual") != 18446744073709551615UL)
+            if (LinkStr.rfind("/Version_") != 18446744073709551615UL && LinkStr.rfind("Overview") == 18446744073709551615UL && LinkStr.rfind("Newsletter") == 18446744073709551615UL && LinkStr.rfind("Trailer") == 18446744073709551615UL)
             {
-                //writeVer << LinkStr << "\n";
-                std::cout << LinkStr.rfind("/Version_") << "->" << LinkStr << "\n";
+                writeVer << LinkStr << "\n";
+                //std::cout << LinkStr.rfind("/Version_") << "->" << LinkStr << "\n";
             }
         }
     }
@@ -637,8 +675,8 @@ void search_for_img_vision(GumboNode* node)
             std::string LinkStr = href->value;
             if (LinkStr.rfind("/Vision_") != 18446744073709551615UL)
             {
-                //writeVer << LinkStr << "\n";
-                std::cout << LinkStr.rfind("/Vision_") << "->" << LinkStr << "\n";
+                writeVision << LinkStr << "\n";
+                //std::cout << LinkStr.rfind("/Vision_") << "->" << LinkStr << "\n";
             }
         }
     }
@@ -758,12 +796,12 @@ std::vector<std::string> extract_vision_link()
 {
     std::string line;
     std::vector<std::string> img_links;
-    while (std::getline(readVer, line))
+    while (std::getline(readVision, line))
     {
         //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
     }
-    readVer.close();
+    readVision.close();
     return img_links;
 }
 
@@ -817,6 +855,19 @@ std::vector<std::string> extract_character_namecard_bp_link()
         img_links.push_back(line);
     }
     readNameCardBP.close();
+    return img_links;
+}
+
+std::vector<std::string> extract_splash_screen_link()
+{
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readSplhScr, line))
+    {
+        //std::cout << "Read line " << line << std::endl;
+        img_links.push_back(line);
+    }
+    readSplhScr.close();
     return img_links;
 }
 
@@ -896,7 +947,7 @@ void close_all(bool verbose)
     #endif
 }
 
-void downloads_images(std::string url, std::string file_name)
+void downloads_images(std::string url, std::string file_name, CURL *curl)
 {
     indicators::show_console_cursor(false);
     indicators::ProgressBar prog_bar{
@@ -909,35 +960,28 @@ void downloads_images(std::string url, std::string file_name)
         indicators::option::PrefixText{file_name},
         indicators::option::ShowElapsedTime{true},
         indicators::option::ShowRemainingTime{true}};
-    CURL *curl;
     FILE *f;
     CURLcode res;
     curl = curl_easy_init();
-    if (curl)
+    f = fopen(file_name.c_str(), "wb");
+    if (f)
     {
-        f = fopen(file_name.c_str(), "wb");
-        if (f)
-        {
-            curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-            curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
-            curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
-            curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_bar);
-            curl_easy_setopt(curl, CURLOPT_XFERINFODATA, static_cast<void *>(&prog_bar));
-            res = curl_easy_perform(curl);
-            curl_easy_cleanup(curl);
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_bar);
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, static_cast<void *>(&prog_bar));
+        res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            std::cerr << termcolor::bold << termcolor::bright_red << "cUrl Error: " << curl_easy_strerror(res) << termcolor::reset;
             fclose(f);
         }
-        else
-        {
-            std::cout << (stderr, "Can't create file !");
-            close_all(verbose);
-            exit(-1);
-        }
+        fclose(f);
     }
     else
     {
-        std::cout <<(stderr, "Can't initialize cUrl !");
+        std::cerr << "Can't create file !\n";
         close_all(verbose);
         exit(-1);
     }
@@ -1152,7 +1196,7 @@ int main(int argc, char **argv)
         // Init variables
         std::cout << termcolor::bright_magenta << "Getting character list from wiki\n";
         std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_const, 
-        intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card, temp_card_bp, temp_sticker, sticker_vecs, temp_vision, vision_vecs;
+        intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card, temp_card_bp, temp_sticker, sticker_vecs, temp_vision, vision_vecs, splh_scr_vecs, temp_splh_scr;
         
         // Get character list from /wiki/Category:Character_Cards
         std::string page_content_chara = extract_html_page_category();
@@ -1162,7 +1206,7 @@ int main(int argc, char **argv)
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
         
         // Get character constellation list from /wiki/Category:Constellation_Overviews
-        std::cout << termcolor::bright_blue << "Getting character constellation list from wiki\n";
+        std::cout << termcolor::bright_yellow << "Getting character constellation list from wiki\n";
         std::string page_content_const = extract_html_page_category_const();
         GumboOutput *parsed_res_const = gumbo_parse(page_content_const.c_str());
         search_for_a_const(parsed_res_const->root);
@@ -1218,12 +1262,20 @@ int main(int argc, char **argv)
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara_sticker);
 
         // Get vision images from /wiki/Vision/Gallery
-        std::cout << termcolor::bright_blue << "Getting vision list from wiki\n";
+        std::cout << termcolor::bright_blue << "Getting Vision list from wiki\n";
         std::string page_content_vision = extract_html_page_vision();
         GumboOutput* parsed_res_vision = gumbo_parse(page_content_vision.c_str());
         search_for_img_vision(parsed_res_vision->root);
         writeVision.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_vision);
+
+        // Get vision images from /wiki/Version/Gallery -> Splash Screen
+        std::cout << termcolor::bright_cyan << "Getting Version Splash Screen list from wiki\n" << termcolor::reset;
+        std::string page_content_splash_screen = extract_html_page_version();
+        GumboOutput* parsed_res_splash_screen = gumbo_parse(page_content_splash_screen.c_str());
+        search_for_img_splashscr(parsed_res_splash_screen->root);
+        writeSplhScr.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_splash_screen);
 
         // Get character link based by character category
         temp_chara = extract_character_chara_link();
@@ -1252,6 +1304,18 @@ int main(int argc, char **argv)
         // Get version link based by vision images
         temp_vision = extract_vision_link();
         vision_vecs = sanitize_vecs(temp_vision);
+        // Get version link based by vision images
+        temp_splh_scr = extract_splash_screen_link();
+        splh_scr_vecs = sanitize_vecs(temp_splh_scr);
+
+        //Init cUrl
+        std::cout << termcolor::reverse << termcolor::bold << "Init cUrl\n";
+        CURL* curl = curl_easy_init();
+        if (!curl) {
+            std::cerr << "Failed to initialized cUrl !\n";
+            close_all(verbose);
+            return -1;
+        }
 
         //Main process
         do {
@@ -1390,7 +1454,7 @@ int main(int argc, char **argv)
             std::cout << termcolor::bold << termcolor::bright_magenta << "Downloading Images\n" << termcolor::reset;
             std::vector<std::string> link_vecs;
             std::string file_name;
-            size_t pos,  pos_fname;
+            size_t pos;
             if (opt == 6 || opt == 11 || opt == 12)
             {
                 switch (opt) {
@@ -1408,7 +1472,7 @@ int main(int argc, char **argv)
                         if (pos != std::string::npos) {
                             file_name.erase(pos);
                         }
-                        downloads_images(links, dir + file_name);
+                        downloads_images(links, dir + file_name, curl);
                     }
                     break;
                 case 11:
@@ -1425,10 +1489,25 @@ int main(int argc, char **argv)
                         if (pos != std::string::npos) {
                             file_name.erase(pos);
                         }
-                        downloads_images(links, dir + file_name);
+                        downloads_images(links, dir + file_name, curl);
                     }
                     break;
                 case 12:
+                    for (int i = 0; i < splh_scr_vecs.size(); i++)
+                    {
+                        std::string links = splh_scr_vecs[i];
+                        pos = links.find("/scale-to-width-down/");
+                        if (pos != std::string::npos) {
+                            links.erase(pos);
+                        }
+                        file_name = links;
+                        file_name.erase(0, 60);
+                        pos = file_name.find("/revision/latest");
+                        if (pos != std::string::npos) {
+                            file_name.erase(pos);
+                        }
+                        downloads_images(links, dir + file_name, curl);
+                    }
                     break;
                 default:
                     break;
@@ -1451,7 +1530,7 @@ int main(int argc, char **argv)
                     else {
                         file_name.erase(file_name.size() - 16);
                     }
-                    downloads_images(link_vecs[i], dir + file_name);
+                    downloads_images(link_vecs[i], dir + file_name, curl);
                 }
                 std::cout << termcolor::bold << termcolor::bright_green <<"\nImages succesfully downloaded !\n" << termcolor::reset;
             }
@@ -1476,6 +1555,7 @@ int main(int argc, char **argv)
             }
         }while (status);
         // Check if file is closed properly
+        curl_easy_cleanup(curl);
         close_all(verbose);
         // Exit gracefully and return memory to OS
         return 0;
