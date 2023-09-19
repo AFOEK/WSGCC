@@ -310,10 +310,10 @@ void search_for_img(GumboNode *node, int imgType)
     if (node->v.element.tag == GUMBO_TAG_IMG)
     {
         GumboAttribute *imgLink = gumbo_get_attribute(&node->v.element.attributes, "src");
+        GumboAttribute *imgClass = gumbo_get_attribute(&node->v.element.attributes, "class");
         if (imgLink)
         {
-            std::string LinkImg;
-            std::string LinkImgTmp = imgLink->value;
+            std::string LinkImg, LinkImgTmp = imgLink->value;
 
             switch (imgType)
             {
@@ -322,17 +322,17 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    std::cout << LinkImgTmp.rfind("_Card.") << "->" << LinkImgTmp << "\n";*/
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("_Card.") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 2:
-                if (LinkImgTmp.rfind("_Wish") != 18446744073709551615UL)
+                if (LinkImgTmp.rfind("_Wish.png") != 18446744073709551615UL && LinkImgTmp.rfind("_Multi_") == 18446744073709551615UL)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    std::cout << LinkImgTmp.rfind("_Wish") << "->" << LinkImgTmp << "\n";*/
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("_Wish.png") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 3:
@@ -340,8 +340,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    std::cout << LinkImgTmp.rfind("_Shape") << "->" << LinkImgTmp << "\n";*/
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("_Shape") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 4:
@@ -349,8 +349,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    std::cout << LinkImgTmp.rfind("_Introduction_Card.png") << "->" << LinkImgTmp << "\n";*/
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("_Introduction_Card.png") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             case 5:
@@ -358,8 +358,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    std::cout << LinkImgTmp.rfind("Namecard_Background_") << "->" << LinkImgTmp << "\n";*/
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("Namecard_Background_") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             /*Case 6: already reserved for Version Images*/
@@ -368,8 +368,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    std::cout << LinkImgTmp.rfind("_Character_Card.png/") << "->" << LinkImgTmp << "\n"*/;
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("_Character_Card.png/") << "->" << LinkImgTmp << "\n"*/;
                 }
                 break;
             case 8:
@@ -377,8 +377,8 @@ void search_for_img(GumboNode *node, int imgType)
                 {
                     LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
-                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    std::cout << LinkImgTmp.rfind("Namecard_Background_Travel_Notes") << "->" << LinkImgTmp << "\n";*/
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("Namecard_Background_Travel_Notes") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             /*Case 9: already reserved for TGC Dynamics*/
@@ -394,8 +394,8 @@ void search_for_img(GumboNode *node, int imgType)
                         LinkImgTmp.erase(find_cb);
                     }
                     writeLink << LinkImgTmp << "\n";
-                    /*std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    std::cout << LinkImgTmp.rfind("Icon_Emoji") << "->" << LinkImgTmp << "\n";*/
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    /*std::cout << LinkImgTmp.rfind("Icon_Emoji") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             /*Case 11: already reserved for Vision Images*/
@@ -1206,7 +1206,7 @@ int main(int argc, char **argv)
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
         
         // Get character constellation list from /wiki/Category:Constellation_Overviews
-        std::cout << termcolor::bright_yellow << "Getting character constellation list from wiki\n";
+        std::cout << termcolor::bright_yellow << "Getting Character Constellation list from wiki\n";
         std::string page_content_const = extract_html_page_category_const();
         GumboOutput *parsed_res_const = gumbo_parse(page_content_const.c_str());
         search_for_a_const(parsed_res_const->root);
@@ -1214,7 +1214,7 @@ int main(int argc, char **argv)
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
         
         // Get character introduction banner list from /wiki/Category:Character_Introduction_Cards
-        std::cout << termcolor::bright_green << "Getting character introduction list from wiki\n";
+        std::cout << termcolor::bright_green << "Getting Character Introduction list from wiki\n";
         std::string page_content_intro = extract_html_page_category_chara_intro();
         GumboOutput *parsed_res_intro = gumbo_parse(page_content_intro.c_str());
         search_for_a_intro(parsed_res_intro->root);
@@ -1222,7 +1222,7 @@ int main(int argc, char **argv)
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
         
         // Get character namecards list from /wiki/Category:Character_Namecards
-        std::cout << termcolor::bright_grey << "Getting character namecard list from wiki\n";
+        std::cout << termcolor::bright_grey << "Getting Character Namecard list from wiki\n";
         std::string page_content_namecard = extract_html_page_category_namecard();
         GumboOutput *parsed_res_namecard = gumbo_parse(page_content_namecard.c_str());
         search_for_a_namecard_chara(parsed_res_namecard->root);
@@ -1230,7 +1230,7 @@ int main(int argc, char **argv)
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_namecard);
         
         // Get version images from /wiki/Version/Gallery
-        std::cout << termcolor::blue << "Getting version list from wiki\n";
+        std::cout << termcolor::blue << "Getting Version list from wiki\n";
         std::string page_content_version = extract_html_page_version();
         GumboOutput *parsed_res_version = gumbo_parse(page_content_version.c_str());
         search_for_img_version(parsed_res_version->root);
@@ -1238,7 +1238,7 @@ int main(int argc, char **argv)
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_version);
         
         // Get TGC character card list from /wiki/Category:Genius_Invokation_TCG_Character_Cards
-        std::cout << termcolor::magenta << "Getting TCG card list from wiki\n";
+        std::cout << termcolor::magenta << "Getting TCG Card list from wiki\n";
         std::string page_content_TGC = extract_html_page_category_TGC();
         GumboOutput *parsed_res_TGC = gumbo_parse(page_content_TGC.c_str());
         search_for_a_TGC(parsed_res_TGC->root);
@@ -1337,9 +1337,9 @@ int main(int argc, char **argv)
                 break;
             case 2:
                 create_download_folder(opt);
-                for (std::size_t i = 8; i < img_vecs.size(); i++)
+                for (std::size_t i = 0; i < sticker_vecs.size(); i++)
                 {
-                    std::string page_chara_content = extract_html_page_character(img_vecs[i]);
+                    std::string page_chara_content = extract_html_page_character(sticker_vecs[i]);
                     GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
                     search_for_img(parsed_res_chara->root, opt);
                     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
