@@ -139,7 +139,7 @@ bool checkInet()
     }
     pclose(output);
 }
-#elif (defined(__APPLE__) && defined(__MACH__))
+#elif ((defined(__APPLE__) && defined(__MACH__)) || defined(__ANDROID__))
 
 size_t write_data_silent(char *ptr, size_t size, size_t buff, void *userp)
 {
@@ -172,40 +172,6 @@ bool checkInet()
     {
         return false;
     }
-}
-#elif defined(__ANDROID__)
-bool checkInet()
-{
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        return false;
-    }
-
-    struct sockaddr_in server;
-    struct hostent* host;
-
-    // Google's DNS server IP address
-    const char* serverAddress = "8.8.8.8";
-
-    host = gethostbyname(serverAddress);
-
-    if (host == nullptr) {
-        close(sockfd);
-        return false;
-    }
-
-    memset(&server, 0, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_port = htons(80);
-    memcpy(&server.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
-
-    if (connect(sockfd, (struct sockaddr*)&server, sizeof(server)) < 0) {
-        close(sockfd);
-        return false;
-    }
-
-    close(sockfd);
-    return true;
 }
 #endif
 
