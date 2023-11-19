@@ -937,7 +937,7 @@ void downloads_images(std::string url, std::string file_name, CURL *curl)
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
         curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_bar);
-        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, static_cast<void *>(&prog_bar));
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, NULL);
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
             std::cerr << termcolor::bold << termcolor::bright_red << "cUrl Error: " << curl_easy_strerror(res) << termcolor::reset;
