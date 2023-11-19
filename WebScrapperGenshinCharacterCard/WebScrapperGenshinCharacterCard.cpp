@@ -349,7 +349,7 @@ void search_for_img(GumboNode *node, int imgType)
                 break;
             /*Case 9: already reserved for TGC Dynamics*/
             case 10:
-                if (LinkImgTmp.rfind("Icon_Emoji") != 18446744073709551615UL)
+                if (LinkImgTmp.rfind("Icon_Emoji_Paimon%27s_Paintings") != 18446744073709551615UL)
                 {
                     size_t find_scale = LinkImgTmp.find("scale-to-width-down");
                     size_t find_cb = LinkImgTmp.find("?cb=");
@@ -361,7 +361,7 @@ void search_for_img(GumboNode *node, int imgType)
                     }
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    /*std::cout << LinkImgTmp.rfind("Icon_Emoji") << "->" << LinkImgTmp << "\n";*/
+                    /*std::cout << LinkImgTmp.rfind("Icon_Emoji_Paimon%27s_Paintings") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
             /*Case 11: already reserved for Vision Images*/
@@ -937,11 +937,10 @@ void downloads_images(std::string url, std::string file_name, CURL *curl)
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, f);
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
         curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, progress_bar);
-        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, NULL);
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, static_cast<void *>(&prog_bar));
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
-            std::cerr << termcolor::bold << termcolor::bright_red << "cUrl Error: " << curl_easy_strerror(res) << termcolor::reset;
-            fclose(f);
+            std::cerr << termcolor::bold << termcolor::bright_red << "cUrl Error: " << curl_easy_strerror(res) << std::endl << termcolor::reset;
         }
         fclose(f);
     }
@@ -951,6 +950,7 @@ void downloads_images(std::string url, std::string file_name, CURL *curl)
         close_all(verbose);
         exit(-1);
     }
+    std::cout << "\r";
     indicators::show_console_cursor(true);
 }
 
