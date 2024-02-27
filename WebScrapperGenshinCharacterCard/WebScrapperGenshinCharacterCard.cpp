@@ -29,21 +29,21 @@
 
 // Preprocessor
 #if defined(__linux__)
-#include <unistd.h>
+    #include <unistd.h>
 #elif defined(_WIN32)
-#include <windows.h>
-#include <Wininet.h>
-#pragma comment(lib, "wininet.lib")
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Wldap32.lib")
-#pragma comment(lib, "Crypt32.lib")
+    #include <windows.h>
+    #include <Wininet.h>
+    #pragma comment(lib, "wininet.lib")
+    #pragma comment(lib, "Ws2_32.lib")
+    #pragma comment(lib, "Wldap32.lib")
+    #pragma comment(lib, "Crypt32.lib")
 #elif defined(__APPLE__) && defined(__MACH__)
-#include <sys/sysctl.h>
+    #include <sys/sysctl.h>
 #elif defined(__ANDROID__)
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <unistd.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <netdb.h>
+    #include <unistd.h>
 #endif
 
 // This is an example static link assets of character card image:
@@ -285,8 +285,16 @@ void search_for_img(GumboNode *node, int imgType)
             {
             case 1:
                 if ((LinkImgTmp.rfind("_Card.png") != 18446744073709551615UL) && !(LinkImgTmp.rfind("_Introduction_Card.png") != 18446744073709551615UL))
-                {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                {   
+                    size_t pos_scale_dwn, pos_smart_width;
+                    pos_scale_dwn = LinkImgTmp.find("/scale-to-width-down/");
+                    pos_smart_width = LinkImgTmp.find("smart/width/");
+                    if (pos_scale_dwn != std::string::npos) {
+                        LinkImgTmp.erase(pos_scale_dwn);
+                    } else if (pos_smart_width != std::string::npos){
+                        LinkImgTmp.erase(pos_smart_width);
+                    }
+                    //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
                     /*std::cout << LinkImgTmp.rfind("_Card.") << "->" << LinkImgTmp << "\n";*/
@@ -295,7 +303,15 @@ void search_for_img(GumboNode *node, int imgType)
             case 2:
                 if (LinkImgTmp.rfind("_Wish.png") != 18446744073709551615UL && LinkImgTmp.rfind("_Multi_") == 18446744073709551615UL)
                 {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    size_t pos_scale_dwn, pos_smart_width;
+                    pos_scale_dwn = LinkImgTmp.find("/scale-to-width-down/");
+                    pos_smart_width = LinkImgTmp.find("smart/width/");
+                    if (pos_scale_dwn != std::string::npos) {
+                        LinkImgTmp.erase(pos_scale_dwn);
+                    } else if (pos_smart_width != std::string::npos){
+                        LinkImgTmp.erase(pos_smart_width);
+                    }
+                    //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
                     /*std::cout << LinkImgTmp.rfind("_Wish.png") << "->" << LinkImgTmp << "\n";*/
@@ -304,7 +320,15 @@ void search_for_img(GumboNode *node, int imgType)
             case 3:
                 if (LinkImgTmp.rfind("_Shape") != 18446744073709551615UL)
                 {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    size_t pos_scale_dwn, pos_smart_width;
+                    pos_scale_dwn = LinkImgTmp.find("/scale-to-width-down/");
+                    pos_smart_width = LinkImgTmp.find("smart/width/");
+                    if (pos_scale_dwn != std::string::npos) {
+                        LinkImgTmp.erase(pos_scale_dwn);
+                    } else if (pos_smart_width != std::string::npos){
+                        LinkImgTmp.erase(pos_smart_width);
+                    }
+                    //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
                     /*std::cout << LinkImgTmp.rfind("_Shape") << "->" << LinkImgTmp << "\n";*/
@@ -313,7 +337,15 @@ void search_for_img(GumboNode *node, int imgType)
             case 4:
                 if (LinkImgTmp.rfind("_Introduction_Card.png") != 18446744073709551615UL)
                 {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    size_t pos_scale_dwn, pos_smart_width;
+                    pos_scale_dwn = LinkImgTmp.find("/scale-to-width-down/");
+                    pos_smart_width = LinkImgTmp.find("smart/width/");
+                    if (pos_scale_dwn != std::string::npos) {
+                        LinkImgTmp.erase(pos_scale_dwn);
+                    } else if (pos_smart_width != std::string::npos){
+                        LinkImgTmp.erase(pos_smart_width);
+                    }
+                    //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
                     /*std::cout << LinkImgTmp.rfind("_Introduction_Card.png") << "->" << LinkImgTmp << "\n";*/
@@ -322,7 +354,15 @@ void search_for_img(GumboNode *node, int imgType)
             case 5:
                 if (LinkImgTmp.rfind("Namecard_Background_") != 18446744073709551615UL)
                 {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    size_t pos_scale_dwn, pos_smart_width;
+                    pos_scale_dwn = LinkImgTmp.find("/scale-to-width-down/");
+                    pos_smart_width = LinkImgTmp.find("smart/width/");
+                    if (pos_scale_dwn != std::string::npos) {
+                        LinkImgTmp.erase(pos_scale_dwn);
+                    } else if (pos_smart_width != std::string::npos){
+                        LinkImgTmp.erase(pos_smart_width);
+                    }
+                    //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
                     /*std::cout << LinkImgTmp.rfind("Namecard_Background_") << "->" << LinkImgTmp << "\n";*/
@@ -332,7 +372,15 @@ void search_for_img(GumboNode *node, int imgType)
             case 7:
                 if (LinkImgTmp.rfind("_Character_Card.png/") != 18446744073709551615UL)
                 {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    size_t pos_scale_dwn, pos_smart_width;
+                    pos_scale_dwn = LinkImgTmp.find("/scale-to-width-down/");
+                    pos_smart_width = LinkImgTmp.find("smart/width/");
+                    if (pos_scale_dwn != std::string::npos) {
+                        LinkImgTmp.erase(pos_scale_dwn);
+                    } else if (pos_smart_width != std::string::npos){
+                        LinkImgTmp.erase(pos_smart_width);
+                    }
+                    //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
                     /*std::cout << LinkImgTmp.rfind("_Character_Card.png/") << "->" << LinkImgTmp << "\n"*/;
@@ -341,7 +389,15 @@ void search_for_img(GumboNode *node, int imgType)
             case 8:
                 if (LinkImgTmp.rfind("Namecard_Background_Travel_Notes") != 18446744073709551615UL)
                 {
-                    LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
+                    size_t pos_scale_dwn, pos_smart_width;
+                    pos_scale_dwn = LinkImgTmp.find("/scale-to-width-down/");
+                    pos_smart_width = LinkImgTmp.find("smart/width/");
+                    if (pos_scale_dwn != std::string::npos) {
+                        LinkImgTmp.erase(pos_scale_dwn);
+                    } else if (pos_smart_width != std::string::npos){
+                        LinkImgTmp.erase(pos_smart_width);
+                    }
+                    //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
                     /*std::cout << LinkImgTmp.rfind("Namecard_Background_Travel_Notes") << "->" << LinkImgTmp << "\n";*/
@@ -1394,7 +1450,7 @@ int main(int argc, char **argv)
                 //Splash Screen image link alrady been stored and ready to be downloaded
                 break;
             case 0:
-                std::cout << termcolor::bright_blue << termcolor::on_bright_white << "Bye !\n" << termcolor::reset;
+                std::cout << termcolor::bright_blue << termcolor::on_bright_white << "Bye !" << termcolor::reset;
                 std::cin.ignore();
                 std::cin.get();
                 close_all(verbose);
