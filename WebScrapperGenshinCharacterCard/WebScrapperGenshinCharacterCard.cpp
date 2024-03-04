@@ -96,7 +96,6 @@ std::ofstream writeDynamicsTGC("FileTGCDynamic.gsct");
 std::ofstream writeVer("Version.gsct");
 std::ofstream writeTGC("FileTGC.gsct");
 std::ofstream writeSticker("Sticker.gsct");
-std::ofstream writeVision("Vision.gsct");
 std::ofstream writeSplhScr("Vision.gsct");
 
 //Create read file streams
@@ -110,7 +109,6 @@ std::ifstream readVer("Version.gsct");
 std::ifstream readTGC("FileTGC.gsct");
 std::ifstream readDynamicsTGC("FileTGCDynamic.gsct");
 std::ifstream readSticker("Sticker.gsct");
-std::ifstream readVision("Vision.gsct");
 std::ifstream readSplhScr("Vision.gsct");
 
 #if defined(_WIN32)
@@ -240,7 +238,7 @@ std::string extract_html_page_version()
 
 std::string extract_html_page_vision()
 {
-    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Vision/Gallery" };
+    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Vision" };
     cpr::Response res = Get(url_category);
     return res.text;
 }
@@ -368,7 +366,7 @@ void search_for_img(GumboNode *node, int imgType)
                     /*std::cout << LinkImgTmp.rfind("Namecard_Background_") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
-            /*Case 6: already reserved for Version Images*/
+            /*Case 6: already reserved for Version wallpaper Images*/
             case 7:
                 if (LinkImgTmp.rfind("_Character_Card.png/") != 18446744073709551615UL)
                 {
@@ -682,33 +680,6 @@ void search_for_img_version(GumboNode *node)
     }
 }
 
-void search_for_img_vision(GumboNode* node)
-{
-    if (node->type != GUMBO_NODE_ELEMENT)
-    {
-        return;
-    }
-
-    if (node->v.element.tag == GUMBO_TAG_IMG)
-    {
-        GumboAttribute* href = gumbo_get_attribute(&node->v.element.attributes, "src");
-        if (href)
-        {
-            std::string LinkStr = href->value;
-            if (LinkStr.rfind("/Vision_") != 18446744073709551615UL)
-            {
-                writeVision << LinkStr << "\n";
-                //std::cout << LinkStr.rfind("/Vision_") << "->" << LinkStr << "\n";
-            }
-        }
-    }
-    GumboVector* child = &node->v.element.children;
-    for (unsigned int i = 0; i < child->length; i++)
-    {
-        search_for_img_vision(static_cast<GumboNode*>(child->data[i]));
-    }
-}
-
 void search_for_img_splashscr(GumboNode* node)
 {
     if (node->type != GUMBO_NODE_ELEMENT)
@@ -814,19 +785,6 @@ std::vector<std::string> extract_version_link()
     return img_links;
 }
 
-std::vector<std::string> extract_vision_link()
-{
-    std::string line;
-    std::vector<std::string> img_links;
-    while (std::getline(readVision, line))
-    {
-        //std::cout << "Read line " << line << std::endl;
-        img_links.push_back(line);
-    }
-    readVision.close();
-    return img_links;
-}
-
 std::vector<std::string> extract_character_intro_link()
 {
     std::string line;
@@ -909,11 +867,15 @@ int progress_bar(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t
     {
         int percentage = static_cast<float>(dlnow) / static_cast<float>(dltotal);
     }
+    std::cout << "\r";
+    std::cout << std::flush;
     return 0;
 }
 
 int download_progress_default_callback(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
 {
+    std::cout << "\r";
+    std::cout << std::flush;
     return CURL_PROGRESSFUNC_CONTINUE;
 }
 
@@ -931,7 +893,6 @@ void close_all(bool verbose)
     writeVer.close();
     writeTGC.close();
     writeSticker.close();
-    writeVision.close();
     writeSplhScr.close();
     readChara.close();
     readLink.close();
@@ -943,7 +904,6 @@ void close_all(bool verbose)
     readTGC.close();
     readDynamicsTGC.close();
     readSticker.close();
-    readVision.close();
     readSplhScr.close();
     //Delete all the temporary file
     #if defined(__ANDROID__)
@@ -1007,6 +967,7 @@ void downloads_images(std::string url, std::string file_name, CURL *curl)
         exit(-1);
     }
     std::cout << "\r";
+    std::cout << std::flush;
     indicators::show_console_cursor(true);
 }
 
@@ -1085,13 +1046,6 @@ void create_download_folder(int opt){
         break;
     case 11:
         #if defined(_WIN32)
-            dir = "Genshin Character Vision\\";
-        #else
-            dir = "Genshin Character Vision/";
-        #endif
-        break;
-    case 12:
-        #if defined(_WIN32)
                 dir = "Genshin Version Splash Screen\\";
         #else
                 dir = "Genshin Version Splash Screen/";
@@ -1147,8 +1101,6 @@ void create_download_folder(int opt){
 
 int main(int argc, char **argv)
 {
-    bool status = true;
-
     if (!checkInet())
     {
         std::cout << "Failed to connect to internet, this program need internet to working properly !"<< "\n";
@@ -1283,14 +1235,6 @@ int main(int argc, char **argv)
         writeSticker.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara_sticker);
 
-        // Get vision images from /wiki/Vision/Gallery
-        std::cout << termcolor::bright_blue << "Getting Vision list from wiki\n";
-        std::string page_content_vision = extract_html_page_vision();
-        GumboOutput* parsed_res_vision = gumbo_parse(page_content_vision.c_str());
-        search_for_img_vision(parsed_res_vision->root);
-        writeVision.close();
-        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_vision);
-
         // Get vision images from /wiki/Version/Gallery -> Splash Screen
         std::cout << termcolor::bright_cyan << "Getting Version Splash Screen list from wiki\n" << termcolor::reset;
         std::string page_content_splash_screen = extract_html_page_version();
@@ -1324,9 +1268,6 @@ int main(int argc, char **argv)
         temp_sticker = extract_sticker_link();
         sticker_vecs = sanitize_vecs(temp_sticker);
         // Get version link based by vision images
-        temp_vision = extract_vision_link();
-        vision_vecs = sanitize_vecs(temp_vision);
-        // Get version link based by vision images
         temp_splh_scr = extract_splash_screen_link();
         splh_scr_vecs = sanitize_vecs(temp_splh_scr);
 
@@ -1340,9 +1281,10 @@ int main(int argc, char **argv)
         }
 
         //Main process
+        char opts;
         do {
             if (opt == 99) {
-                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n11. Genshin Character Vision\n12. Genshin Version Splash Screen\n0. Cancel\n";
+                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version Wallpapers\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n11. Version Splash Screen\n0. Cancel\n";
                 std::cin >> opt;
             }
             switch (opt)
@@ -1443,10 +1385,6 @@ int main(int argc, char **argv)
                 break;
             case 11:
                 create_download_folder(opt);
-                //Vision image link alrady been stored and ready to be downloaded
-                break;
-            case 12:
-                create_download_folder(opt);
                 //Splash Screen image link alrady been stored and ready to be downloaded
                 break;
             case 0:
@@ -1477,7 +1415,7 @@ int main(int argc, char **argv)
             std::vector<std::string> link_vecs;
             std::string file_name;
             size_t pos;
-            if (opt == 6 || opt == 11 || opt == 12)
+            if (opt == 6 || opt == 11)
             {
                 switch (opt) {
                 case 6:
@@ -1498,23 +1436,6 @@ int main(int argc, char **argv)
                     }
                     break;
                 case 11:
-                    for (int i = 0; i < vision_vecs.size(); i++)
-                    {
-                        std::string links = vision_vecs[i];
-                        pos = links.find("/scale-to-width-down/");
-                        if (pos != std::string::npos) {
-                            links.erase(pos);
-                        }
-                        file_name = links;
-                        file_name.erase(0, 60);
-                        pos = file_name.find("/revision/latest");
-                        if (pos != std::string::npos) {
-                            file_name.erase(pos);
-                        }
-                        downloads_images(links, dir + file_name, curl);
-                    }
-                    break;
-                case 12:
                     for (int i = 0; i < splh_scr_vecs.size(); i++)
                     {
                         std::string links = splh_scr_vecs[i];
@@ -1557,25 +1478,11 @@ int main(int argc, char **argv)
                 std::cout << termcolor::bold << termcolor::bright_green <<"\nImages succesfully downloaded !\n" << termcolor::reset;
             }
             readLink.close();
-            if (status) {
-                char opts;
-                std::cout << termcolor::cyan << termcolor::bold << "Want to download other images ? (Yy/Nn)" << termcolor::reset <<std::endl;
-                std::cin >> opts;
-                switch (opts)
-                {
-                case 'Y': case 'y':
-                    status = true;
-                    opt = 99;
-                    break;
-                case 'N': case 'n':
-                    status = false;
-                    break;
-                default:
-                    status = false;
-                    break;
-                }
-            }
-        }while (status);
+            std::cout << termcolor::cyan << termcolor::bold << "Want to download other images ? (Yy/Nn)" << termcolor::reset <<std::endl;
+            std::cin >> opts;
+            opt = 99;
+        
+        }while (opts == 'Y' || opts == 'y');
         // Check if file is closed properly
         curl_easy_cleanup(curl);
         close_all(verbose);

@@ -53,11 +53,10 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_cons](samples/Constellation.png)
 ![sample_output_intro](samples/Introduction.png)
 ![sample_output_namecard](samples/Namecard.png)
-![sample_output_version](samples/Version.png)
+![sample_output_version](samples/Version_wallpapers.png)
 ![sample_output_splashscreen](samples/SplashScreen.png)
 ![sample_output_sticker](samples/Sticker.png)
 ![sample_output_TCG](samples/TCG.png)
-![sample_output_vision](samples/Vision.png)
 ![sample_ouput_TCG_dyn](samples/TCG_Dynamics.png)
 ![sample_TCG_dynamic_Klee](samples/sample_TCG_dynamic_Klee.gif)
 ![sample_TCG_dynamic_ZhongLi](samples/sample_TCG_dynamic_ZhongLi.gif)
@@ -98,8 +97,10 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Download all dynamics characters TCG card images HD and uncropped.[^img_download_tcg_dyn]
 - [x] Scarp all sticker images link for each characters.
 - [x] Download all sticker images HD and uncropped.[^img_download_sticker]
-- [ ] Scarp all vision images link.
-- [ ] Download all vision images HD and uncropped.[^img_download_vision]
+- [x] ~~Scarp all vision images link.~~
+- [x] ~~Download all vision images HD and uncropped.[^img_download_vision]~~
+- [x] Scrap all battle pass namecard images link for each version.
+- [x] Download all battle pass namecard images HD and uncropped.[^img_download_bp_namecard]
 - [x] Make program can took command line arguments.
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Adding feature for download certain characters.
@@ -179,5 +180,6 @@ Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Gensh
 [^img_download_tcg]: For TCG characters card images are downloaded into a folder named `Genshin TGC Character Card Image`.
 [^img_download_tcg_dyn]: For TCG dynamics characters card images are downloaded into a folder named `Genshin TGC Dynamics Character Card Image`.
 [^img_download_version]: For genshin version images are downloaded into a folder named `Genshin Version Images`.
+[^img_download_bp_namecard]: For battle pass namecard images are downloaded into a folder named `Genshin BP Namecard Image`.
 [^docker_footnote]: Assumed docker already installed into the device.
 [^android_footnote]: For installing could use `termux` ~~and `adb`~~.
