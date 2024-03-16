@@ -81,7 +81,7 @@
 
 int nb_bar, opt = 99;
 bool verbose = true;
-std::string app_version = "v0.1.0", root_url = "https://genshin-impact.fandom.com", dir;
+std::string app_version = "v0.9.3", root_url = "https://genshin-impact.fandom.com", dir;
 double last_progress, progress_bar_adv;
 
 //Create write file streams
