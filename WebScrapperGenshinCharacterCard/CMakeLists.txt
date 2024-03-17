@@ -1,12 +1,10 @@
 cmake_minimum_required(VERSION 3.23)
 set(CMAKE_VERBOSE_MAKEFILE ON)
-project(WebScrapperGenshinCharacterCard LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(VCPKG_CRT_LINKAGE static)
+set(VCPKG_CRT_LINKAGE dynamic)
 set(VCPKG_LIBRARY_LINKAGE static)
 set(CMAKE_CROSSCOMPILING "TRUE")
-
 OPTION(BUILD_32 "Build for 32 bit" OFF)
 
 if(VCPKG_TARGET_ANDROID)
@@ -22,12 +20,17 @@ if(VCPKG_TARGET_ANDROID)
 else()
     set(CMAKE_CXX_FLAGS "-lstdc++fs -std=c++20")
     if(BUILD_32)
-        set(CMAKE_SYSTEM_PROCESSOR "i386")
+        set(CMAKE_SYSTEM_PROCESSOR "i686")
         set(VCPKG_TARGET_ARCHITECTURE x86)
+        set(VCPKG_TARGET_TRIPLET "x86-linux" CACHE STRING "")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -m32")
     endif()
 endif()
+
+project(WebScrapperGenshinCharacterCard LANGUAGES CXX)
+
+
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../WebScrapperGenshinCharacterCard/)
 add_executable(WebScrapperGenshinCharacterCard WebScrapperGenshinCharacterCard.cpp)
