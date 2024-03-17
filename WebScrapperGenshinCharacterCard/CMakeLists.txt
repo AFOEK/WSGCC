@@ -30,8 +30,6 @@ endif()
 
 project(WebScrapperGenshinCharacterCard LANGUAGES CXX)
 
-
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../WebScrapperGenshinCharacterCard/)
 add_executable(WebScrapperGenshinCharacterCard WebScrapperGenshinCharacterCard.cpp)
 
