@@ -88,28 +88,22 @@ double last_progress, progress_bar_adv;
 std::ofstream writeChara("FileName.gsct");
 std::ofstream writeImgLink("FileImg.gsct");
 std::ofstream writeLink("ImgLink.gsct");
-std::ofstream writeConst("FileConst.gsct");
-std::ofstream writeIntro("FileIntro.gsct");
-std::ofstream writeNameCardChara("FileNamecardChara.gsct");
 std::ofstream writeNameCardBP("FileNamecardBP.gsct");
 std::ofstream writeDynamicsTGC("FileTGCDynamic.gsct");
 std::ofstream writeVer("Version.gsct");
 std::ofstream writeTGC("FileTGC.gsct");
-std::ofstream writeSticker("Sticker.gsct");
-std::ofstream writeSplhScr("Vision.gsct");
+std::ofstream writeMedia("Media.gsct");
+std::ofstream writeSplhScr("SplashScreen.gsct");
 
 //Create read file streams
 std::ifstream readChara("FileName.gsct");
 std::ifstream readLink("ImgLink.gsct");
-std::ifstream readConst("FileConst.gsct");
-std::ifstream readIntro("FileIntro.gsct");
-std::ifstream readNameCardChara("FileNamecardChara.gsct");
 std::ifstream readNameCardBP("FileNamecardBP.gsct");
 std::ifstream readVer("Version.gsct");
 std::ifstream readTGC("FileTGC.gsct");
 std::ifstream readDynamicsTGC("FileTGCDynamic.gsct");
-std::ifstream readSticker("Sticker.gsct");
-std::ifstream readSplhScr("Vision.gsct");
+std::ifstream readMedia("Media.gsct");
+std::ifstream readSplhScr("SplashScreen.gsct");
 
 #if defined(_WIN32)
 bool checkInet()
@@ -201,20 +195,6 @@ std::string extract_html_page_category_TGC()
     return res.text;
 }
 
-std::string extract_html_page_category_chara_intro()
-{
-    cpr::Url url_category = cpr::Url{root_url + "/wiki/Category:Character_Introduction_Cards"};
-    cpr::Response res = Get(url_category);
-    return res.text;
-}
-
-std::string extract_html_page_category_namecard()
-{
-    cpr::Url url_category = cpr::Url{root_url + "/wiki/Category:Character_Namecards"};
-    cpr::Response res = Get(url_category);
-    return res.text;
-}
-
 std::string extract_html_page_category_namecard_bp()
 {
     cpr::Url url_category = cpr::Url{ root_url + "/wiki/Category:Battle_Pass_Namecards" };
@@ -222,23 +202,9 @@ std::string extract_html_page_category_namecard_bp()
     return res.text;
 }
 
-std::string extract_html_page_category_const()
-{
-    cpr::Url url_category = cpr::Url{root_url + "/wiki/Category:Constellation_Overviews"};
-    cpr::Response res = Get(url_category);
-    return res.text;
-}
-
 std::string extract_html_page_version()
 {
     cpr::Url url_category = cpr::Url{root_url + "/wiki/Version/Gallery"};
-    cpr::Response res = Get(url_category);
-    return res.text;
-}
-
-std::string extract_html_page_vision()
-{
-    cpr::Url url_category = cpr::Url{ root_url + "/wiki/Vision" };
     cpr::Response res = Get(url_category);
     return res.text;
 }
@@ -329,7 +295,7 @@ void search_for_img(GumboNode *node, int imgType)
                     //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
-                    /*std::cout << LinkImgTmp.rfind("_Shape") << "->" << LinkImgTmp << "\n";*/
+                    //std::cout << LinkImgTmp.rfind("_Shape") << "->" << LinkImgTmp << "\n";
                 }
                 break;
             case 4:
@@ -418,8 +384,21 @@ void search_for_img(GumboNode *node, int imgType)
                     /*std::cout << LinkImgTmp.rfind("Icon_Emoji_Paimon%27s_Paintings") << "->" << LinkImgTmp << "\n";*/
                 }
                 break;
-            /*Case 11: already reserved for Vision Images*/
-            /*Case 12: already reserved for Splash Screen*/
+            /*Case 11: already reserved for Splash Screen*/
+            case 12:
+                if (LinkImgTmp.rfind("_Birthday_") != 18446744073709551615UL && LinkImgTmp.rfind("_Shorts.") == 18446744073709551615UL) {
+                    size_t find_scale = LinkImgTmp.find("scale-to-width-down");
+                    size_t find_cb = LinkImgTmp.find("?cb=");
+                    if (find_scale != std::string::npos) {
+                        LinkImgTmp.erase(find_scale);
+                    }
+                    else if (find_cb != std::string::npos) {
+                        LinkImgTmp.erase(find_cb);
+                    }
+                    writeLink << LinkImgTmp << "\n";
+                    std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
+                    //std::cout << LinkImgTmp.rfind("_Birthday_") << "->" << LinkImgTmp << "\n";
+                }
             }
         }
     }
@@ -501,7 +480,7 @@ void search_for_a_character(GumboNode* node)
             std::string LinkStr = href->value;
             if (ClassName.rfind("category-page__member-link") != 18446744073709551615UL && LinkStr.rfind("/Category:") == 18446744073709551615UL)
             {
-                writeSticker << LinkStr << "/Gallery" << "\n";
+                writeMedia << LinkStr << "/Gallery" << "\n";
                 //std::cout << ClassName.rfind("category-page__member-link") << "->" << LinkStr << "/Gallery" << "\n";
             }
         }
@@ -510,62 +489,6 @@ void search_for_a_character(GumboNode* node)
     for (unsigned int i = 0; i < child->length; i++)
     {
         search_for_a_character(static_cast<GumboNode*>(child->data[i]));
-    }
-}
-
-void search_for_a_const(GumboNode *node)
-{
-    if (node->type != GUMBO_NODE_ELEMENT)
-    {
-        return;
-    }
-
-    if (node->v.element.tag == GUMBO_TAG_A)
-    {
-        GumboAttribute *classes = gumbo_get_attribute(&node->v.element.attributes, "class");
-        GumboAttribute *href = gumbo_get_attribute(&node->v.element.attributes, "href");
-        if (classes && href)
-        {
-            std::string ClassName = classes->value;
-            std::string LinkStr = href->value;
-            if (ClassName.rfind("category-page__member-link") != 18446744073709551615UL)
-            {
-                writeConst << LinkStr << "\n";
-            }
-        }
-    }
-    GumboVector *child = &node->v.element.children;
-    for (unsigned int i = 0; i < child->length; i++)
-    {
-        search_for_a_const(static_cast<GumboNode *>(child->data[i]));
-    }
-}
-
-void search_for_a_namecard_chara(GumboNode *node)
-{
-    if (node->type != GUMBO_NODE_ELEMENT)
-    {
-        return;
-    }
-
-    if (node->v.element.tag == GUMBO_TAG_A)
-    {
-        GumboAttribute *classes = gumbo_get_attribute(&node->v.element.attributes, "class");
-        GumboAttribute *href = gumbo_get_attribute(&node->v.element.attributes, "href");
-        if (classes && href)
-        {
-            std::string ClassName = classes->value;
-            std::string LinkStr = href->value;
-            if (ClassName.rfind("category-page__member-link") != 18446744073709551615UL)
-            {
-                writeNameCardChara << LinkStr << "\n";
-            }
-        }
-    }
-    GumboVector *child = &node->v.element.children;
-    for (unsigned int i = 0; i < child->length; i++)
-    {
-        search_for_a_namecard_chara(static_cast<GumboNode *>(child->data[i]));
     }
 }
 
@@ -622,34 +545,6 @@ void search_for_a_TGC(GumboNode *node)
     for (unsigned int i = 0; i < child->length; i++)
     {
         search_for_a_TGC(static_cast<GumboNode *>(child->data[i]));
-    }
-}
-
-void search_for_a_intro(GumboNode *node)
-{
-    if (node->type != GUMBO_NODE_ELEMENT)
-    {
-        return;
-    }
-
-    if (node->v.element.tag == GUMBO_TAG_A)
-    {
-        GumboAttribute *classes = gumbo_get_attribute(&node->v.element.attributes, "class");
-        GumboAttribute *href = gumbo_get_attribute(&node->v.element.attributes, "href");
-        if (classes && href)
-        {
-            std::string ClassName = classes->value;
-            std::string LinkStr = href->value;
-            if (ClassName.rfind("category-page__member-link") != 18446744073709551615UL)
-            {
-                writeIntro << LinkStr << "\n";
-            }
-        }
-    }
-    GumboVector *child = &node->v.element.children;
-    for (unsigned int i = 0; i < child->length; i++)
-    {
-        search_for_a_intro(static_cast<GumboNode *>(child->data[i]));
     }
 }
 
@@ -733,19 +628,6 @@ std::vector<std::string> extract_character_chara_link()
     return img_links;
 }
 
-std::vector<std::string> extract_character_const_link()
-{
-    std::string line;
-    std::vector<std::string> img_links;
-    while (std::getline(readConst, line))
-    {
-        //std::cout << "Read line " << line << std::endl;
-        img_links.push_back(line);
-    }
-    readConst.close();
-    return img_links;
-}
-
 std::vector<std::string> extract_character_tgc_link()
 {
     std::string line;
@@ -785,43 +667,17 @@ std::vector<std::string> extract_version_link()
     return img_links;
 }
 
-std::vector<std::string> extract_character_intro_link()
+std::vector<std::string> extract_media_link()
 {
     std::string line;
     std::vector<std::string> img_links;
-    while (std::getline(readIntro, line))
-    {
-        //std::cout << "Read line" << line << std::endl;
-        img_links.push_back(line);
-    }
-    readIntro.close();
-    return img_links;
-}
-
-std::vector<std::string> extract_sticker_link()
-{
-    std::string line;
-    std::vector<std::string> img_links;
-    while (std::getline(readSticker, line))
+    while (std::getline(readMedia, line))
     {
         //std::cout << "Read line " << line << std::endl;
         img_links.push_back(line);
         
     }
-    readSticker.close();
-    return img_links;
-}
-
-std::vector<std::string> extract_character_namecard_chara_link()
-{
-    std::string line;
-    std::vector<std::string> img_links;
-    while (std::getline(readNameCardChara, line))
-    {
-        //std::cout << "Read line " << line << std::endl;
-        img_links.push_back(line);
-    }
-    readNameCardChara.close();
+    readMedia.close();
     return img_links;
 }
 
@@ -885,25 +741,19 @@ void close_all(bool verbose)
     writeChara.close();
     writeImgLink.close();
     writeLink.close();
-    writeConst.close();
-    writeIntro.close();
-    writeNameCardChara.close();
     writeNameCardBP.close();
     writeDynamicsTGC.close();
     writeVer.close();
     writeTGC.close();
-    writeSticker.close();
+    writeMedia.close();
     writeSplhScr.close();
     readChara.close();
     readLink.close();
-    readConst.close();
-    readIntro.close();
-    readNameCardChara.close();
     readNameCardBP.close();
     readVer.close();
     readTGC.close();
     readDynamicsTGC.close();
-    readSticker.close();
+    readMedia.close();
     readSplhScr.close();
     //Delete all the temporary file
     #if defined(__ANDROID__)
@@ -1051,6 +901,13 @@ void create_download_folder(int opt){
                 dir = "Genshin Version Splash Screen/";
         #endif
         break;
+    case 12:
+        #if defined(_WIN32)
+            dir = "Genshin Character Birthday Art\\";
+        #else
+            dir = "Genshin Character Birthday Art/";
+        #endif
+        break;
     default:
         #if defined(_WIN32)
             dir = "Character Genshin Card Image\\";
@@ -1169,8 +1026,7 @@ int main(int argc, char **argv)
         }
         // Init variables
         std::cout << termcolor::bright_magenta << "Getting character list from wiki\n";
-        std::vector<std::string> const_vecs, img_vecs, card_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_const, 
-        intro_vecs, temp_vecs, temp_intro, temp_card_chara, temp_ver, temp_tgc, temp_card, temp_card_bp, temp_sticker, sticker_vecs, temp_vision, vision_vecs, splh_scr_vecs, temp_splh_scr;
+        std::vector<std::string> splh_scr_vecs, temp_splh_scr, img_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_ver, temp_tgc, temp_card_bp, temp_media, media_vecs;
         
         // Get character list from /wiki/Category:Character_Cards
         std::string page_content_chara = extract_html_page_category();
@@ -1178,30 +1034,6 @@ int main(int argc, char **argv)
         search_for_a_name(parsed_res_chara->root);
         writeChara.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
-        
-        // Get character constellation list from /wiki/Category:Constellation_Overviews
-        std::cout << termcolor::bright_yellow << "Getting Character Constellation list from wiki\n";
-        std::string page_content_const = extract_html_page_category_const();
-        GumboOutput *parsed_res_const = gumbo_parse(page_content_const.c_str());
-        search_for_a_const(parsed_res_const->root);
-        writeConst.close();
-        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
-        
-        // Get character introduction banner list from /wiki/Category:Character_Introduction_Cards
-        std::cout << termcolor::bright_green << "Getting Character Introduction list from wiki\n";
-        std::string page_content_intro = extract_html_page_category_chara_intro();
-        GumboOutput *parsed_res_intro = gumbo_parse(page_content_intro.c_str());
-        search_for_a_intro(parsed_res_intro->root);
-        writeIntro.close();
-        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
-        
-        // Get character namecards list from /wiki/Category:Character_Namecards
-        std::cout << termcolor::bright_grey << "Getting Character Namecard list from wiki\n";
-        std::string page_content_namecard = extract_html_page_category_namecard();
-        GumboOutput *parsed_res_namecard = gumbo_parse(page_content_namecard.c_str());
-        search_for_a_namecard_chara(parsed_res_namecard->root);
-        writeNameCardChara.close();
-        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_namecard);
         
         // Get version images from /wiki/Version/Gallery
         std::cout << termcolor::blue << "Getting Version list from wiki\n";
@@ -1232,7 +1064,7 @@ int main(int argc, char **argv)
         std::string page_content_chara_sticker = extract_html_page_category_character();
         GumboOutput* parsed_res_chara_sticker = gumbo_parse(page_content_chara_sticker.c_str());
         search_for_a_character(parsed_res_chara_sticker->root);
-        writeSticker.close();
+        writeMedia.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara_sticker);
 
         // Get vision images from /wiki/Version/Gallery -> Splash Screen
@@ -1246,28 +1078,19 @@ int main(int argc, char **argv)
         // Get character link based by character category
         temp_chara = extract_character_chara_link();
         img_vecs = sanitize_vecs(temp_chara);
-        // Get constellation link based by constellation category
-        temp_const = extract_character_const_link();
-        const_vecs = sanitize_vecs(temp_const);
-        // Get introdcution link based by introduction category
-        temp_intro = extract_character_intro_link();
-        intro_vecs = sanitize_vecs(temp_intro);
-        // Get namecard link based by namecard category
-        temp_card = extract_character_namecard_chara_link();
-        card_vecs = sanitize_vecs(temp_card);
         // Get version link based by version images
         temp_ver = extract_version_link();
         ver_vecs = sanitize_vecs(temp_ver);
-        // Get namecard link based by namecard category
+        // Get namecard link based by tgc category
         temp_tgc = extract_character_tgc_link();
         tgc_vecs = sanitize_vecs(temp_tgc);
         // Get namecard link based by BP namecard category
         temp_card_bp = extract_battle_pass_namecard_link();
         card_bp_vecs = sanitize_vecs(temp_card_bp);
-        // Get sticker link based by Characters Gallery
-        temp_sticker = extract_sticker_link();
-        sticker_vecs = sanitize_vecs(temp_sticker);
-        // Get version link based by vision images
+        // Get chracter media link based by Characters Gallery
+        temp_media = extract_media_link();
+        media_vecs = sanitize_vecs(temp_media);
+        // Get version link based by splash screen images
         temp_splh_scr = extract_splash_screen_link();
         splh_scr_vecs = sanitize_vecs(temp_splh_scr);
 
@@ -1284,7 +1107,7 @@ int main(int argc, char **argv)
         char opts;
         do {
             if (opt == 99) {
-                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version Wallpapers\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n11. Version Splash Screen\n0. Cancel\n";
+                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version Wallpapers\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n11. Version Splash Screen\n12. Birthday cards\n0. Cancel\n";
                 std::cin >> opt;
             }
             switch (opt)
@@ -1301,9 +1124,9 @@ int main(int argc, char **argv)
                 break;
             case 2:
                 create_download_folder(opt);
-                for (std::size_t i = 0; i < sticker_vecs.size(); i++)
+                for (std::size_t i = 0; i < media_vecs.size(); i++)
                 {
-                    std::string page_chara_content = extract_html_page_character(sticker_vecs[i]);
+                    std::string page_chara_content = extract_html_page_character(media_vecs[i]);
                     GumboOutput* parsed_res_chara = gumbo_parse(page_chara_content.c_str());
                     search_for_img(parsed_res_chara->root, opt);
                     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_chara);
@@ -1311,9 +1134,9 @@ int main(int argc, char **argv)
                 break;
             case 3:
                 create_download_folder(opt);
-                for (std::size_t i = 0; i < const_vecs.size(); i++)
+                for (std::size_t i = 0; i < media_vecs.size(); i++)
                 {
-                    std::string page_const_content = extract_html_page_character(const_vecs[i]);
+                    std::string page_const_content = extract_html_page_character(media_vecs[i]);
                     GumboOutput* parsed_res_const = gumbo_parse(page_const_content.c_str());
                     search_for_img(parsed_res_const->root, opt);
                     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_const);
@@ -1321,9 +1144,9 @@ int main(int argc, char **argv)
                 break;
             case 4:
                 create_download_folder(opt);
-                for (std::size_t i = 0; i < intro_vecs.size(); i++)
+                for (std::size_t i = 0; i < media_vecs.size(); i++)
                 {
-                    std::string page_intro_content = extract_html_page_character(intro_vecs[i]);
+                    std::string page_intro_content = extract_html_page_character(media_vecs[i]);
                     GumboOutput* parsed_res_intro = gumbo_parse(page_intro_content.c_str());
                     search_for_img(parsed_res_intro->root, opt);
                     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_intro);
@@ -1331,9 +1154,9 @@ int main(int argc, char **argv)
                 break;
             case 5:
                 create_download_folder(opt);
-                for (std::size_t i = 0; i < card_vecs.size(); i++)
+                for (std::size_t i = 0; i < media_vecs.size(); i++)
                 {
-                    std::string page_card_content = extract_html_page_character(card_vecs[i]);
+                    std::string page_card_content = extract_html_page_character(media_vecs[i]);
                     GumboOutput* parsed_res_card = gumbo_parse(page_card_content.c_str());
                     search_for_img(parsed_res_card->root, opt);
                     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_card);
@@ -1375,9 +1198,9 @@ int main(int argc, char **argv)
                 break;
             case 10:
                 create_download_folder(opt);
-                for (std::size_t i = 0; i < sticker_vecs.size(); i++)
+                for (std::size_t i = 0; i < media_vecs.size(); i++)
                 {
-                    std::string page_card_content = extract_html_page_character(sticker_vecs[i]);
+                    std::string page_card_content = extract_html_page_character(media_vecs[i]);
                     GumboOutput* parsed_res_sticker = gumbo_parse(page_card_content.c_str());
                     search_for_img(parsed_res_sticker->root, opt);
                     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_sticker);
@@ -1385,7 +1208,17 @@ int main(int argc, char **argv)
                 break;
             case 11:
                 create_download_folder(opt);
-                //Splash Screen image link alrady been stored and ready to be downloaded
+                //Splash Screen image link already been stored and ready to be downloaded
+                break;
+            case 12:
+                create_download_folder(opt);
+                for (std::size_t i = 0; i < media_vecs.size(); i++)
+                {
+                    std::string page_card_content = extract_html_page_character(media_vecs[i]);
+                    GumboOutput* parsed_res_hbd = gumbo_parse(page_card_content.c_str());
+                    search_for_img(parsed_res_hbd->root, opt);
+                    gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_hbd);
+                }
                 break;
             case 0:
                 std::cout << termcolor::bright_blue << termcolor::on_bright_white << "Bye !" << termcolor::reset;
