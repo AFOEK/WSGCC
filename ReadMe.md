@@ -117,6 +117,7 @@ vcpkg install gumbo cpr curl indicators argparse termcolor --triplet x64-{YOUR_O
 > **Note**
 > You can list all supported and available triplet by using `vcpkg help triplet` command.   
 After all dependencies are installed there are separates method for compiling and building this project.
+
 1. Linux build   
 After installing all dependencies, make a folder on the root of this project by using `mkdir` command: `mkdir build && cd WebScrapperGenshinCharacterCard`. After that run command below:
    ```
