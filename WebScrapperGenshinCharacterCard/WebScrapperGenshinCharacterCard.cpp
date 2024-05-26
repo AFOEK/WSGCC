@@ -424,6 +424,7 @@ void search_for_video(GumboNode *node){
             {
                 LinkVidTmp.erase(LinkVidTmp.end() - 18, LinkVidTmp.end());
                 writeLink << LinkVidTmp << "\n";
+                std::cout << termcolor::cyan << LinkVidTmp << "\n" << termcolor::reset;
                 /*std::cout << LinkVidTmp.rfind("_Dynamic_Skin.gif/") << "->" << LinkVidTmp << "\n";*/
             }
         }

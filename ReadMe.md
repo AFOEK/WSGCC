@@ -58,6 +58,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_sticker](samples/Sticker.png)
 ![sample_output_TCG](samples/TCG.png)
 ![sample_ouput_TCG_dyn](samples/TCG_Dynamics.png)
+![sample_output_birthday_art](samples/Birthday.png)
 ![sample_TCG_dynamic_Klee](samples/sample_TCG_dynamic_Klee.gif)
 ![sample_TCG_dynamic_ZhongLi](samples/sample_TCG_dynamic_ZhongLi.gif)
 ![sample_TCG_dynamic_NingGuang](samples/sample_TCG_dynamic_NingGuang.gif)
@@ -98,9 +99,11 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 - [x] Scarp all sticker images link for each characters.
 - [x] Download all sticker images HD and uncropped.[^img_download_sticker]
 - [x] ~~Scarp all vision images link.~~
-- [x] ~~Download all vision images HD and uncropped.[^img_download_vision]~~
+- [x] ~~Download all vision images HD and uncropped.~~[^img_download_vision]
 - [x] Scrap all battle pass namecard images link for each version.
 - [x] Download all battle pass namecard images HD and uncropped.[^img_download_bp_namecard]
+- [x] Scrap all birthday art images link for each version.
+- [x] Download all birthday art images HD and uncropped.[^img_download_birthday_art]
 - [x] Make program can took command line arguments.
 - [ ] Compile for macOS (x64 and arm64).
 - [ ] Adding feature for download certain characters.
@@ -115,7 +118,7 @@ vcpkg install gumbo cpr curl indicators argparse termcolor --triplet x64-{YOUR_O
 > You can list all supported and available triplet by using `vcpkg help triplet` command.   
 After all dependencies are installed there are separates method for compiling and building this project.
 1. Linux build   
-After installing all dependencies, make a folder on root of this project by using `mkdir` command: `mkdir build && cd WebScrapperGenshinCharacterCard`. After that run command below:
+After installing all dependencies, make a folder on the root of this project by using `mkdir` command: `mkdir build && cd WebScrapperGenshinCharacterCard`. After that run command below:
    ```
    cmake -B ../build -S . -DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
    ```
@@ -180,6 +183,8 @@ Data sources: [genshin wiki fandom](https://genshin-impact.fandom.com/wiki/Gensh
 [^img_download_tcg]: For TCG characters card images are downloaded into a folder named `Genshin TGC Character Card Image`.
 [^img_download_tcg_dyn]: For TCG dynamics characters card images are downloaded into a folder named `Genshin TGC Dynamics Character Card Image`.
 [^img_download_version]: For genshin version images are downloaded into a folder named `Genshin Version Images`.
+[^img_download_vision]: ~~For genshin vision images are downloaded into a folder named `Genshin Vision Images`~~. Due genshin wiki removed images of vision in theirs wiki, it cannot be downloaded anymore.
 [^img_download_bp_namecard]: For battle pass namecard images are downloaded into a folder named `Genshin BP Namecard Image`.
+[^img_download_birthday_art]: For birthday art are downloaded into a folder named `Genshin Charater Birthday Art`.
 [^docker_footnote]: Assumed docker already installed into the device.
-[^android_footnote]: For installing could use `termux` ~~and `adb`~~.
+[^android_footnote]: For installing could use `termux` ~~and `adb`~~. For now binary still broken and cannot be build after NDK update.
