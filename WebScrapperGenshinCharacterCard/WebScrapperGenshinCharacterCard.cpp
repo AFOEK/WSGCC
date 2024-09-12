@@ -74,8 +74,10 @@
 // https://genshin-impact.fandom.com/wiki/Albedo
 // This is a version wiki page link:
 // https://genshin-impact.fandom.com/wiki/Version/Gallery
-// This is a vision wiki page link
+// This is a vision wiki page link:
 // https://genshin-impact.fandom.com/wiki/Vision/Gallery
+// This is a Hoyolab Avatar frame
+// https://genshin-impact.fandom.com/wiki/HoYoLAB/Gallery
 // Tutorial link:
 // https://www.webscrapingapi.com/c-web-scraping/
 
@@ -94,6 +96,7 @@ std::ofstream writeVer("Version.gsct");
 std::ofstream writeTGC("FileTGC.gsct");
 std::ofstream writeMedia("Media.gsct");
 std::ofstream writeSplhScr("SplashScreen.gsct");
+std::ofstream writeAvatarFrm("AvatarFrame.gsct");
 
 //Create read file streams
 std::ifstream readChara("FileName.gsct");
@@ -104,6 +107,7 @@ std::ifstream readTGC("FileTGC.gsct");
 std::ifstream readDynamicsTGC("FileTGCDynamic.gsct");
 std::ifstream readMedia("Media.gsct");
 std::ifstream readSplhScr("SplashScreen.gsct");
+std::ifstream readAvatarFrm("AvatarFrame.gsct");
 
 #if defined(_WIN32)
 bool checkInet()
@@ -177,6 +181,13 @@ size_t write_data(void *ptr, size_t size, size_t buff, FILE *stream)
 std::string extract_html_page_category_character()
 {
     cpr::Url url_category = cpr::Url{ root_url + "/wiki/Category:Playable_Characters" };
+    cpr::Response res = Get(url_category);
+    return res.text;
+}
+
+std::string extract_html_page_hoyolab_frames()
+{
+    cpr::Url url_category = cpr::Url{ root_url + "/wiki/HoYoLAB/Gallery" };
     cpr::Response res = Get(url_category);
     return res.text;
 }
@@ -399,6 +410,7 @@ void search_for_img(GumboNode *node, int imgType)
                     std::cout << termcolor::cyan << LinkImgTmp << "\n" << termcolor::reset;
                     //std::cout << LinkImgTmp.rfind("_Birthday_") << "->" << LinkImgTmp << "\n";
                 }
+            /*Case 13: already reserved for HoYoLab Character Avatar Frame*/
             }
         }
     }
@@ -576,6 +588,33 @@ void search_for_img_version(GumboNode *node)
     }
 }
 
+void search_for_img_char_frame(GumboNode *node)
+{
+    if (node->type != GUMBO_NODE_ELEMENT)
+    {
+        return;
+    }
+
+    if (node->v.element.tag == GUMBO_TAG_IMG)
+    {
+        GumboAttribute *href = gumbo_get_attribute(&node->v.element.attributes, "src");
+        if (href)
+        {
+            std::string LinkStr = href->value;
+            if (LinkStr.rfind("_Avatar_Frame_"))
+            {
+                //writeAvatarFrm << LinkStr << "\n";
+                std::cout << LinkStr.rfind("_Avatar_Frame_") << "->" << LinkStr << "\n";
+            }
+        }
+    }
+    GumboVector *child = &node->v.element.children;
+    for (unsigned int i = 0; i < child->length; i++)
+    {
+        search_for_img_char_frame(static_cast<GumboNode *>(child->data[i]));
+    }
+}
+
 void search_for_img_splashscr(GumboNode* node)
 {
     if (node->type != GUMBO_NODE_ELEMENT)
@@ -705,6 +744,19 @@ std::vector<std::string> extract_splash_screen_link()
         img_links.push_back(line);
     }
     readSplhScr.close();
+    return img_links;
+}
+
+std::vector<std::string> extract_avatar_frm_link()
+{
+    std::string line;
+    std::vector<std::string> img_links;
+    while (std::getline(readAvatarFrm, line))
+    {
+        //std::cout << "Read line " << line << std::endl;
+        img_links.push_back(line);
+    }
+    readAvatarFrm.close();
     return img_links;
 }
 
@@ -909,6 +961,13 @@ void create_download_folder(int opt){
             dir = "Genshin Character Birthday Art/";
         #endif
         break;
+    case 13:
+        #if defined(_WIN32)
+            dir = "HoYoLab Character Avatar Frame\\";
+        #else
+            dir = "HoYoLab Character Avatar Frame/";
+        #endif
+        break;
     default:
         #if defined(_WIN32)
             dir = "Character Genshin Card Image\\";
@@ -1027,7 +1086,7 @@ int main(int argc, char **argv)
         }
         // Init variables
         std::cout << termcolor::bright_magenta << "Getting character list from wiki\n";
-        std::vector<std::string> splh_scr_vecs, temp_splh_scr, img_vecs, ver_vecs, tgc_vecs, card_bp_vecs, temp_chara, temp_ver, temp_tgc, temp_card_bp, temp_media, media_vecs;
+        std::vector<std::string> splh_scr_vecs, temp_splh_scr, img_vecs, ver_vecs, tgc_vecs, card_bp_vecs, media_vecs, avatar_frm_vecs, temp_avatar_frm, temp_chara, temp_ver, temp_tgc, temp_card_bp, temp_media;
         
         // Get character list from /wiki/Category:Character_Cards
         std::string page_content_chara = extract_html_page_category();
@@ -1076,6 +1135,14 @@ int main(int argc, char **argv)
         writeSplhScr.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_splash_screen);
 
+        // Get version images from /wiki/HoYoLAB/Gallery
+        std::cout << termcolor::bright_blue << "Getting Character Avatar Frame list from wiki\n"<< termcolor::reset;
+        std::string page_content_char_frame = extract_html_page_hoyolab_frames();
+        GumboOutput *parsed_res_char_frame = gumbo_parse(page_content_version.c_str());
+        search_for_img_char_frame(parsed_res_char_frame->root);
+        writeAvatarFrm.close();
+        gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_char_frame);
+
         // Get character link based by character category
         temp_chara = extract_character_chara_link();
         img_vecs = sanitize_vecs(temp_chara);
@@ -1094,6 +1161,9 @@ int main(int argc, char **argv)
         // Get version link based by splash screen images
         temp_splh_scr = extract_splash_screen_link();
         splh_scr_vecs = sanitize_vecs(temp_splh_scr);
+        // Get Avatar Frame link based by Avatar Frame images
+        temp_avatar_frm = extract_avatar_frm_link();
+        avatar_frm_vecs = sanitize_vecs(temp_avatar_frm);
 
         //Init cUrl
         std::cout << termcolor::reverse << termcolor::bold << "Init cUrl\n";
@@ -1220,6 +1290,9 @@ int main(int argc, char **argv)
                     search_for_img(parsed_res_hbd->root, opt);
                     gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_hbd);
                 }
+                break;
+            case 13:
+                create_download_folder(opt);
                 break;
             case 0:
                 std::cout << termcolor::bright_blue << termcolor::on_bright_white << "Bye !" << termcolor::reset;
