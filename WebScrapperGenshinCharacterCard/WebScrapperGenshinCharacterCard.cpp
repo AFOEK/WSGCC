@@ -601,10 +601,10 @@ void search_for_img_char_frame(GumboNode *node)
         if (href)
         {
             std::string LinkStr = href->value;
-            if (LinkStr.rfind("_Avatar_Frame_"))
+            if (LinkStr.rfind("_Avatar_Frame_") != 18446744073709551615UL)
             {
-                //writeAvatarFrm << LinkStr << "\n";
-                std::cout << LinkStr.rfind("_Avatar_Frame_") << "->" << LinkStr << "\n";
+                writeAvatarFrm << LinkStr << "\n";
+                //std::cout << LinkStr.rfind("_Avatar_Frame_") << "->" << LinkStr << "\n";
             }
         }
     }
@@ -1138,7 +1138,7 @@ int main(int argc, char **argv)
         // Get version images from /wiki/HoYoLAB/Gallery
         std::cout << termcolor::bright_blue << "Getting Character Avatar Frame list from wiki\n"<< termcolor::reset;
         std::string page_content_char_frame = extract_html_page_hoyolab_frames();
-        GumboOutput *parsed_res_char_frame = gumbo_parse(page_content_version.c_str());
+        GumboOutput *parsed_res_char_frame = gumbo_parse(page_content_char_frame.c_str());
         search_for_img_char_frame(parsed_res_char_frame->root);
         writeAvatarFrm.close();
         gumbo_destroy_output(&kGumboDefaultOptions, parsed_res_char_frame);
@@ -1178,7 +1178,7 @@ int main(int argc, char **argv)
         char opts;
         do {
             if (opt == 99) {
-                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version Wallpapers\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n11. Version Splash Screen\n12. Birthday cards\n0. Cancel\n";
+                std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version Wallpapers\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n11. Version Splash Screen\n12. Birthday cards\n13. HoYoLab Character Frame\n0. Cancel\n";
                 std::cin >> opt;
             }
             switch (opt)
@@ -1322,7 +1322,7 @@ int main(int argc, char **argv)
             std::vector<std::string> link_vecs;
             std::string file_name;
             size_t pos;
-            if (opt == 6 || opt == 11)
+            if (opt == 6 || opt == 11 || opt == 13)
             {
                 switch (opt) {
                 case 6:
@@ -1346,6 +1346,23 @@ int main(int argc, char **argv)
                     for (int i = 0; i < splh_scr_vecs.size(); i++)
                     {
                         std::string links = splh_scr_vecs[i];
+                        pos = links.find("/scale-to-width-down/");
+                        if (pos != std::string::npos) {
+                            links.erase(pos);
+                        }
+                        file_name = links;
+                        file_name.erase(0, 60);
+                        pos = file_name.find("/revision/latest");
+                        if (pos != std::string::npos) {
+                            file_name.erase(pos);
+                        }
+                        downloads_images(links, dir + file_name, curl);
+                    }
+                    break;
+                case 13:
+                    for (int i = 0; i < avatar_frm_vecs.size(); i++)
+                    {
+                        std::string links = avatar_frm_vecs[i];
                         pos = links.find("/scale-to-width-down/");
                         if (pos != std::string::npos) {
                             links.erase(pos);

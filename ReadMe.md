@@ -59,6 +59,7 @@ Genshin Wiki Fandom (https://genshin-impact.fandom.com/wiki/Genshin_Impact_Wiki)
 ![sample_output_TCG](samples/TCG.png)
 ![sample_ouput_TCG_dyn](samples/TCG_Dynamics.png)
 ![sample_output_birthday_art](samples/Birthday.png)
+![sample_output_HoYoLab_avatar_frame](samples/Avatar_Frame.png)
 ![sample_TCG_dynamic_Klee](samples/sample_TCG_dynamic_Klee.gif)
 ![sample_TCG_dynamic_ZhongLi](samples/sample_TCG_dynamic_ZhongLi.gif)
 ![sample_TCG_dynamic_NingGuang](samples/sample_TCG_dynamic_NingGuang.gif)
@@ -114,19 +115,30 @@ For who like to build this apps, you needed to download `vcpkg` to get neccesary
 ```
 vcpkg install gumbo cpr curl indicators argparse termcolor --triplet x64-{YOUR_OS}-static
 ```   
-> **Note**
-> You can list all supported and available triplet by using `vcpkg help triplet` command.   
-After all dependencies are installed there are separates method for compiling and building this project.
+or   
+```
+vcpkg install gumbo cpr curl indicators argparse termcolor --triplet x86-{YOUR_OS}
+```   
+
+> **Important**
+> For x86, please recheck if your compiler do support cross compiling.
+> For vcpkg, installation command may be different in this guide please recheck with `./vcpkg help triplet`.
 
 1. Linux build   
 After installing all dependencies, make a folder on the root of this project by using `mkdir` command: `mkdir build && cd WebScrapperGenshinCharacterCard`. After that run command below:
    ```
    cmake -B ../build -S . -DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
    ```
+   or (for 32-bit version, please be cautious when building x86)   
+   ```
+   cmake -B ../build -DBUILD_32=1 -S . -DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
+   ```
     after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cmake --build ../build`. After all progress has been completed you can find the executable in your working directory, for using the program you just simply run `./wsgcc_{YOUR_OS}_{OS_ARCH}`  
      e.g.: if build on architecture `x86_64` and for Linux it will generate `./wsgcc_linux_x64`.
+
 2. Windows Build   
-After installing all dependencies you need to run this command `vcpkg integrate install` in order Visual Studio can detect all dependencies. It's more recommended to compile using Visual Studio 2022. You can build using `x64` architecture, unless you already had downloaded `x86` dependencies using `vcpkg`. The executable is located on `D:\...\...\WebScrapperGenshinCharacterCard\wsgcc_win_x64.exe`, assuming your working directory in `D:\`.   
+After installing all dependencies you need to run this command `vcpkg integrate install` in order Visual Studio can detect all dependencies. It's more recommended to compile using Visual Studio 2022. You can build using `x64` architecture, unless you already had downloaded `x86` dependencies using `vcpkg`. The executable is located on `D:\...\...\WebScrapperGenshinCharacterCard\wsgcc_win_x64.exe`, assuming your working directory in `D:\`. 
+
 3. Docker Build[^docker_footnote]   
 There are 2 methods for using Docker build:
    - Using dockerfile   
@@ -144,7 +156,8 @@ There are 2 methods for using Docker build:
       ```
       docker run -it --rm -w /root/WSGCC/WebScrapperGenshinCharacterCard --name=wsgcc totmalone/wsgcc:latest ash
       ```
-      If docker image successfully run, just simply run `./wsgcc_{YOUR_OS}_{OS_ARCH}` if build on architecture `x86_64` and for Linux it will generate `./wsgcc_linux_x64`. To get desire image folder to your own device just run just run, `mkdir genshin_images && docker cp wsgcc:/<folder_name> genshin_images/`.   
+      If docker image successfully run, just simply run `./wsgcc_{YOUR_OS}_{OS_ARCH}` if build on architecture `x86_64` and for Linux it will generate `./wsgcc_linux_x64`. To get desire image folder to your own device just run just run, `mkdir genshin_images && docker cp wsgcc:/<folder_name> genshin_images/`.  
+ 
 4. Android Build[^android_footnote]   
 For building for android you need, installed `vcpkg` dependencies which must be suited with your android device architecture, after all dependecies had been installed, you need to download `android ndk` which you can get in [ndk_downloads](https://developer.android.com/ndk/downloads) or you can use `curl -O https://dl.google.com/android/repository/android-ndk-{NDK_VERSION}-{YOUR OPERATING_SYSTEM}.zip`. After all dependecies had been downloaded you need to `export` all path for easier compiling and linking, for example:
     ```
