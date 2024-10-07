@@ -7,8 +7,13 @@ set(VCPKG_LIBRARY_LINKAGE static)
 
 project(WebScrapperGenshinCharacterCard LANGUAGES CXX)
 
+message(STATUS "TARGET_ARCH = ${TARGET_ARCH}")
+message(STATUS "VCPKG_TARGET = ${VCPKG_TARGET_TRIPLET}")
+
+set(OUTPUT_NAME "wsgcc_${TARGET_ARCH}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../WebScrapperGenshinCharacterCard/)
-add_executable(WebScrapperGenshinCharacterCard WebScrapperGenshinCharacterCard.cpp)
+
+add_executable(${OUTPUT_NAME} WebScrapperGenshinCharacterCard.cpp)
 
 find_package(cpr REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC cpr::cpr)
