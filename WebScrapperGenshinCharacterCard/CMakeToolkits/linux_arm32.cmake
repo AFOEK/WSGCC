@@ -6,7 +6,7 @@ set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CAC
 set(VCPKG_TARGET_TRIPLET "arm-linux" CACHE STRING "vcpkg target triplet")
 set(CMAKE_SYSTEM_PROCESSOR "arm" CACHE STRING "Target Binary")
 set(CMAKE_SYSTEM_NAME Linux)
-set(TARGET_ARCH "arm32" CACHE STRING "Target Architecture")
+set(TARGET_ARCH "linux_arm32" CACHE STRING "Target Architecture")
 set(CMAKE_C_COMPILER /usr/bin/arm-linux-gnueabihf-gcc)
 set(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabihf-g++)
 set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
