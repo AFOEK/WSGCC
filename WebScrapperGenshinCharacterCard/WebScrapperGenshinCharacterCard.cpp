@@ -347,13 +347,17 @@ void search_for_img(GumboNode *node, int imgType)
             case 7:
                 if (LinkImgTmp.rfind("_Character_Card.png/") != 18446744073709551615UL)
                 {
-                    size_t pos_scale_dwn, pos_smart_width;
+                    size_t pos_scale_dwn, pos_smart_width, pos_cb;
                     pos_scale_dwn = LinkImgTmp.find("/scale-to-width-down/");
                     pos_smart_width = LinkImgTmp.find("smart/width/");
+					pos_cb = LinkImgTmp.find("?cb=");
                     if (pos_scale_dwn != std::string::npos) {
                         LinkImgTmp.erase(pos_scale_dwn);
                     } else if (pos_smart_width != std::string::npos){
                         LinkImgTmp.erase(pos_smart_width);
+                    }
+                    else if (pos_cb != std::string::npos) {
+						LinkImgTmp.erase(pos_cb);
                     }
                     //LinkImgTmp.erase(LinkImgTmp.end() - 41, LinkImgTmp.end());
                     writeLink << LinkImgTmp << "\n";
@@ -574,7 +578,7 @@ void search_for_img_version(GumboNode *node)
         if (href)
         {
             std::string LinkStr = href->value;
-            if (LinkStr.rfind("/Version_") != 18446744073709551615UL && LinkStr.rfind("Overview") == 18446744073709551615UL && LinkStr.rfind("Newsletter") == 18446744073709551615UL && LinkStr.rfind("Trailer") == 18446744073709551615UL)
+            if (LinkStr.rfind("_Wallpaper_") != 18446744073709551615UL && LinkStr.rfind("Overview") == 18446744073709551615UL && LinkStr.rfind("Newsletter") == 18446744073709551615UL && LinkStr.rfind("Trailer") == 18446744073709551615UL)
             {
                 writeVer << LinkStr << "\n";
                 //std::cout << LinkStr.rfind("/Version_") << "->" << LinkStr << "\n";
@@ -776,8 +780,8 @@ int progress_bar(void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t
     {
         int percentage = static_cast<float>(dlnow) / static_cast<float>(dltotal);
     }
-    std::cout << "\r";
-    std::cout << std::flush;
+    std::cerr << "\r";
+    std::cerr << std::flush;
     return 0;
 }
 
@@ -834,17 +838,24 @@ void close_all(bool verbose)
 
 void downloads_images(std::string url, std::string file_name, CURL *curl)
 {
-    indicators::show_console_cursor(false);
-    indicators::ProgressBar prog_bar{
+    static bool cursor_init = false;
+    if (!cursor_init) {
+        indicators::show_console_cursor(false);
+        cursor_init = true;
+    }
+    static indicators::ProgressBar prog_bar{
         indicators::option::BarWidth{65},
         indicators::option::Start{" ["},
         indicators::option::Fill{"█"},
         indicators::option::Lead{"█"},
         indicators::option::Remainder{"-"},
         indicators::option::End{"]"},
-        indicators::option::PrefixText{file_name},
         indicators::option::ShowElapsedTime{true},
-        indicators::option::ShowRemainingTime{true}};
+        indicators::option::ShowRemainingTime{true},
+        indicators::option::Stream{std::cerr}};
+
+    prog_bar.set_option(indicators::option::PrefixText{ file_name });
+    prog_bar.set_progress(0);
     FILE *f;
     CURLcode res;
     curl = curl_easy_init();
@@ -861,6 +872,17 @@ void downloads_images(std::string url, std::string file_name, CURL *curl)
         if (res != CURLE_OK) {
             std::cerr << termcolor::bold << termcolor::bright_red << "cUrl Error: " << curl_easy_strerror(res) << std::endl << termcolor::reset;
         }
+        else {
+            long http_res = 0;
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_res);
+            if (http_res != 200) {
+                std::cerr << termcolor::bold << termcolor::bright_red << "HTTP Error: " << http_res << std::endl << termcolor::reset;
+            }
+            else {
+                std::cout << termcolor::bright_green << "Downloaded: " << file_name << termcolor::reset << std::endl;
+            }
+        }
+        prog_bar.mark_as_completed();
         fclose(f);
     }
     else
@@ -869,9 +891,6 @@ void downloads_images(std::string url, std::string file_name, CURL *curl)
         close_all(verbose);
         exit(-1);
     }
-    std::cout << "\r";
-    std::cout << std::flush;
-    indicators::show_console_cursor(true);
 }
 
 void create_download_folder(int opt){
@@ -977,42 +996,46 @@ void create_download_folder(int opt){
         break;
     }
     #if defined(__ANDROID__)
-        if (std::__fs::filesystem::is_directory(dir))
+    if (!std::__fs::filesystem::exists(dir)) {
+        std::__fs::filesystem::create_directory(dir);
+        std::cout << termcolor::bright_yellow << "Creating folder " << dir << "\n" << termcolor::reset;
+    }
+    else {
+        if (std::_fs::filesystem::is_directory(dir))
         {
+            std::cout << termcolor::bright_yellow << "Folder already exist\n" << termcolor::reset;
             if (!std::__fs::filesystem::is_empty(dir))
             {
-                for (const auto &files : std::__fs::filesystem::directory_iterator(dir))
+                for (const auto& files : std::__fs::filesystem::directory_iterator(dir))
                 {
-                    std::cout << termcolor::yellow <<"Clearing existing file\n" << termcolor::reset;
+                    std::cout << termcolor::yellow << "Clearing existing file\n" << termcolor::reset;
                     std::__fs::filesystem::remove_all(files.path());
                 }
             }
         }
-        else
-        {
-            std::__fs::filesystem::create_directory(dir);
-            std::cout << "Creating folder\n";
-        }
+    }
     #else
+    if (!std::filesystem::exists(dir)) {
+        std::filesystem::create_directory(dir);
+        std::cout << termcolor::bright_yellow << "Creating folder " << dir << "\n" << termcolor::reset;
+            #if defined(__linux__) && defined(__unix__)
+        std::filesystem::permissions(dir, std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
+            #endif
+    }
+    else {
         if (std::filesystem::is_directory(dir))
-        {
+        {  
+            std::cout << termcolor::bright_yellow << "Folder already exist\n" << termcolor::reset;
             if (!std::filesystem::is_empty(dir))
             {
-                for (const auto &files : std::filesystem::directory_iterator(dir))
+                for (const auto& files : std::filesystem::directory_iterator(dir))
                 {
-                    std::cout << termcolor::yellow <<"Clearing existing file\n" << termcolor::reset;
+                    std::cout << termcolor::yellow << "Clearing existing file\n" << termcolor::reset;
                     std::filesystem::remove_all(files.path());
                 }
             }
         }
-        else
-        {
-            std::filesystem::create_directory(dir);
-            std::cout << termcolor::bright_yellow << "Creating folder\n" << termcolor::reset;
-            #if defined(__linux__) && defined(__unix__)
-                std::filesystem::permissions(dir, std::filesystem::perms::owner_all | std::filesystem::perms::group_read, std::filesystem::perm_options::add);
-            #endif
-        }
+    }
     #endif
 }
 
@@ -1165,18 +1188,18 @@ int main(int argc, char **argv)
         temp_avatar_frm = extract_avatar_frm_link();
         avatar_frm_vecs = sanitize_vecs(temp_avatar_frm);
 
-        //Init cUrl
-        std::cout << termcolor::reverse << termcolor::bold << "Init cUrl\n";
-        CURL* curl = curl_easy_init();
-        if (!curl) {
-            std::cerr << "Failed to initialized cUrl !\n";
-            close_all(verbose);
-            return -1;
-        }
-
         //Main process
         char opts;
         do {
+            //Init cUrl
+            std::cout << termcolor::reverse << termcolor::bold << "Init cUrl\n";
+            CURL* curl = curl_easy_init();
+            if (!curl) {
+                std::cerr << "Failed to initialized cUrl !\n";
+                close_all(verbose);
+                return -1;
+            }
+
             if (opt == 99) {
                 std::cout << termcolor::bold << termcolor::red << "Getting character link image." << termcolor::reset << "\nWhat image do you want ? \n1. Card\n2. Wish\n3. Constellation\n4. Introduction Banner\n5. Namecard\n6. Version Wallpapers\n7. Character TGC Card\n8. Battle Pass Namecard\n9. Dynamics Character TGC Card\n10. HoYoLab Paimon's Painting Sticker\n11. Version Splash Screen\n12. Birthday cards\n13. HoYoLab Character Frame\n0. Cancel\n";
                 std::cin >> opt;
@@ -1401,15 +1424,21 @@ int main(int argc, char **argv)
                 }
                 std::cout << termcolor::bold << termcolor::bright_green <<"\nImages succesfully downloaded !\n" << termcolor::reset;
             }
+            // Check if file is closed properly
             readLink.close();
+            curl_easy_cleanup(curl);
+            close_all(verbose);
+            curl = nullptr;
+			writeLink.open("ImgLink.gsct", std::ios::trunc);
+			writeLink.close();
+			link_vecs.clear();
+
             std::cout << termcolor::cyan << termcolor::bold << "Want to download other images ? (Yy/Nn)" << termcolor::reset <<std::endl;
             std::cin >> opts;
             opt = 99;
         
         }while (opts == 'Y' || opts == 'y');
-        // Check if file is closed properly
-        curl_easy_cleanup(curl);
-        close_all(verbose);
+        
         // Exit gracefully and return memory to OS
         return 0;
     }
