@@ -10,3 +10,11 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 set(VCPKG_TARGET_ANDROID ON)
 set(CMAKE_ANDROID_STL_TYPE "c++_static")
 set(CMAKE_CXX20_EXTENSION_COMPILE_OPTION "-std=c++20")
+
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "vcpkg toolchain file" FORCE)
+set(VCPKG_TARGET_TRIPLET "arm64-android" CACHE STRING "vcpkg target triplet")
+set(TARGET_ARCH "arm64-android" CACHE STRING "Target Architecture")
+set(CMAKE_SYSTEM_NAME Android)
+set(CMAKE_CXX_FLAGS "-std=c++20")
+
+set(CMAKE_PREFIX_PATH "$ENV{VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}")

@@ -127,11 +127,11 @@ vcpkg install gumbo cpr curl indicators argparse termcolor --triplet x86-{YOUR_O
 1. Linux build   
 After installing all dependencies, make a folder on the root of this project by using `mkdir` command: `mkdir build && cd WebScrapperGenshinCharacterCard`. After that run command below:
    ```
-   cmake -B ../build -S . -DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
+   cmake -B ../build -S . -DCMAKE_TOOLCHAIN_FILE=[THIS_PROJECT_PATH]/CMakeToolkits/linux_x64.cmake
    ```
    or (for 32-bit version, please be cautious when building x86)   
    ```
-   cmake -B ../build -DBUILD_32=1 -S . -DCMAKE_TOOLCHAIN_FILE=[YOUR_VCPKG_PATH]/scripts/buildsystems/vcpkg.cmake
+   cmake -B ../build -DBUILD_32=1 -S . -DCMAKE_TOOLCHAIN_FILE=[THIS_PROJECT_PATH]/CMakeToolkits/linux_x86.cmake
    ```
     after `cmake` successfully generate `makefile`, go to build folder using this command `cd ../build && make all` or you can use `cmake --build ../build`. After all progress has been completed you can find the executable in your working directory, for using the program you just simply run `./wsgcc_{YOUR_OS}_{OS_ARCH}`  
      e.g.: if build on architecture `x86_64` and for Linux it will generate `./wsgcc_linux_x64`.

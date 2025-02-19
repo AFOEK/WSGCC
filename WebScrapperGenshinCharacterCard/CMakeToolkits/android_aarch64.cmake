@@ -2,6 +2,15 @@ if(NOT DEFINED ENV{VCPKG_ROOT})
     message(FATAL_ERROR "VCPKG_ROOT environment variable is not set. Please set it to the vcpkg installation path.")
 endif()
 
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "vcpkg toolchain file" FORCE)
+set(VCPKG_TARGET_TRIPLET "arm64-android" CACHE STRING "vcpkg target triplet")
+set(TARGET_ARCH "arm64-android" CACHE STRING "Target Architecture")
+
+set(CMAKE_TOOLCHAIN_FILE "$ENV{ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake" CACHE STRING "Android NDK toolchain file" FORCE)
+set(CMAKE_ANDROID_ARCH_ABI "arm64-v8a")
+set(CMAKE_ANDROID_API 25)
+set(CMAKE_SYSTEM_NAME Android)
+
 set(CMAKE_THREAD_LIBS_INIT "-pthread")
 set(CMAKE_HAVE_THREADS_LIBRARY 1)
 set(CMAKE_USE_WIN32_THREADS_INIT 0)
@@ -10,3 +19,5 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 set(VCPKG_TARGET_ANDROID ON)
 set(CMAKE_ANDROID_STL_TYPE "c++_static")
 set(CMAKE_CXX20_EXTENSION_COMPILE_OPTION "-std=c++20")
+
+set(CMAKE_PREFIX_PATH "$ENV{VCPKG_ROOT}/installed/${VCPKG_TARGET_TRIPLET}" CACHE PATH "vcpkg installed path")
